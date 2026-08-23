@@ -7,7 +7,14 @@
 
 ## Stato
 
-**Milestone corrente: M0 — completata (scaffold + deploy).**
+**Milestone corrente: M0 — COMPLETATA.** Criterio di uscita verificato.
+
+- Live: **https://matemagica-teal.vercel.app** (production, `main`)
+- Repo: **https://github.com/worldwidejack/matemagica** (pubblico)
+- Clone locale: `~/Desktop/JACK/_GITHUB/matemagica`
+- Vercel: progetto `matemagica`, preset Vite, root `./`. Ogni push su `main`
+  ridispiega; ogni branch/PR ottiene il suo **preview deploy** — è il link da
+  aprire dal telefono prima del merge.
 
 Fatto: scaffold Vite+React+TS+Tailwind, struttura cartelle, contratti di tipo
 (`MiniGame`, `World`, `Progress`), contenuti statici dei 2 mondi + 1 lore,
