@@ -20,13 +20,20 @@ Fatto: scaffold Vite+React+TS+Tailwind, struttura cartelle, contratti di tipo
 (`MiniGame`, `World`, `Progress`), contenuti statici dei 2 mondi + 1 lore,
 pagina hello mobile-first, repo su GitHub.
 
-Prossimo: **M1 — GameShell + porting della cartuccia "regola dei segni"**.
+**M1 — COMPLETATA.** `GameShell` (timer, 3 vite, combo, punteggio, feedback,
+schermata risultato con stelle) + cartuccia `segni` nel formato `MiniGame`.
+Si gioca sull'URL pubblico, da telefono.
+
+Prossimo: **M2 — mappa, progressione, persistenza `localStorage`, primi SFX**.
+Da lì parte l'auto-test continuo (§1.5): se non ti scappa "ancora una partita",
+si itera sul juice prima di andare avanti.
 
 Aperto / da decidere:
 - Il nome "Matemagica" è **provvisorio** (il naming è un task di M4).
-- `starThresholds` in `src/content/worlds.ts` sono a `[0,0,0]`: vanno tarate
-  giocando, in M2 (mondo 1) e M3 (mondo 2).
-- Vercel: collegato / da collegare — vedi sotto.
+- Il record è tenuto in memoria React: si azzera al reload. La persistenza vera
+  (`localStorage`) è M2, per piano — non anticiparla di nascosto.
+- `starThresholds` del mondo 2 sono ancora `[0,0,0]`: da tarare in M3.
+- Nessun suono: gli SFX sono M2.
 
 ---
 
@@ -152,6 +159,12 @@ territorio reale e non delle intenzioni.
 
 - *(2026-08-23, M0)* Tailwind v4 con plugin `@tailwindcss/vite` invece della
   vecchia config PostCSS: è il setup corrente supportato, meno file di config.
+- *(2026-08-23, M1)* Soglie stelle del mondo 1 tarate su **4000 partite
+  simulate** invece che a occhio: `[1200, 4500, 12000]`. Con la curva attuale
+  una prima partita mediana fa ~1500 (1 stella), chi ci ha preso la mano ~5800
+  (2 stelle), 3 stelle richiedono una partita davvero buona. Da riverificare con
+  giocatori veri in M6: la simulazione modella il tempo di reazione, non la
+  fatica mentale.
 - *(2026-08-23, M0)* Aggiunto `noUncheckedIndexedAccess` oltre a `strict`: con
   settimane di pausa tra le sessioni, gli accessi ad array non controllati sono
   la classe di bug più probabile.

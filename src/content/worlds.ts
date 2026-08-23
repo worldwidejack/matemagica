@@ -11,7 +11,7 @@ export const WORLDS: World[] = [
     title: 'La Regola dei Segni',
     gameId: 'segni',
     unlockedBy: null,
-    starThresholds: [0, 0, 0], // TODO M2: tarare sui punteggi reali
+    starThresholds: [1200, 4500, 12000], // tarate su 4000 partite simulate (M1)
     loreAfter: 'algebra-algoritmo',
   },
   {
