@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* ── Palette "matemagica": notturna, oro + turchese ────────────────────────
+   Definita qui una volta sola. Ogni colore del gioco passa da un token.   */
+@theme {
+  --color-night-900: #070a1f;
+  --color-night-800: #0b0f2a;
+  --color-night-700: #141a3d;
+  --color-night-600: #1e2757;
+
+  --color-gold-400: #ffd76e;
+  --color-gold-500: #f5b731;
+  --color-gold-600: #d99413;
+
+  --color-teal-300: #7ef0e0;
+  --color-teal-400: #35d6c2;
+  --color-teal-500: #17b5a3;
+
+  --color-magenta-400: #ff7ac6;
+  --color-danger-400: #ff6b6b;
+
+  --font-display: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+
+  --ease-pop: cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+/* ── Reset mirato al caso d'uso: gioco arcade a schermo intero su telefono ── */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-night-900);
+  color: white;
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  /* niente selezione accidentale o menu long-press mentre si tocca a raffica */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* niente pull-to-refresh o bounce durante il gioco */
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+  touch-action: manipulation;
+}
+
+/* Rispetta chi ha disattivato le animazioni a livello di sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
