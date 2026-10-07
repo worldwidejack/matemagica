@@ -51,12 +51,55 @@ export type EsitoPartita = {
  * la difficoltà si adatta, quindi un principiante e un matematico possono
  * prendere 3 stelle entrambi. È la promessa "per tutti".
  */
-export function stelle(e: EsitoPartita): Stelle {
-  const completa = e.roundGiocati >= PARTITA.round && e.errori < PARTITA.vite;
+export function stelle(e: EsitoPartita, totale: number = PARTITA.round): Stelle {
+  const completa = e.roundGiocati >= totale && e.errori < PARTITA.vite;
   if (completa && e.errori <= 1) return 3;
   if (completa) return 2;
-  if (e.giuste >= PARTITA.round / 2) return 1;
+  if (e.giuste >= totale / 2) return 1;
   return 0;
+}
+
+// ── Rompicapo ────────────────────────────────────────────────────────────
+
+export const ROMPICAPO = {
+  roundPredefiniti: 5,
+  /** Ogni aiuto usato toglie un quarto dei punti del rompicapo. */
+  costoAiuto: 0.25,
+  /** Ogni tentativo sbagliato toglie il 15%, fino a un minimo del 40%. */
+  costoSbaglio: 0.15,
+  /** Risolto pulito (niente aiuti né sbagli): la difficoltà sale di molto. */
+  salitaPulita: 0.8,
+  salitaSporca: 0.3,
+  /** Saltato: la difficoltà scende. */
+  discesaSalto: 1.2,
+} as const;
+
+export function puntiRompicapo(difficolta: number, aiuti: number, sbagli: number): number {
+  const base = 100 + 20 * difficolta;
+  const fattore = Math.max(0.4, 1 - ROMPICAPO.costoAiuto * aiuti - ROMPICAPO.costoSbaglio * sbagli);
+  return Math.round(base * fattore);
+}
+
+export type EsitoRompicapo = {
+  punteggio: number;
+  risolti: number;
+  saltati: number;
+  aiutiTotali: number;
+  sbagliTotali: number;
+  totale: number;
+};
+
+/** ★ metà risolti · ★★ tutti risolti · ★★★ tutti, senza aiuti e con al massimo 1 sbaglio. */
+export function stelleRompicapo(e: EsitoRompicapo): Stelle {
+  if (e.risolti >= e.totale && e.aiutiTotali === 0 && e.sbagliTotali <= 1) return 3;
+  if (e.risolti >= e.totale) return 2;
+  if (e.risolti >= Math.ceil(e.totale / 2)) return 1;
+  return 0;
+}
+
+export function diffDopoRompicapo(d: number, risolto: boolean, pulito: boolean): number {
+  if (!risolto) return clampDiff(d - ROMPICAPO.discesaSalto);
+  return clampDiff(d + (pulito ? ROMPICAPO.salitaPulita : ROMPICAPO.salitaSporca));
 }
 
 /**
@@ -87,14 +130,39 @@ export function diffIniziale(bravura: number, p: ParametriAdattivi = ADATTIVO): 
   return clampDiff(bravura - p.riscaldamento);
 }
 
+/** Fascia di difficoltà di un livello del sentiero, decisa con papà. */
+export type Limiti = readonly [number, number];
+
+export function dentroLimiti(d: number, limiti?: Limiti): number {
+  if (!limiti) return d;
+  return Math.max(limiti[0], Math.min(limiti[1], d));
+}
+
+/**
+ * Bravura dopo una partita giocata dentro una fascia: se hai toccato il tetto
+ * della fascia (un livello facile per te), la partita non dice quanto sei
+ * bravo davvero, quindi la bravura non scende.
+ */
+export function bravuraConLimiti(prima: number, calcolata: number, diffGiuste: readonly number[], limiti?: Limiti): number {
+  if (!limiti) return calcolata;
+  const tetto = diffGiuste.some((d) => d >= limiti[1] - 0.01);
+  if (tetto || limiti[1] < prima) return Math.max(prima, calcolata);
+  return calcolata;
+}
+
+/**
+ * `scala` allunga i passi per i giochi con partite corte (Coppie ha 5 griglie
+ * invece di 20 quesiti): così ogni gioco si adatta in un numero simile di partite.
+ */
 export function diffDopoRisposta(
   d: number,
   giusta: boolean,
   rapidita: number,
   p: ParametriAdattivi = ADATTIVO,
+  scala = 1,
 ): number {
-  if (!giusta) return clampDiff(d - p.discesa);
-  return clampDiff(d + p.salitaBase + p.salitaRapidita * rapidita);
+  if (!giusta) return clampDiff(d - p.discesa * Math.min(scala, 2));
+  return clampDiff(d + (p.salitaBase + p.salitaRapidita * rapidita) * scala);
 }
 
 /**

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { suona } from '@/audio/sfx';
 import type { RiepilogoPartita } from '@/profilo/store';
-import type { FinePartita } from './ArcadeShell';
+import type { FinePartita } from './partita';
 
 type Props = {
   titolo: string;
+  etichetta?: string;
   fine: FinePartita;
   riepilogo: RiepilogoPartita;
+  inPalestra?: boolean;
   onAncora: () => void;
   onEsci: () => void;
 };
@@ -19,8 +21,8 @@ const FRASI = [
 ] as const;
 
 /** Schermata di fine partita, uguale per tutti i giochi. */
-export function Risultato({ titolo, fine, riepilogo, onAncora, onEsci }: Props) {
-  const { esito, stelle } = fine;
+export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAncora, onEsci }: Props) {
+  const { stelle, punteggio } = fine;
   const [visibili, setVisibili] = useState(0);
 
   // Le stelle entrano una alla volta, ognuna col suo suono.
@@ -40,12 +42,15 @@ export function Risultato({ titolo, fine, riepilogo, onAncora, onEsci }: Props) 
     return () => ids.forEach((id) => window.clearTimeout(id));
   }, [stelle, riepilogo.livelloDopo, riepilogo.livelloPrima]);
 
-  const nuovoRecord = esito.punteggio > riepilogo.recordPrima && esito.punteggio > 0;
+  const nuovoRecord = punteggio > riepilogo.recordPrima && punteggio > 0;
   const delta = riepilogo.bravuraDopo - riepilogo.bravuraPrima;
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-5 px-6 text-center">
-      <p className="text-sm tracking-widest text-white/50 uppercase">{titolo}</p>
+      <p className="text-sm tracking-widest text-white/50 uppercase">
+        {etichetta ? `${etichetta} · ` : ''}
+        {titolo}
+      </p>
 
       <div className="flex gap-3 text-6xl">
         {[1, 2, 3].map((i) => (
@@ -60,18 +65,20 @@ export function Risultato({ titolo, fine, riepilogo, onAncora, onEsci }: Props) 
       <p className="text-xl">{FRASI[stelle]}</p>
 
       <div>
-        <p className="text-6xl font-black tabular-nums text-oro-400">{esito.punteggio}</p>
+        <p className="text-6xl font-black tabular-nums text-oro-400">{punteggio}</p>
         {nuovoRecord && <p className="animate-pop mt-1 font-bold text-turchese-300">Nuovo record!</p>}
       </div>
 
       <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-sm">
-        <Dato etichetta="Giuste" valore={`${esito.giuste}/${esito.roundGiocati}`} />
-        <Dato etichetta="Combo max" valore={String(esito.comboMax)} />
+        {fine.dati.map((d) => (
+          <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
+        ))}
         <Dato etichetta="XP" valore={`+${riepilogo.xpGuadagnati}`} />
       </div>
 
       <p className="text-sm text-white/70">
-        Bravura {riepilogo.bravuraPrima.toFixed(1)} → <span className="font-bold text-turchese-300">{riepilogo.bravuraDopo.toFixed(1)}</span>
+        Bravura {riepilogo.bravuraPrima.toFixed(1)} →{' '}
+        <span className="font-bold text-turchese-300">{riepilogo.bravuraDopo.toFixed(1)}</span>
         {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
       </p>
 
@@ -84,13 +91,13 @@ export function Risultato({ titolo, fine, riepilogo, onAncora, onEsci }: Props) 
 
       <div className="mt-2 flex w-full max-w-xs flex-col gap-3">
         <button
-          onClick={onAncora}
+          onClick={inPalestra ? onAncora : onEsci}
           className="rounded-2xl bg-oro-500 py-4 text-xl font-bold text-notte-900 shadow-[0_0_30px_var(--color-oro-500)] active:scale-95"
         >
-          Ancora una!
+          {inPalestra ? 'Ancora una!' : 'Continua'}
         </button>
-        <button onClick={onEsci} className="py-2 text-white/60">
-          Torna alla home
+        <button onClick={inPalestra ? onEsci : onAncora} className="py-2 text-white/60">
+          {inPalestra ? 'Torna alla Palestra' : 'Rigioca'}
         </button>
       </div>
     </div>

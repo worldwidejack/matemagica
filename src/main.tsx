@@ -11,3 +11,10 @@ createRoot(root).render(
     <App />
   </StrictMode>,
 );
+
+// Funziona anche offline, una volta installato (solo in produzione: in sviluppo darebbe fastidio).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}

@@ -1,119 +1,176 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { setMutoAudio, suona } from '@/audio/sfx';
-import type { FinePartita } from '@/engine/ArcadeShell';
 import type { GameId } from '@/engine/cartuccia';
-import { GIOCHI, type VoceGioco } from '@/games/registro';
-import { giornoLocale, livelloDa, streakViva } from '@/profilo/progressione';
+import type { FinePartita } from '@/engine/partita';
+import { SENTIERO, type Livello } from '@/content/sentiero';
+import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
+import { Collezione } from '@/ui/Collezione';
+import { Intestazione } from '@/ui/Intestazione';
+import { Palestra } from '@/ui/Palestra';
+import { SpiegazioneSchermo, StoriaSchermo } from '@/ui/Schede';
+import { Sentiero } from '@/ui/Sentiero';
+
+type Scheda = 'sentiero' | 'palestra' | 'collezione';
+
+type Schermata =
+  | { tipo: 'scheda'; scheda: Scheda }
+  | { tipo: 'spiegazione'; gioco: GameId; poi: Schermata }
+  | { tipo: 'partita'; gioco: GameId; livello?: string }
+  | { tipo: 'storia'; id: string; nuova: boolean };
 
 /**
- * B1: una home con il profilo e i giochi. Il sentiero arriva in B2 e prende il
- * posto della lista; la navigazione resta a stato (niente router finché non serve).
+ * Navigazione a pila, collegata alla cronologia del browser: il tasto
+ * "indietro" del telefono torna alla schermata precedente invece di uscire.
+ * Niente router: tre schede e qualche schermata sopra bastano.
  */
+function useNavigazione() {
+  const [pila, setPila] = useState<Schermata[]>([{ tipo: 'scheda', scheda: 'sentiero' }]);
+
+  useEffect(() => {
+    const indietro = () => setPila((p) => (p.length > 1 ? p.slice(0, -1) : p));
+    window.addEventListener('popstate', indietro);
+    return () => window.removeEventListener('popstate', indietro);
+  }, []);
+
+  const apri = useCallback((s: Schermata) => {
+    window.history.pushState(null, '');
+    setPila((p) => [...p, s]);
+  }, []);
+  const sostituisci = useCallback((s: Schermata) => setPila((p) => [...p.slice(0, -1), s]), []);
+  const chiudi = useCallback(() => window.history.back(), []);
+  const scheda = useCallback((s: Scheda) => {
+    setPila([{ tipo: 'scheda', scheda: s }]);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const cima = pila[pila.length - 1] ?? { tipo: 'scheda', scheda: 'sentiero' };
+  const base = pila[0]?.tipo === 'scheda' ? pila[0].scheda : 'sentiero';
+  return { cima, base, apri, sostituisci, chiudi, scheda };
+}
+
 export default function App() {
-  const [inGioco, setInGioco] = useState<GameId | null>(null);
+  const nav = useNavigazione();
   const muto = useProfilo((p) => p.muto);
+  const viste = useProfilo((p) => p.spiegazioniViste);
+  const segnaSpiegazione = useProfilo((p) => p.segnaSpiegazione);
 
   useEffect(() => setMutoAudio(muto), [muto]);
 
-  const voce = GIOCHI.find((g) => g.id === inGioco);
-  if (voce?.Play) return <Partita voce={voce} onEsci={() => setInGioco(null)} />;
-  return <Home onGioca={setInGioco} />;
-}
+  /** Prima partita a un gioco: prima la spiegazione. */
+  const gioca = (gioco: GameId, livello?: string) => {
+    const partita: Schermata = { tipo: 'partita', gioco, livello };
+    nav.apri(viste.includes(gioco) ? partita : { tipo: 'spiegazione', gioco, poi: partita });
+  };
 
-function Partita({ voce, onEsci }: { voce: VoceGioco; onEsci: () => void }) {
-  const bravura = useProfilo((p) => p.bravura[voce.id] ?? 0);
-  const record = useProfilo((p) => p.record[voce.id] ?? 0);
-  const registra = useProfilo((p) => p.registraPartita);
-  const onFine = useCallback(
-    (f: FinePartita) =>
-      registra({ gioco: voce.id, punteggio: f.esito.punteggio, stelle: f.stelle, bravuraDopo: f.bravuraDopo }),
-    [registra, voce.id],
-  );
-  const Play = voce.Play;
-  if (!Play) return null;
-  return <Play bravura={bravura} record={record} onFine={onFine} onEsci={onEsci} />;
-}
+  const { cima } = nav;
 
-function Home({ onGioca }: { onGioca: (id: GameId) => void }) {
-  const { xp, streak, muto, setMuto, stelleMigliori, bravura } = useProfilo();
-  const liv = livelloDa(xp);
-  const fiamma = streakViva(streak, giornoLocale(new Date()));
+  if (cima.tipo === 'spiegazione') {
+    return (
+      <SpiegazioneSchermo
+        gioco={cima.gioco}
+        onAvanti={() => {
+          segnaSpiegazione(cima.gioco);
+          nav.sostituisci(cima.poi);
+        }}
+      />
+    );
+  }
+
+  if (cima.tipo === 'partita') {
+    return (
+      <Partita
+        key={`${cima.gioco}-${cima.livello ?? 'palestra'}`}
+        gioco={cima.gioco}
+        livello={SENTIERO.find((l) => l.id === cima.livello)}
+        onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
+      />
+    );
+  }
+
+  if (cima.tipo === 'storia') {
+    return <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />;
+  }
 
   return (
-    <div className="mx-auto flex min-h-full max-w-md flex-col px-4 pt-4 pb-10">
-      <header className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-turchese-500/20 text-xl font-black text-turchese-300">
-          {liv.livello}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold">{liv.grado}</p>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-notte-600">
-            <div
-              className="h-full rounded-full bg-turchese-400 transition-[width] duration-700"
-              style={{ width: `${(liv.xpNelLivello / liv.xpPerIlProssimo) * 100}%` }}
-            />
-          </div>
-        </div>
-        <div className={`text-lg font-bold ${fiamma > 0 ? 'text-oro-400' : 'text-white/30'}`} aria-label="Giorni di fila">
-          🔥 {fiamma}
-        </div>
-        <button
-          onClick={() => setMuto(!muto)}
-          className="text-2xl"
-          aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}
-        >
-          {muto ? '🔇' : '🔊'}
-        </button>
-      </header>
-
-      <h1 className="font-display mt-10 text-center text-5xl font-black tracking-tight">
-        Mate<span className="text-oro-400">magica</span>
-      </h1>
-      <p className="mt-2 text-center text-white/60">Allena la mente, un gioco alla volta.</p>
-
-      <ul className="mt-10 flex flex-col gap-3">
-        {GIOCHI.map((g) => {
-          const pronto = Boolean(g.Play);
-          const s = stelleMigliori[g.id] ?? 0;
-          return (
-            <li key={g.id}>
-              <button
-                disabled={!pronto}
-                onClick={() => {
-                  suona('tap');
-                  onGioca(g.id);
-                }}
-                className={[
-                  'flex w-full items-center gap-4 rounded-3xl px-5 py-4 text-left transition-transform',
-                  pronto
-                    ? 'border-2 border-oro-500/60 bg-notte-700 shadow-[0_0_24px_rgb(245_183_49/0.25)] active:scale-95'
-                    : 'bg-notte-800 text-white/35',
-                ].join(' ')}
-              >
-                <span className="text-3xl">{pronto ? (g.tipo === 'arcade' ? '⚡' : '🧩') : '🔒'}</span>
-                <span className="flex-1">
-                  <span className="block text-lg font-bold">{g.titolo}</span>
-                  <span className="text-sm text-white/50">
-                    {pronto
-                      ? `${g.tipo === 'arcade' ? 'Arcade' : 'Rompicapo'} · bravura ${(bravura[g.id] ?? 0).toFixed(1)}`
-                      : 'In arrivo'}
-                  </span>
-                </span>
-                {pronto && (
-                  <span className="text-xl tracking-tighter">
-                    {[1, 2, 3].map((i) => (
-                      <span key={i} className={i <= s ? 'text-oro-400' : 'text-white/15'}>
-                        ★
-                      </span>
-                    ))}
-                  </span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+    <div className="mx-auto min-h-full max-w-md">
+      <Intestazione />
+      {cima.scheda === 'sentiero' && <Sentiero onLivello={(l) => gioca(l.gioco, l.id)} />}
+      {cima.scheda === 'palestra' && <Palestra onGioca={(g) => gioca(g)} />}
+      {cima.scheda === 'collezione' && <Collezione onCarta={(id) => nav.apri({ tipo: 'storia', id, nuova: false })} />}
+      <Schede attiva={cima.scheda} onScheda={nav.scheda} />
     </div>
+  );
+}
+
+function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) => void }) {
+  const voci: { s: Scheda; icona: string; nome: string }[] = [
+    { s: 'sentiero', icona: '🗺️', nome: 'Sentiero' },
+    { s: 'palestra', icona: '🏋️', nome: 'Palestra' },
+    { s: 'collezione', icona: '🃏', nome: 'Collezione' },
+  ];
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-notte-700 bg-notte-900/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+      <div className="mx-auto flex max-w-md">
+        {voci.map((v) => (
+          <button
+            key={v.s}
+            onClick={() => {
+              if (v.s !== attiva) suona('tap');
+              onScheda(v.s);
+            }}
+            className={`flex flex-1 flex-col items-center py-2.5 text-xs ${v.s === attiva ? 'text-oro-400' : 'text-white/50'}`}
+          >
+            <span className={`text-2xl ${v.s === attiva ? '' : 'opacity-60 grayscale'}`}>{v.icona}</span>
+            {v.nome}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+function Partita({
+  gioco,
+  livello,
+  onEsci,
+}: {
+  gioco: GameId;
+  livello?: Livello;
+  onEsci: (cartaNuova?: string) => void;
+}) {
+  const bravura = useProfilo((p) => p.bravura[gioco] ?? 0);
+  const record = useProfilo((p) => p.record[gioco] ?? 0);
+  const registra = useProfilo((p) => p.registraPartita);
+  // La carta vinta in una partita si mostra quando si esce dal risultato.
+  const carta = useRef<string | undefined>(undefined);
+
+  const onFine = useCallback(
+    (f: FinePartita) => {
+      const r = registra({
+        gioco,
+        punteggio: f.punteggio,
+        stelle: f.stelle,
+        bravuraDopo: f.bravuraDopo,
+        livello: livello?.id,
+        storia: livello?.storia,
+      });
+      if (r.cartaNuova) carta.current = r.cartaNuova;
+      return r;
+    },
+    [registra, gioco, livello],
+  );
+
+  const Play = GIOCHI[gioco].Play;
+  return (
+    <Play
+      bravura={bravura}
+      record={record}
+      limiti={livello?.limiti}
+      etichetta={livello ? `Livello ${livello.numero}` : 'Palestra'}
+      inPalestra={!livello}
+      onFine={onFine}
+      onEsci={(dopo) => onEsci(dopo ? carta.current : undefined)}
+    />
   );
 }
