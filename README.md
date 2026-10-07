@@ -1,20 +1,14 @@
-# Matemagica *(nome provvisorio)*
+# Matemagica
 
-Palestra mentale matematica gamificata. Web app, mobile-first.
-Round arcade brevi, combo, vite, stelle — l'USP è la **giocosità**, non la
-didattica.
+Il Duolingo della matematica: giochi brevi, da telefono, che allenano la mente.
+Un progetto di Jack e suo papà.
 
-## Sviluppo
+**Gioca:** https://matemagica-teal.vercel.app
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # type-check + build di produzione
-npm run preview  # serve la build
+npm run dev      # sviluppo
+npm run simula   # partite simulate per tarare difficoltà e stelle
 ```
 
-## Dove sta cosa
-
-Vedi [`CLAUDE.md`](./CLAUDE.md) — contiene visione, principi, architettura
-"a cartucce", convenzioni e stato delle milestone. È il file da leggere per
-primo. Le idee fuori scope vivono in [`BACKLOG.md`](./BACKLOG.md).
+Contesto, regole e piano: [`CLAUDE.md`](CLAUDE.md).

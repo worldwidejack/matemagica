@@ -1,82 +1,92 @@
-# CLAUDE.md — contesto di progetto
+# CLAUDE.md — Matemagica
 
-> Leggi questo file **all'inizio di ogni sessione**, prima di toccare codice.
-> Aggiorna la sezione "Stato" **alla fine di ogni sessione**, prima del merge.
+> Leggi questo file all'inizio di ogni sessione, prima di toccare codice.
+> Aggiorna "Stato" (qui e in `_STATO.md`) alla fine di ogni sessione, prima del merge.
 
 ---
 
 ## Stato
 
-**Milestone corrente: M0 — COMPLETATA.** Criterio di uscita verificato.
+**Ripartiti da zero il 7 ottobre 2026**, dopo l'intervista a Jack e papà. Il lavoro
+precedente (M0/M1, gioco dei segni) è stato accantonato: resta solo nella storia di git.
 
-- Live: **https://matemagica-teal.vercel.app** (production, `main`)
-- Repo: **https://github.com/worldwidejack/matemagica** (pubblico)
-- Clone locale: `~/Desktop/JACK/_GITHUB/matemagica`
-- Vercel: progetto `matemagica`, preset Vite, root `./`. Ogni push su `main`
-  ridispiega; ogni branch/PR ottiene il suo **preview deploy** — è il link da
-  aprire dal telefono prima del merge.
+- Live: **https://matemagica-teal.vercel.app** (production = `main`)
+- Repo: **https://github.com/worldwidejack/matemagica**
+- Ogni branch/PR ha il suo **preview deploy** Vercel: è il link da aprire dal telefono prima del merge.
 
-Fatto: scaffold Vite+React+TS+Tailwind, struttura cartelle, contratti di tipo
-(`MiniGame`, `World`, `Progress`), contenuti statici dei 2 mondi + 1 lore,
-pagina hello mobile-first, repo su GitHub.
+**B1 — fatto.** Progetto nuovo, motore arcade, profilo salvato nel telefono (XP, livello
+giocatore, streak, bravura per gioco, record, stelle), suoni sintetizzati + mute, primo gioco
+**Chi è più grande?**. Verificato: partita → reload → tutto ancora lì.
 
-**M1 — COMPLETATA.** `GameShell` (timer, 3 vite, combo, punteggio, feedback,
-schermata risultato con stelle) + cartuccia `segni` nel formato `MiniGame`.
-Si gioca sull'URL pubblico, da telefono.
-
-Prossimo: **M2 — mappa, progressione, persistenza `localStorage`, primi SFX**.
-Da lì parte l'auto-test continuo (§1.5): se non ti scappa "ancora una partita",
-si itera sul juice prima di andare avanti.
-
-Aperto / da decidere:
-- Il nome "Matemagica" è **provvisorio** (il naming è un task di M4).
-- Il record è tenuto in memoria React: si azzera al reload. La persistenza vera
-  (`localStorage`) è M2, per piano — non anticiparla di nascosto.
-- `starThresholds` del mondo 2 sono ancora `[0,0,0]`: da tarare in M3.
-- Nessun suono: gli SFX sono M2.
+Prossimo: **B2** — sentiero misto + Palestra + schermate spiegazione/storia + **Coppie magiche**.
+In parallelo papà risponde al primo lotto di domande (`docs/papa/01-domande.md`).
 
 ---
 
 ## Visione
 
-Gioco web di allenamento matematico mentale: *"Duolingo per il cervello
-matematico"*, ma con l'USP nella **giocosità pura** — dopamina, arcade, juice —
-**non** nella serietà educativa.
+**Il Duolingo / Candy Crush della matematica.** Super gamificato, giocoso, da telefono.
+- **Per tutti**: nessun target. Il gioco capisce il tuo livello e si adatta.
+- **Infinito**: sentieri di livelli e giochi che possono andare avanti all'infinito, su
+  qualsiasi argomento.
+- **Il perché di papà**: in un'epoca con l'AI ovunque, un modo divertente per aprire e
+  allenare la mente. Non prepara esami: stimola.
 
-Direzione visiva: mondo geometrico-magico, palette notturna con oro e turchese.
-Ispirazione atmosferica, **zero IP di terzi**.
+## Ruoli
 
-Caso d'uso reale: il telefono, in piedi, in fila alla posta, 90 secondi.
+- **Jack + Claude** costruiscono l'app.
+- **Papà** (matematico in pensione) è il riferimento per la matematica e il percorso
+  didattico. Lavora con carta e penna.
+- **Come si lavora con papà**: niente moduli o template. Claude scrive domande aperte o una
+  direzione su cui ragionare (`docs/papa/NN-*.md`); Jack gliele passa; papà risponde come vuole
+  (foto di fogli, voce, testo); Jack porta la risposta e Claude la trasforma in contenuti.
+
+## La regola di papà (vale per ogni gioco)
+
+> **Un gioco non deve svuotarsi con un solo trucco.** Deve far pensare anche dopo che hai
+> capito il trucco.
+
+Il gioco dei segni è stato buttato per questo (bastava contare i meno). In pratica: ogni
+generatore smonta i trucchi ovvi, e `npm run simula` misura quanto spesso il trucco
+fallirebbe (es. in *Chi è più grande?* il trucco "vince il numero più grosso" sbaglia nel ~50%
+dei quesiti, e non ci sono mai numeri in comune tra le due espressioni).
+
+## Principi
+
+1. **Ogni sessione finisce online.** Il tempo arriva a raffiche ("quando capita"): mai lasciare
+   `main` rotto, blocchi piccoli che si chiudono.
+2. **Juice prima di contenuto.** Feedback, suoni, ritmo. Un gioco eccellente batte tre mediocri.
+3. **Segnaposto fino a B8.** Forme, colori pieni, emoji. Se non diverte nudo, la grafica non lo salva.
+4. **Formato cartuccia** (sotto). Un gioco nuovo costa "un generatore + una vista".
+5. **Il successo è "ci piace giocarci"**: Jack e papà lo aprono da soli, non per testarlo.
+6. **Idee nuove → `BACKLOG.md`.** Non nell'MVP.
 
 ---
 
-## Principi non negoziabili
+## Il formato "cartuccia"
 
-1. **Ogni sessione finisce deployata.** Mai lasciare `main` rotto: il tempo
-   arriva a raffiche irregolari e un progetto rotto non viene più riaperto.
-2. **Juice prima di contenuto.** Un minigioco eccellente batte tre mediocri.
-   Il tempo si spende su feedback, suoni, ritmo — non su copertura di argomenti.
-3. **Placeholder-first.** Forme geometriche, colori pieni ed emoji fino a M4.
-   Se il gioco non è divertente "nudo", gli asset non lo salveranno.
-4. **Formato cartuccia.** Vedi sotto. È l'investimento che rende il mondo 3+
-   quasi gratis.
-5. **Il backlog è sacro e chiuso.** Ogni idea nuova → una riga in `BACKLOG.md`.
-   Zero eccezioni, zero deroghe all'MVP.
+Il **motore** (`src/engine/`) possiede timer, vite, combo, punteggio, suoni, stelle e livello
+adattivo, per tutti i giochi. Ogni gioco (`src/games/<id>/`) fornisce solo il contratto in
+`src/engine/cartuccia.ts`: `generate(difficoltà, rng)`, `View`, `check`, `timeFor`
+(+ `revealFor` opzionale). Previsti da subito: `onHit` per i quesiti a più risposte (Coppie)
+e la fase di rivelazione (Catena).
 
----
+**Regola pratica:** se stai per scrivere un timer o un contatore di vite in `src/games/*`,
+stai sbagliando file.
 
-## Il formato "cartuccia" (decisione architetturale centrale)
+Due motori: **arcade** (`ArcadeShell`, fatto) e **rompicapo** (B3: niente timer, punteggio da
+tentativi e aiuti). Stessa schermata risultato, stesse stelle.
 
-Il `GameShell` (`src/shell/`) possiede timer, 3 vite, combo, punteggio, suoni,
-schermata risultato e assegnazione stelle. Ogni minigioco (`src/games/<id>/`)
-implementa solo l'interfaccia `MiniGame` in `src/shell/types.ts`:
-`generateRound`, `RoundView`, `checkAnswer`, `difficultyCurve`.
-
-**Regola pratica:** se stai per scrivere un timer o un contatore di vite dentro
-`src/games/*`, stai sbagliando file.
-
-Conseguenza: migliorare il juice nel guscio migliora tutti i giochi insieme, e
-un mondo nuovo costa "una `generateRound` + una view".
+### Livello adattivo e stelle (`src/engine/regole.ts`)
+- Difficoltà continua 0-10. Ogni gioco ha una **bravura** salvata nel profilo.
+- La partita parte 1 punto sotto la bravura (riscaldamento); giusta → sale un po' (di più se
+  rapida), sbagliata → scende di colpo. Equilibrio: un errore ogni ~8 quesiti.
+- A fine partita la bravura va verso la difficoltà più alta raggiunta (−0,5).
+- Partita = 20 quesiti o 3 vite. **Le stelle non dipendono dal punteggio** ma da come giochi al
+  tuo livello: ★ almeno 10 giuste · ★★ partita completa · ★★★ completa con al massimo 1 errore.
+  Così un principiante e un matematico possono fare 3 stelle entrambi.
+- Tarato con `npm run simula` (giocatori finti di bravura 1-9): bravura giusta in ~5 partite;
+  stelle ~37% una, ~43% due, ~15% tre.
 
 ---
 
@@ -84,87 +94,75 @@ un mondo nuovo costa "una `generateRound` + una view".
 
 ```
 /src
-  /shell     → GameShell: timer, vite, combo, punteggio, feedback, risultato
+  /engine        → motore: cartuccia.ts (contratto), regole.ts (punti, stelle, adattivo),
+                   caso.ts (rng), ArcadeShell.tsx, Risultato.tsx
   /games
-    /segni     → cartuccia 1 — regola dei segni (M1)
-    /quadrato  → cartuccia 2 — quadrato magico 3x3 (M3)
-  /map       → mappa mondi, nodi, sblocchi (M2)
-  /lore      → schermate fun-fact (M3)
-  /state     → store progressione + persistenza localStorage (M2)
-  /audio     → wrapper Howler, registry SFX (M2)
-  /content   → worlds.ts, lore.ts — dati dichiarativi, non codice
-/public/assets → immagini e suoni, prodotti in M4
+    registro.tsx → tutti i giochi; quelli senza Play sono "in arrivo"
+    /piu-grande  → logica.ts (pura, simulabile) + index.tsx (vista + cartuccia)
+  /profilo       → store.ts (zustand + localStorage), progressione.ts (XP, gradi, streak)
+  /audio         → sfx.ts (suoni sintetizzati con Web Audio, zero file)
+/scripts/simula.ts → partite simulate per tarare i numeri
+/docs/papa       → domande e spunti per papà, e le sue risposte
 ```
 
----
+I moduli puri (`regole.ts`, `caso.ts`, `games/*/logica.ts`) usano import relativi con
+estensione `.ts`: così li legge anche Node per `npm run simula`. Il resto usa l'alias `@/`.
 
 ## Convenzioni
 
-- **TypeScript strict** (più `noUncheckedIndexedAccess`). I tipi sono la rete di
-  sicurezza tra sessioni distanti settimane: non aggirarli con `any`.
-- **Tailwind** per il layout; CSS custom (`src/index.css`) per gli effetti juice.
-  I colori passano **sempre** dai token in `@theme`, mai hex sparsi nel codice.
-- **Import con alias `@/`** (`@/shell/types`), mai `../../..`.
-- **Niente nuove dipendenze senza un motivo scritto** qui sotto, in "Deviazioni".
-- **Mobile-first, sempre.** Ogni PR si prova **dal telefono** sul preview deploy
-  Vercel prima del merge. Il desktop non è il device di riferimento.
-- **Contenuti in italiano.** Niente i18n nell'MVP.
+- **TypeScript strict** + `noUncheckedIndexedAccess`. Niente `any`.
+- **Tailwind** per il layout; effetti in `src/index.css`. Colori **solo dai token** `@theme`
+  (notte, oro, turchese, magenta, pericolo), mai hex sparsi.
+- **Mobile-first.** Ogni PR si prova dal telefono sul preview deploy prima del merge.
+- **Contenuti in italiano.**
+- **Dipendenze**: react, zustand (profilo), tailwind. Niente di nuovo senza un motivo scritto
+  in "Deviazioni". Router e libreria audio tolti: navigazione a stato e Web Audio bastano.
+- Lint: restano 2 avvisi "only-export-components" (registro e cartuccia esportano oggetti):
+  toccano solo l'hot reload in sviluppo, accettati.
 
-Dipendenze attuali e perché: `react-router-dom` (3 route: mappa, gioco, lore),
-`zustand` (store progressione), `howler` (SFX affidabili su mobile browser),
-`tailwindcss` (velocità di iterazione).
+Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula`
 
----
+## Flusso
 
-## Flusso di lavoro
-
-- Si lavora **a branch + PR** anche da soli: ogni PR ha il suo preview deploy.
-- Non si apre la milestone successiva se il criterio di uscita della corrente
-  non è verificato.
-- A fine sessione: merge, deploy verde, aggiorna "Stato" qui sopra.
-
-Comandi: `npm run dev` · `npm run build` · `npm run preview` · `npm run lint`
+- Branch + PR anche da soli; ogni PR ha il suo preview deploy.
+- Fine sessione: build e lint verdi, prova da telefono, merge, aggiorna Stato qui e in `_STATO.md`.
 
 ---
 
-## Milestone
+## Blocchi dell'MVP
 
-| # | Cosa | Criterio di uscita |
+| # | Cosa | Uscita |
 |---|---|---|
-| M0 | Fondazioni: scaffold, repo, Vercel, hello page | URL pubblico che si apre dal telefono ✅ |
-| M1 | `GameShell` + cartuccia "regola dei segni" | Si gioca sull'URL pubblico, con punteggio e stelle |
-| M2 | Mappa, progressione, `localStorage`, primi SFX | Gioco → stelle → reload → stelle ancora lì. E "suona" |
-| M3 | Cartuccia "quadrato magico" + nodo lore + sblocco mondo 2 | Due mondi in sequenza con lore nel mezzo |
-| M4 | Asset pass: style bible, produzione, naming, logo | Identità visiva addosso, layout invariato |
-| M5 | Rifinitura: juice finale, PWA, perf <3s, analytics | Checklist DoD tutta verde |
-| M6 | Playtest con 5 persone | Decisione documentata in `BACKLOG.md` |
+| B1 | Progetto nuovo, motore arcade, profilo, SFX + mute, **Chi è più grande?** | ✅ partita → reload → tutto lì |
+| B2 | Sentiero misto + Palestra + spiegazione/storia + **Coppie magiche** | sentiero di ~8 livelli con 2 giochi |
+| B3 | Motore rompicapo + **Il Numero bersaglio** | primo rompicapo nel sentiero |
+| B4 | **La Bilancia** | |
+| B5 | **Catena** + **Stima lampo** | 4 arcade |
+| B6 | **Trova la regola** (sequenze di papà) | 7 giochi |
+| B7 | Sentiero completo (~40 livelli, ordine di papà), collezione = storie di papà | MVP completo "nudo" |
+| B8 | Identità visiva, nome, PWA, caricamento <3 s | ci piace giocarci |
 
-**Definition of Done dell'MVP** — si spedisce quando *tutte* sono vere:
-mappa navigabile con 2 mondi + nodi lore · minigioco 1 completo di juice ·
-minigioco 2 idem · 1 schermata lore · progressione persistente al reload ·
-giocabile bene da telefono · nessun vicolo cieco · caricamento <3s su rete
-mobile · deployato su Vercel · eventi analytics attivi · toggle audio.
+**I 7 giochi.** Arcade: *Chi è più grande?* (due espressioni, tocca la maggiore) · *Coppie
+magiche* (griglia, coppie che fanno 10 / 100 / ×=24) · *Catena* (operazioni che scorrono,
+alla fine "quanto fa?") · *Stima lampo* (38×21 ≈ ?, tre opzioni). Rompicapo: *Il Numero
+bersaglio* (combina i numeri per arrivare al bersaglio) · *La Bilancia* (quanto pesa ogni
+forma: algebra senza lettere) · *Trova la regola* (sequenze, scopri la regola).
 
-**Non-goals espliciti:** account e login, classifiche, terzo mondo, app nativa,
-streak e notifiche, impostazioni oltre al mute, i18n, backend di qualunque tipo,
-animazioni cinematiche sulla mappa, monete/valuta.
+**Struttura del gioco.** Sentiero **misto** per default (si alternano argomenti e giochi, per
+non annoiare); **Palestra** per chi vuole un gioco solo, a oltranza. Spiegazione breve quando
+arriva un gioco nuovo; storia di papà come premio, che diventa una carta della collezione.
+Gamification: stelle, XP e livello giocatore, streak, collezione.
+
+**Non-goal dell'MVP:** account e login, backend, classifiche, test d'ingresso (rivalutare se
+l'inizio annoia), monete/valuta, app nativa, i18n, impostazioni oltre al mute.
 
 ---
 
 ## Deviazioni dal piano
 
-Se una scelta del piano si rivela sbagliata sul campo, cambiarla è legittimo:
-**annota qui la deviazione e il perché**, così questo file resta la mappa del
-territorio reale e non delle intenzioni.
+Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qui col perché.
 
-- *(2026-08-23, M0)* Tailwind v4 con plugin `@tailwindcss/vite` invece della
-  vecchia config PostCSS: è il setup corrente supportato, meno file di config.
-- *(2026-08-23, M1)* Soglie stelle del mondo 1 tarate su **4000 partite
-  simulate** invece che a occhio: `[1200, 4500, 12000]`. Con la curva attuale
-  una prima partita mediana fa ~1500 (1 stella), chi ci ha preso la mano ~5800
-  (2 stelle), 3 stelle richiedono una partita davvero buona. Da riverificare con
-  giocatori veri in M6: la simulazione modella il tempo di reazione, non la
-  fatica mentale.
-- *(2026-08-23, M0)* Aggiunto `noUncheckedIndexedAccess` oltre a `strict`: con
-  settimane di pausa tra le sessioni, gli accessi ad array non controllati sono
-  la classe di bug più probabile.
+- *(2026-10-07, B1)* Le 3 stelle con "zero errori" erano quasi impossibili (~5% in
+  simulazione): portate a "al massimo 1 errore" (~15%).
+- *(2026-10-07, B1)* La bravura si aggiorna sulla difficoltà **più alta** raggiunta, non sulla
+  media: con la media un giocatore forte impiegava ~15 partite di roba facile.
