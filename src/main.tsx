@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 
-const rootEl = document.getElementById('root');
-if (!rootEl) throw new Error('#root non trovato');
+const root = document.getElementById('root');
+if (!root) throw new Error('#root non trovato');
 
-createRoot(rootEl).render(
+createRoot(root).render(
   <StrictMode>
     <App />
   </StrictMode>,

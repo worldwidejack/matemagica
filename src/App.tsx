@@ -1,135 +1,119 @@
-import { useState } from 'react';
-import { WORLDS } from '@/content/worlds';
-import { GameShell } from '@/shell/GameShell';
-import { segniGame } from '@/games/segni';
-import type { GameResult } from '@/shell/types';
-import type { WorldId } from '@/state/types';
+import { useCallback, useEffect, useState } from 'react';
+import { setMutoAudio, suona } from '@/audio/sfx';
+import type { FinePartita } from '@/engine/ArcadeShell';
+import type { GameId } from '@/engine/cartuccia';
+import { GIOCHI, type VoceGioco } from '@/games/registro';
+import { giornoLocale, livelloDa, streakViva } from '@/profilo/progressione';
+import { useProfilo } from '@/profilo/store';
 
 /**
- * M1 — casa provvisoria.
- *
- * In M2 questa schermata diventa la mappa vera (sentiero, nodi, sblocchi) e la
- * progressione finisce in localStorage. Per ora tiene il record in memoria:
- * serve solo a poter entrare e uscire da una partita.
+ * B1: una home con il profilo e i giochi. Il sentiero arriva in B2 e prende il
+ * posto della lista; la navigazione resta a stato (niente router finché non serve).
  */
 export default function App() {
-  const [playing, setPlaying] = useState<WorldId | null>(null);
-  const [best, setBest] = useState<Record<WorldId, number>>({});
-  const [lastStars, setLastStars] = useState<Record<WorldId, number>>({});
+  const [inGioco, setInGioco] = useState<GameId | null>(null);
+  const muto = useProfilo((p) => p.muto);
 
-  if (playing !== null) {
-    const world = WORLDS.find((w) => w.id === playing);
-    if (world) {
-      return (
-        <GameShell
-          game={segniGame}
-          starThresholds={world.starThresholds}
-          bestScore={best[world.id] ?? 0}
-          onFinish={(r: GameResult) => {
-            setBest((b) => ({ ...b, [world.id]: Math.max(b[world.id] ?? 0, r.score) }));
-            setLastStars((s) => ({ ...s, [world.id]: Math.max(s[world.id] ?? 0, r.stars) }));
-          }}
-          onExit={() => setPlaying(null)}
-        />
-      );
-    }
-  }
+  useEffect(() => setMutoAudio(muto), [muto]);
+
+  const voce = GIOCHI.find((g) => g.id === inGioco);
+  if (voce?.Play) return <Partita voce={voce} onEsci={() => setInGioco(null)} />;
+  return <Home onGioca={setInGioco} />;
+}
+
+function Partita({ voce, onEsci }: { voce: VoceGioco; onEsci: () => void }) {
+  const bravura = useProfilo((p) => p.bravura[voce.id] ?? 0);
+  const record = useProfilo((p) => p.record[voce.id] ?? 0);
+  const registra = useProfilo((p) => p.registraPartita);
+  const onFine = useCallback(
+    (f: FinePartita) =>
+      registra({ gioco: voce.id, punteggio: f.esito.punteggio, stelle: f.stelle, bravuraDopo: f.bravuraDopo }),
+    [registra, voce.id],
+  );
+  const Play = voce.Play;
+  if (!Play) return null;
+  return <Play bravura={bravura} record={record} onFine={onFine} onEsci={onEsci} />;
+}
+
+function Home({ onGioca }: { onGioca: (id: GameId) => void }) {
+  const { xp, streak, muto, setMuto, stelleMigliori, bravura } = useProfilo();
+  const liv = livelloDa(xp);
+  const fiamma = streakViva(streak, giornoLocale(new Date()));
 
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-12 text-center">
-      <Backdrop />
-
-      <div className="relative flex w-full max-w-xs flex-col items-center gap-7">
-        <Sigil />
-
-        <div className="space-y-1">
-          <h1 className="bg-gradient-to-b from-gold-400 to-gold-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent">
-            Matemagica
-          </h1>
-          <p className="text-sm text-teal-300/70">Palestra mentale matematica</p>
+    <div className="mx-auto flex min-h-full max-w-md flex-col px-4 pt-4 pb-10">
+      <header className="flex items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-turchese-500/20 text-xl font-black text-turchese-300">
+          {liv.livello}
         </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold">{liv.grado}</p>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-notte-600">
+            <div
+              className="h-full rounded-full bg-turchese-400 transition-[width] duration-700"
+              style={{ width: `${(liv.xpNelLivello / liv.xpPerIlProssimo) * 100}%` }}
+            />
+          </div>
+        </div>
+        <div className={`text-lg font-bold ${fiamma > 0 ? 'text-oro-400' : 'text-white/30'}`} aria-label="Giorni di fila">
+          🔥 {fiamma}
+        </div>
+        <button
+          onClick={() => setMuto(!muto)}
+          className="text-2xl"
+          aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}
+        >
+          {muto ? '🔇' : '🔊'}
+        </button>
+      </header>
 
-        <ul className="w-full space-y-2.5">
-          {WORLDS.map((w, i) => {
-            const playable = w.gameId === 'segni';
-            const stars = lastStars[w.id] ?? 0;
-            return (
-              <li key={w.id}>
-                <button
-                  disabled={!playable}
-                  onClick={() => setPlaying(w.id)}
-                  className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-4 text-left transition ${
-                    playable
-                      ? 'border-teal-400/25 bg-night-800 active:scale-[0.98]'
-                      : 'border-white/5 bg-night-800/40 opacity-45'
-                  }`}
-                >
-                  <span
-                    className={`grid size-8 shrink-0 place-items-center rounded-xl text-sm font-bold ${
-                      playable ? 'bg-gold-500 text-night-900' : 'bg-night-600 text-white/40'
-                    }`}
-                  >
-                    {playable ? i + 1 : '🔒'}
+      <h1 className="font-display mt-10 text-center text-5xl font-black tracking-tight">
+        Mate<span className="text-oro-400">magica</span>
+      </h1>
+      <p className="mt-2 text-center text-white/60">Allena la mente, un gioco alla volta.</p>
+
+      <ul className="mt-10 flex flex-col gap-3">
+        {GIOCHI.map((g) => {
+          const pronto = Boolean(g.Play);
+          const s = stelleMigliori[g.id] ?? 0;
+          return (
+            <li key={g.id}>
+              <button
+                disabled={!pronto}
+                onClick={() => {
+                  suona('tap');
+                  onGioca(g.id);
+                }}
+                className={[
+                  'flex w-full items-center gap-4 rounded-3xl px-5 py-4 text-left transition-transform',
+                  pronto
+                    ? 'border-2 border-oro-500/60 bg-notte-700 shadow-[0_0_24px_rgb(245_183_49/0.25)] active:scale-95'
+                    : 'bg-notte-800 text-white/35',
+                ].join(' ')}
+              >
+                <span className="text-3xl">{pronto ? (g.tipo === 'arcade' ? '⚡' : '🧩') : '🔒'}</span>
+                <span className="flex-1">
+                  <span className="block text-lg font-bold">{g.titolo}</span>
+                  <span className="text-sm text-white/50">
+                    {pronto
+                      ? `${g.tipo === 'arcade' ? 'Arcade' : 'Rompicapo'} · bravura ${(bravura[g.id] ?? 0).toFixed(1)}`
+                      : 'In arrivo'}
                   </span>
-                  <span className="flex-1">
-                    <span className="block text-sm font-semibold text-white/85">{w.title}</span>
-                    <span className="block text-[10px] uppercase tracking-widest text-white/30">
-                      {playable ? 'gioca' : 'in arrivo'}
-                    </span>
+                </span>
+                {pronto && (
+                  <span className="text-xl tracking-tighter">
+                    {[1, 2, 3].map((i) => (
+                      <span key={i} className={i <= s ? 'text-oro-400' : 'text-white/15'}>
+                        ★
+                      </span>
+                    ))}
                   </span>
-                  {playable && (
-                    <span className="text-xs tracking-tight">
-                      {[0, 1, 2].map((s) => (
-                        <span key={s} className={s < stars ? '' : 'opacity-20 grayscale'}>
-                          ⭐
-                        </span>
-                      ))}
-                    </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-
-        <p className="text-[10px] uppercase tracking-widest text-white/25">M1 · il gioco esiste</p>
-      </div>
-    </main>
-  );
-}
-
-/** Il sigillo geometrico: cerchio, triangolo, quadrato che ruotano piano. */
-function Sigil() {
-  return (
-    <svg viewBox="0 0 120 120" className="size-24" aria-hidden="true">
-      <defs>
-        <linearGradient id="sigil-gold" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-gold-400)" />
-          <stop offset="100%" stopColor="var(--color-gold-600)" />
-        </linearGradient>
-      </defs>
-      <g
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ transformOrigin: '60px 60px' }}
-        className="motion-safe:animate-[spin_28s_linear_infinite]"
-      >
-        <circle cx="60" cy="60" r="52" stroke="url(#sigil-gold)" strokeWidth="1.5" opacity="0.55" />
-        <polygon points="60,16 98,82 22,82" stroke="var(--color-teal-400)" strokeWidth="2" opacity="0.9" />
-        <rect x="32" y="32" width="56" height="56" rx="4" stroke="var(--color-magenta-400)" strokeWidth="1.5" opacity="0.5" />
-      </g>
-      <circle cx="60" cy="60" r="5" fill="var(--color-gold-400)" />
-    </svg>
-  );
-}
-
-/** Sfondo: due aloni morbidi, niente immagini — placeholder-first (§1.4). */
-function Backdrop() {
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-      <div className="absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-teal-500/15 blur-3xl" />
-      <div className="absolute -bottom-32 right-[-20%] size-80 rounded-full bg-gold-500/10 blur-3xl" />
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

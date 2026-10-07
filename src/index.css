@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
-/* ── Palette "matemagica": notturna, oro + turchese ────────────────────────
-   Definita qui una volta sola. Ogni colore del gioco passa da un token.   */
+/* ── Palette segnaposto: notte, oro, turchese. ────────────────────────────
+   Ogni colore del gioco passa da qui. L'identità vera arriva in B8:
+   basterà cambiare questi token.                                         */
 @theme {
-  --color-night-900: #070a1f;
-  --color-night-800: #0b0f2a;
-  --color-night-700: #141a3d;
-  --color-night-600: #1e2757;
+  --color-notte-900: #070a1f;
+  --color-notte-800: #0b0f2a;
+  --color-notte-700: #141a3d;
+  --color-notte-600: #1e2757;
 
-  --color-gold-400: #ffd76e;
-  --color-gold-500: #f5b731;
-  --color-gold-600: #d99413;
+  --color-oro-400: #ffd76e;
+  --color-oro-500: #f5b731;
 
-  --color-teal-300: #7ef0e0;
-  --color-teal-400: #35d6c2;
-  --color-teal-500: #17b5a3;
+  --color-turchese-300: #7ef0e0;
+  --color-turchese-400: #35d6c2;
+  --color-turchese-500: #17b5a3;
 
   --color-magenta-400: #ff7ac6;
-  --color-danger-400: #ff6b6b;
+  --color-pericolo-400: #ff6b6b;
 
-  --font-display: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --font-display: ui-rounded, "SF Pro Rounded", "Trebuchet MS", system-ui, sans-serif;
 
-  --ease-pop: cubic-bezier(0.2, 1.4, 0.4, 1);
+  --ease-rimbalzo: cubic-bezier(0.2, 1.4, 0.4, 1);
 
-  /* ── Il juice. Vive qui, nel guscio, così migliora tutti i giochi insieme. ── */
+  /* ── Il juice: vive qui e nel motore, così migliora tutti i giochi insieme. ── */
   --animate-flash: flash 0.45s ease-out forwards;
-  --animate-pop: pop 0.35s var(--ease-pop);
-  --animate-shake: shake 0.4s ease-in-out;
-  --animate-float-up: float-up 0.7s ease-out forwards;
-  --animate-star-in: star-in 0.5s var(--ease-pop) backwards;
+  --animate-pop: pop 0.35s var(--ease-rimbalzo);
+  --animate-sali: sali 0.75s ease-out forwards;
+  --animate-stella: stella 0.5s var(--ease-rimbalzo) backwards;
+  --animate-annuncio: annuncio 0.9s var(--ease-rimbalzo) forwards;
+  --animate-respiro: respiro 2.2s ease-in-out infinite;
+  --animate-timer: timer linear forwards;
 }
 
 @keyframes flash {
@@ -38,29 +40,41 @@
 
 @keyframes pop {
   0% { transform: scale(0.7); }
-  60% { transform: scale(1.15); }
+  60% { transform: scale(1.12); }
   100% { transform: scale(1); }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-9px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(3px); }
+@keyframes sali {
+  from { opacity: 1; transform: translateY(4px) scale(0.9); }
+  to { opacity: 0; transform: translateY(-28px) scale(1.15); }
 }
 
-@keyframes float-up {
-  from { opacity: 1; transform: translateY(6px) scale(0.9); }
-  to { opacity: 0; transform: translateY(-26px) scale(1.1); }
-}
-
-@keyframes star-in {
+@keyframes stella {
   from { opacity: 0; transform: scale(0.2) rotate(-40deg); }
   to { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 
-/* ── Reset mirato al caso d'uso: gioco arcade a schermo intero su telefono ── */
+@keyframes annuncio {
+  0% { opacity: 0; transform: scale(0.4); }
+  25% { opacity: 1; transform: scale(1.15); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05) translateY(-20px); }
+}
+
+@keyframes respiro {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* La barra del tempo si svuota e diventa rossa negli ultimi istanti. */
+@keyframes timer {
+  0% { width: 100%; background-color: var(--color-turchese-400); }
+  70% { background-color: var(--color-turchese-400); }
+  85% { background-color: var(--color-oro-500); }
+  100% { width: 0%; background-color: var(--color-pericolo-400); }
+}
+
+/* ── Reset per un gioco a schermo intero su telefono ── */
 html,
 body,
 #root {
@@ -69,24 +83,30 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-night-900);
+  background: var(--color-notte-900);
   color: white;
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
-  /* niente selezione accidentale o menu long-press mentre si tocca a raffica */
+  /* niente selezione o menu del long-press mentre si tocca a raffica */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  /* niente pull-to-refresh o bounce durante il gioco */
+  /* niente pull-to-refresh durante il gioco */
   overscroll-behavior: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 button {
   font-family: inherit;
+  color: inherit;
   touch-action: manipulation;
+  cursor: pointer;
 }
 
-/* Rispetta chi ha disattivato le animazioni a livello di sistema. */
+button:disabled {
+  cursor: default;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
