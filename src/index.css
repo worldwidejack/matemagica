@@ -31,6 +31,27 @@
   --animate-annuncio: annuncio 0.9s var(--ease-rimbalzo) forwards;
   --animate-respiro: respiro 2.2s ease-in-out infinite;
   --animate-timer: timer linear forwards;
+  --animate-lampo: lampo linear forwards;
+  --animate-accendi: accendi 0.2s ease-out forwards;
+  --animate-carta: carta 0.7s var(--ease-rimbalzo) backwards;
+}
+
+/* Catena: ogni voce appare, resta, sparisce (durata e ritardo dalla vista). */
+@keyframes lampo {
+  0% { opacity: 0; transform: scale(0.7); }
+  15% { opacity: 1; transform: scale(1.08); }
+  25% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes accendi {
+  to { background-color: var(--color-oro-400); }
+}
+
+@keyframes carta {
+  from { opacity: 0; transform: perspective(600px) rotateY(80deg) scale(0.8); }
+  to { opacity: 1; transform: perspective(600px) rotateY(0deg) scale(1); }
 }
 
 @keyframes flash {

@@ -1,29 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ArcadeGame } from './cartuccia';
+import { SCOSSA, type FinePartita, type PlayProps } from './partita';
+import { Pronto } from './Pronto';
 import {
   PARTITA,
+  bravuraConLimiti,
   bravuraDopoPartita,
+  dentroLimiti,
   diffDopoRisposta,
   diffIniziale,
   moltiplicatore,
   punti,
   stelle as calcolaStelle,
-  type EsitoPartita,
-  type Stelle,
+  type Limiti,
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
 import type { RiepilogoPartita } from '@/profilo/store';
-
-export type FinePartita = { esito: EsitoPartita; stelle: Stelle; bravuraDopo: number };
-
-export type PlayProps = {
-  bravura: number;
-  record: number;
-  /** Chi monta il motore salva la partita e restituisce il riepilogo da mostrare. */
-  onFine: (f: FinePartita) => RiepilogoPartita;
-  onEsci: () => void;
-};
 
 type Stato<R, A> = {
   fase: 'pronto' | 'gioco' | 'fine';
@@ -46,16 +39,20 @@ type Stato<R, A> = {
   guadagno: number;
   /** Il `colpo` in cui sono stati presi gli ultimi punti: solo lì si mostra il "+N". */
   colpoPunti: number;
+  /** Il `colpo` dell'ultimo errore: lì si mostra il lampo rosso. */
+  colpoErrore: number;
   budget: number;
   inizio: number;
   annuncioCombo: number | null;
+  /** Numero del quesito: la vista del gioco si azzera a ogni quesito nuovo. */
+  nRound: number;
 };
 
-function statoIniziale<R, A>(bravura: number): Stato<R, A> {
+function statoIniziale<R, A>(bravura: number, limiti?: Limiti): Stato<R, A> {
   return {
     fase: 'pronto',
     round: null,
-    d: diffIniziale(bravura),
+    d: dentroLimiti(diffIniziale(bravura), limiti),
     punteggio: 0,
     vite: PARTITA.vite,
     combo: 0,
@@ -71,23 +68,16 @@ function statoIniziale<R, A>(bravura: number): Stato<R, A> {
     colpo: 0,
     guadagno: 0,
     colpoPunti: -1,
+    colpoErrore: -1,
     budget: 1,
     inizio: 0,
     annuncioCombo: null,
+    nRound: 0,
   };
 }
 
 const PAUSA_GIUSTA = 420;
 const PAUSA_SBAGLIATA = 1100;
-
-const SCOSSA: Keyframe[] = [
-  { transform: 'translateX(0)' },
-  { transform: 'translateX(-9px)' },
-  { transform: 'translateX(8px)' },
-  { transform: 'translateX(-5px)' },
-  { transform: 'translateX(3px)' },
-  { transform: 'translateX(0)' },
-];
 
 function rapiditaOra<R, A>(st: Stato<R, A>): number {
   return Math.max(0, Math.min(1, 1 - (performance.now() - st.inizio) / st.budget));
@@ -111,6 +101,18 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
   }
 }
 
+/** Una risposta sbagliata (finale o parziale): vita, combo, suono, scossa. */
+function punisci<R, A>(st: Stato<R, A>, campo: HTMLDivElement | null): void {
+  st.errori++;
+  st.vite--;
+  st.combo = 0;
+  st.colpo++;
+  st.colpoErrore = st.colpo;
+  suona('sbagliato');
+  vibra(120);
+  campo?.animate(SCOSSA, { duration: 400, easing: 'ease-in-out' });
+}
+
 /**
  * Il motore arcade: possiede timer, vite, combo, punteggio, livello adattivo,
  * suoni e risultato — per TUTTI i giochi arcade. Il gioco riceve un quesito e
@@ -120,10 +122,20 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
  * se ne fa una copia per il disegno. Il timer visivo è un'animazione CSS:
  * zero render per frame.
  */
-export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: PlayProps & { game: ArcadeGame<R, A> }) {
-  const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura));
+export function ArcadeShell<R, A>({
+  game,
+  bravura,
+  record,
+  limiti,
+  etichetta,
+  inPalestra,
+  onFine,
+  onEsci,
+}: PlayProps & { game: ArcadeGame<R, A> }) {
+  const totale = game.roundPerPartita ?? PARTITA.round;
+  const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura, limiti));
   // I timer leggono e scrivono il ref; lo schermo si disegna da questa copia.
-  const [st, setVista] = useState<Stato<R, A>>(() => statoIniziale<R, A>(bravura));
+  const [st, setVista] = useState<Stato<R, A>>(() => statoIniziale<R, A>(bravura, limiti));
   const ridisegna = useCallback(() => setVista({ ...s.current }), []);
   const timer = useRef<number | null>(null);
   const campo = useRef<HTMLDivElement>(null);
@@ -136,8 +148,9 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
   useEffect(() => pulisci, [pulisci]);
 
   const chiudi = useCallback(() => {
+    pulisci();
     const st = s.current;
-    const esito: EsitoPartita = {
+    const esito = {
       punteggio: st.punteggio,
       giuste: st.giuste,
       errori: st.errori,
@@ -145,15 +158,20 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
       comboMax: st.comboMax,
     };
     const f: FinePartita = {
-      esito,
-      stelle: calcolaStelle(esito),
-      bravuraDopo: bravuraDopoPartita(bravura, st.diffGiuste),
+      punteggio: st.punteggio,
+      stelle: calcolaStelle(esito, totale),
+      bravuraDopo: bravuraConLimiti(bravura, bravuraDopoPartita(bravura, st.diffGiuste), st.diffGiuste, limiti),
+      dati: [
+        { etichetta: 'Giuste', valore: `${st.giuste}/${st.roundGiocati}` },
+        { etichetta: 'Combo max', valore: String(st.comboMax) },
+      ],
     };
     st.fase = 'fine';
+    st.locked = true;
     suona('fine');
     setFine({ fine: f, riepilogo: onFine(f) });
     ridisegna();
-  }, [bravura, onFine, ridisegna]);
+  }, [bravura, limiti, onFine, pulisci, ridisegna, totale]);
 
   // Riferimento stabile per i timer annidati.
   const risposta = useRef<(a: A | null) => void>(() => {});
@@ -172,8 +190,9 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
 
   const nuovoRound = useCallback(() => {
     const st = s.current;
-    if (st.roundGiocati >= PARTITA.round || st.vite <= 0) return chiudi();
+    if (st.roundGiocati >= totale || st.vite <= 0) return chiudi();
     st.round = game.generate(st.d, Math.random);
+    st.nRound++;
     st.given = null;
     st.correct = null;
     st.annuncioCombo = null;
@@ -187,7 +206,7 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
     } else {
       avviaTimer();
     }
-  }, [game, chiudi, avviaTimer, ridisegna]);
+  }, [game, chiudi, avviaTimer, ridisegna, totale]);
 
   const rispondi = useCallback(
     (a: A | null) => {
@@ -205,19 +224,13 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
         st.diffGiuste.push(st.d);
         premia(st, rapidita);
       } else {
-        st.errori++;
-        st.vite--;
-        st.combo = 0;
-        st.colpo++;
-        suona('sbagliato');
-        vibra(120);
-        campo.current?.animate(SCOSSA, { duration: 400, easing: 'ease-in-out' });
+        punisci(st, campo.current);
       }
-      st.d = diffDopoRisposta(st.d, ok, rapidita);
+      st.d = dentroLimiti(diffDopoRisposta(st.d, ok, rapidita, undefined, PARTITA.round / totale), limiti);
       ridisegna();
       timer.current = window.setTimeout(nuovoRound, ok ? PAUSA_GIUSTA : PAUSA_SBAGLIATA);
     },
-    [game, nuovoRound, pulisci, ridisegna],
+    [game, limiti, nuovoRound, pulisci, ridisegna, totale],
   );
   useEffect(() => {
     risposta.current = rispondi;
@@ -230,54 +243,54 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
     ridisegna();
   }, [ridisegna]);
 
+  const onMiss = useCallback(() => {
+    const st = s.current;
+    if (st.locked || st.fase !== 'gioco') return;
+    punisci(st, campo.current);
+    ridisegna();
+    if (st.vite <= 0) {
+      st.locked = true;
+      timer.current = window.setTimeout(chiudi, PAUSA_SBAGLIATA);
+    }
+  }, [chiudi, ridisegna]);
+
   const onAnswer = useCallback((a: A) => risposta.current(a), []);
 
   const via = useCallback(() => {
     pulisci();
     setFine(null);
-    s.current = statoIniziale<R, A>(bravura);
+    s.current = statoIniziale<R, A>(bravura, limiti);
     s.current.fase = 'gioco';
     suona('tap');
     nuovoRound();
-  }, [bravura, nuovoRound, pulisci]);
+  }, [bravura, limiti, nuovoRound, pulisci]);
 
   if (st.fase === 'fine' && fine) {
     return (
       <Risultato
         titolo={game.title}
+        etichetta={etichetta}
         fine={fine.fine}
         riepilogo={fine.riepilogo}
+        inPalestra={inPalestra}
         onAncora={via}
-        onEsci={onEsci}
+        onEsci={() => onEsci(true)}
       />
     );
   }
 
   if (st.fase === 'pronto') {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center gap-6 px-6 text-center">
-        <button onClick={onEsci} className="absolute top-4 left-4 text-2xl text-white/50" aria-label="Esci">
-          ✕
-        </button>
-        <h1 className="font-display text-4xl font-bold text-oro-400">{game.title}</h1>
-        <p className="max-w-xs text-lg text-white/80">{game.hint}</p>
-        <div className="w-full max-w-xs">
-          <div className="mb-1 flex justify-between text-sm text-white/60">
-            <span>Bravura</span>
-            <span>{bravura.toFixed(1)} / 10</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-notte-600">
-            <div className="h-full rounded-full bg-turchese-400" style={{ width: `${bravura * 10}%` }} />
-          </div>
-          {record > 0 && <p className="mt-3 text-sm text-white/60">Record: {record}</p>}
-        </div>
-        <button
-          onClick={via}
-          className="animate-respiro mt-4 rounded-2xl bg-oro-500 px-14 py-5 text-2xl font-bold text-notte-900 shadow-[0_0_40px_var(--color-oro-500)] active:scale-95"
-        >
-          Via!
-        </button>
-      </div>
+      <Pronto
+        titolo={game.title}
+        hint={game.hint}
+        etichetta={etichetta}
+        bravura={bravura}
+        record={record}
+        tipo="arcade"
+        onVia={via}
+        onEsci={() => onEsci(false)}
+      />
     );
   }
 
@@ -296,12 +309,12 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
           mixBlendMode: 'soft-light',
         }}
       />
-      {st.correct === false && (
+      {st.colpoErrore === st.colpo && (
         <div key={`flash-${st.colpo}`} className="animate-flash pointer-events-none absolute inset-0 bg-pericolo-400/25" />
       )}
 
       <header className="relative flex items-center justify-between text-lg">
-        <button onClick={onEsci} className="text-2xl text-white/50" aria-label="Esci">
+        <button onClick={() => onEsci(false)} className="text-2xl text-white/50" aria-label="Esci">
           ✕
         </button>
         <div className="flex gap-1.5 text-2xl" aria-label={`${st.vite} vite`}>
@@ -323,7 +336,7 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
 
       <div className="relative mt-2 flex items-center justify-between text-sm text-white/50">
         <span className="tabular-nums">
-          {Math.min(st.roundGiocati + (feedback ? 0 : 1), PARTITA.round)} / {PARTITA.round}
+          {Math.min(st.roundGiocati + (feedback ? 0 : 1), totale)} / {totale}
         </span>
         {molt > 1 && (
           <span key={`molt-${molt}`} className="animate-pop rounded-full bg-oro-500 px-3 py-0.5 font-bold text-notte-900">
@@ -333,16 +346,16 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
       </div>
 
       <div className="relative mt-3 h-2 overflow-hidden rounded-full bg-notte-600">
-        {!st.revealing && !st.locked && (
+        {!st.revealing && !feedback && st.fase === 'gioco' && (
           <div
-            key={`timer-${st.colpo}`}
+            key={`timer-${st.roundGiocati}-${st.inizio}`}
             className="animate-timer h-full rounded-full bg-turchese-400"
             style={{ animationDuration: `${st.budget}ms` }}
           />
         )}
       </div>
 
-      {st.annuncioCombo !== null && (
+      {st.annuncioCombo !== null && st.colpoPunti === st.colpo && (
         <div
           key={`combo-${st.colpo}`}
           className="animate-annuncio pointer-events-none absolute inset-x-0 top-1/3 z-10 text-center text-5xl font-black text-oro-400 drop-shadow-[0_0_20px_var(--color-oro-500)]"
@@ -354,9 +367,11 @@ export function ArcadeShell<R, A>({ game, bravura, record, onFine, onEsci }: Pla
       <main className="relative flex flex-1 flex-col justify-center py-6">
         {st.round !== null && (
           <View
+            key={st.nRound}
             round={st.round}
             onAnswer={onAnswer}
             onHit={onHit}
+            onMiss={onMiss}
             locked={st.locked}
             revealing={st.revealing}
             given={st.given}
