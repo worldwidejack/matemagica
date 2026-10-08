@@ -7,7 +7,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
     <div className="flex flex-col gap-8">
       <div className="text-center">
         <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none font-black tabular-nums">{round.testo}</p>
-        <p className={`mt-3 text-xl ${feedback ? 'text-white/80' : 'text-white/50'}`}>
+        <p className={`mt-3 text-xl ${feedback ? 'text-panna-100/80' : 'text-panna-100/50'}`}>
           {feedback ? `= ${formatta(Math.round(round.valore * 10) / 10)}` : '≈ quanto, più o meno?'}
         </p>
       </div>
@@ -23,10 +23,10 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
               className={[
                 'rounded-3xl border-2 py-5 text-3xl font-bold tabular-nums active:scale-95',
                 giusta
-                  ? 'animate-pop border-oro-400 bg-oro-500/20'
+                  ? 'animate-pop border-oro-600 bg-oro-400 text-inchiostro'
                   : sbagliata
-                    ? 'border-pericolo-400 bg-pericolo-400/15'
-                    : 'border-notte-600 bg-notte-700',
+                    ? 'border-pericolo-400 bg-pericolo-400 text-panna-50'
+                    : 'border-panna-200 bg-panna-100 text-inchiostro',
               ].join(' ')}
             >
               ≈ {formatta(o)}

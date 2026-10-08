@@ -8,6 +8,9 @@ export type FinePartita = {
   bravuraDopo: number;
   /** Due o tre numeri da mostrare nel risultato (es. "Giuste 18/20"). */
   dati: { etichetta: string; valore: string }[];
+  /** Per le missioni del giorno. */
+  comboMax?: number;
+  puliti?: number;
 };
 
 export type PlayProps = {

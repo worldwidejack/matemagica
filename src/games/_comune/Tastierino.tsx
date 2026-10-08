@@ -28,7 +28,7 @@ export function Tastierino({ valore, onCambia, onInvia, disabilitato, maxCifre =
           disabled={disabilitato}
           className={[
             'rounded-2xl py-2.5 text-2xl font-bold active:scale-95 disabled:opacity-40',
-            t === 'OK' ? 'bg-oro-500 text-notte-900' : t === '⌫' ? 'bg-notte-800 text-white/70' : 'bg-notte-700',
+            t === 'OK' ? 'bg-oro-400 text-inchiostro' : t === '⌫' ? 'bg-panna-200 text-inchiostro' : 'bg-panna-100 text-inchiostro',
           ].join(' ')}
         >
           {t}
@@ -41,8 +41,8 @@ export function Tastierino({ valore, onCambia, onInvia, disabilitato, maxCifre =
 /** Il display della risposta, sopra il tastierino. */
 export function Display({ valore, segnaposto = '?' }: { valore: string; segnaposto?: string }) {
   return (
-    <div className="mx-auto min-w-32 rounded-2xl border-2 border-oro-500/60 bg-notte-800 px-6 py-2 text-center text-4xl font-bold tabular-nums">
-      {valore || <span className="text-white/25">{segnaposto}</span>}
+    <div className="mx-auto min-w-32 rounded-2xl border-2 border-oro-500 bg-panna-50 text-inchiostro px-6 py-2 text-center text-4xl font-bold tabular-nums">
+      {valore || <span className="text-inchiostro/25">{segnaposto}</span>}
     </div>
   );
 }

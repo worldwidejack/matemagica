@@ -1,0 +1,21 @@
+{
+  "_nota": "Correzioni a mano quando scripts/dischi.py non trova tutti e 5 i dischi. Frazioni 0-1 della scena; 'aggiungi' si somma a quelli trovati.",
+  "6": {
+    "aggiungi": [
+      {
+        "x": 0.774,
+        "y": 0.419,
+        "r": 0.052
+      }
+    ]
+  },
+  "7": {
+    "aggiungi": [
+      {
+        "x": 0.729,
+        "y": 0.253,
+        "r": 0.042
+      }
+    ]
+  }
+}

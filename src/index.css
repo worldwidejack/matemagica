@@ -1,25 +1,47 @@
 @import "tailwindcss";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/nunito";
 
-/* ── Palette segnaposto: notte, oro, turchese. ────────────────────────────
-   Ogni colore del gioco passa da qui. L'identità vera arriva in B8:
-   basterà cambiare questi token.                                         */
+/* ── Palette "ora blu": presa dai pixel del riferimento approvato
+   (docs/grafica/RIFERIMENTO-stile-P-ambientazione-T.png). Ogni colore del
+   gioco passa da qui. I nomi vecchi (notte, oro, turchese…) restano, rimappati. */
 @theme {
-  --color-notte-900: #070a1f;
-  --color-notte-800: #0b0f2a;
-  --color-notte-700: #141a3d;
-  --color-notte-600: #1e2757;
+  /* cielo dell'ora blu, dal fondo alla cima */
+  --color-notte-950: #0c1d36;
+  --color-notte-900: #12294b;
+  --color-notte-800: #173e70;
+  --color-notte-700: #1f4c86;
+  --color-notte-600: #2b5c9a;
 
-  --color-oro-400: #ffd76e;
-  --color-oro-500: #f5b731;
+  /* carta panna: schede, pulsanti chiari, barra in basso */
+  --color-panna-50: #fdf8ee;
+  --color-panna-100: #f8eedf;
+  --color-panna-200: #eed5ae;
+  --color-pesca: #fce1c4;
+  --color-azzurro: #c9d4e8;
 
-  --color-turchese-300: #7ef0e0;
-  --color-turchese-400: #35d6c2;
-  --color-turchese-500: #17b5a3;
+  /* inchiostro: il testo sopra la carta */
+  --color-inchiostro: #1b2a44;
+  --color-inchiostro-chiaro: #4a5873;
 
-  --color-magenta-400: #ff7ac6;
-  --color-pericolo-400: #ff6b6b;
+  --color-oro-300: #fde3a6;
+  --color-oro-400: #fdcb70;
+  --color-oro-500: #f0b54d;
+  --color-oro-600: #c99a45;
 
-  --font-display: ui-rounded, "SF Pro Rounded", "Trebuchet MS", system-ui, sans-serif;
+  /* il tramonto e il mantello dell'apprendista */
+  --color-tramonto: #f39a69;
+  --color-mantello: #c45c36;
+
+  /* nomi storici, rimappati sulla palette nuova */
+  --color-turchese-300: #c9d4e8;
+  --color-turchese-400: #8fb3dc;
+  --color-turchese-500: #5f8cb9;
+  --color-magenta-400: #e7799a;
+  --color-pericolo-400: #e2634a;
+
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-corpo: "Nunito Variable", ui-rounded, system-ui, sans-serif;
 
   --ease-rimbalzo: cubic-bezier(0.2, 1.4, 0.4, 1);
 
@@ -34,6 +56,17 @@
   --animate-lampo: lampo linear forwards;
   --animate-accendi: accendi 0.2s ease-out forwards;
   --animate-carta: carta 0.7s var(--ease-rimbalzo) backwards;
+  --animate-sale: sale 0.35s var(--ease-rimbalzo);
+}
+
+@keyframes galleggia {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -5px); }
+}
+
+@keyframes sale {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Catena: ogni voce appare, resta, sparisce (durata e ritardo dalla vista). */
@@ -95,6 +128,9 @@
   100% { width: 0%; background-color: var(--color-pericolo-400); }
 }
 
+/* Stili di base dentro @layer base: così le classi di Tailwind (colori dei
+   pulsanti, testi) vincono sempre su questi. */
+@layer base {
 /* ── Reset per un gioco a schermo intero su telefono ── */
 html,
 body,
@@ -104,9 +140,11 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-notte-900);
-  color: white;
-  font-family: var(--font-display);
+  /* il cielo dell'ora blu: più scuro in alto, come nel riferimento */
+  background: linear-gradient(180deg, var(--color-notte-900) 0%, var(--color-notte-800) 55%, var(--color-notte-700) 100%) fixed;
+  background-color: var(--color-notte-800);
+  color: var(--color-panna-50);
+  font-family: var(--font-corpo);
   -webkit-font-smoothing: antialiased;
   /* niente selezione o menu del long-press mentre si tocca a raffica */
   -webkit-user-select: none;
@@ -128,6 +166,8 @@ button:disabled {
   cursor: default;
 }
 
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -136,4 +176,40 @@ button:disabled {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+@layer base {
+/* Titoli: Fraunces con un po' di morbidezza, come "Matemagica" nel riferimento. */
+h1, h2, h3, .titolo {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  letter-spacing: -0.01em;
+}
+}
+
+/* Grana di carta sopra tutto: il filo di grana della P. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Le stelle del cielo: punti fissi, alcuni respirano. */
+.cielo-stellato {
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 32% 8%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 22%, var(--color-oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 76% 12%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 88% 30%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 38%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 46% 44%, var(--color-oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 52%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 8% 60%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 70%, var(--color-panna-50) 50%, transparent 51%);
 }

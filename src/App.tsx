@@ -7,8 +7,10 @@ import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
 import { Collezione } from '@/ui/Collezione';
 import { Intestazione } from '@/ui/Intestazione';
+import { Icona } from '@/ui/kit';
 import { Palestra } from '@/ui/Palestra';
 import { SpiegazioneSchermo, StoriaSchermo } from '@/ui/Schede';
+import { Benvenuto } from '@/ui/Benvenuto';
 import { Sentiero } from '@/ui/Sentiero';
 
 type Scheda = 'sentiero' | 'palestra' | 'collezione';
@@ -54,6 +56,8 @@ export default function App() {
   const muto = useProfilo((p) => p.muto);
   const viste = useProfilo((p) => p.spiegazioniViste);
   const segnaSpiegazione = useProfilo((p) => p.segnaSpiegazione);
+  const benvenutoFatto = useProfilo((p) => p.benvenuto.fatto);
+  const completaBenvenuto = useProfilo((p) => p.completaBenvenuto);
 
   useEffect(() => setMutoAudio(muto), [muto]);
 
@@ -64,6 +68,19 @@ export default function App() {
   };
 
   const { cima } = nav;
+
+  // Prima apertura: benvenuto, poi dritti al primo livello.
+  if (!benvenutoFatto && cima.tipo === 'scheda') {
+    return (
+      <Benvenuto
+        onFine={(motivo, obiettivo) => {
+          completaBenvenuto(motivo, obiettivo);
+          const primo = SENTIERO[0];
+          if (primo) gioca(primo.gioco, primo.id);
+        }}
+      />
+    );
+  }
 
   if (cima.tipo === 'spiegazione') {
     return (
@@ -104,27 +121,32 @@ export default function App() {
 }
 
 function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) => void }) {
-  const voci: { s: Scheda; icona: string; nome: string }[] = [
-    { s: 'sentiero', icona: '🗺️', nome: 'Sentiero' },
-    { s: 'palestra', icona: '🏋️', nome: 'Palestra' },
-    { s: 'collezione', icona: '🃏', nome: 'Collezione' },
+  const voci: { s: Scheda; icona: 'mappa' | 'fulmine' | 'carte'; nome: string }[] = [
+    { s: 'sentiero', icona: 'mappa', nome: 'Sentiero' },
+    { s: 'palestra', icona: 'fulmine', nome: 'Palestra' },
+    { s: 'collezione', icona: 'carte', nome: 'Collezione' },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-notte-700 bg-notte-900/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-20 rounded-t-3xl bg-panna-100 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(0_0_0/0.25)]">
       <div className="mx-auto flex max-w-md">
-        {voci.map((v) => (
-          <button
-            key={v.s}
-            onClick={() => {
-              if (v.s !== attiva) suona('tap');
-              onScheda(v.s);
-            }}
-            className={`flex flex-1 flex-col items-center py-2.5 text-xs ${v.s === attiva ? 'text-oro-400' : 'text-white/50'}`}
-          >
-            <span className={`text-2xl ${v.s === attiva ? '' : 'opacity-60 grayscale'}`}>{v.icona}</span>
-            {v.nome}
-          </button>
-        ))}
+        {voci.map((v) => {
+          const on = v.s === attiva;
+          return (
+            <button
+              key={v.s}
+              onClick={() => {
+                if (!on) suona('tap');
+                onScheda(v.s);
+              }}
+              className={`flex flex-1 flex-col items-center gap-0.5 pt-2.5 pb-2 text-xs ${on ? 'font-bold text-notte-800' : 'text-inchiostro-chiaro'}`}
+              aria-current={on ? 'page' : undefined}
+            >
+              <Icona nome={v.icona} className={`h-7 w-7 ${on ? 'fill-azzurro' : ''}`} />
+              {v.nome}
+              <span className={`mt-0.5 h-0.5 w-6 rounded-full ${on ? 'bg-notte-800' : 'bg-transparent'}`} />
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
@@ -154,6 +176,8 @@ function Partita({
         bravuraDopo: f.bravuraDopo,
         livello: livello?.id,
         storia: livello?.storia,
+        comboMax: f.comboMax,
+        puliti: f.puliti,
       });
       if (r.cartaNuova) carta.current = r.cartaNuova;
       return r;
