@@ -1,3 +1,5 @@
+import { Bottone, Icona, Scheda } from '@/ui/kit';
+
 type Props = {
   titolo: string;
   hint: string;
@@ -12,32 +14,32 @@ type Props = {
 /** La schermata prima della partita, uguale per tutti i giochi. */
 export function Pronto({ titolo, hint, etichetta, bravura, record, tipo, onVia, onEsci }: Props) {
   return (
-    <div className="relative flex min-h-full flex-col items-center justify-center gap-6 px-6 text-center">
-      <button onClick={onEsci} className="absolute top-4 left-4 text-2xl text-white/50" aria-label="Esci">
-        ✕
+    <div className="cielo-stellato relative flex min-h-full flex-col items-center justify-center gap-6 px-6 py-10 text-center">
+      <button onClick={onEsci} className="absolute top-[calc(env(safe-area-inset-top)+1rem)] left-4 text-panna-100/70" aria-label="Esci">
+        <Icona nome="chiudi" className="h-7 w-7" />
       </button>
-      {etichetta && <p className="text-sm tracking-widest text-turchese-300 uppercase">{etichetta}</p>}
-      <h1 className="font-display text-4xl font-bold text-oro-400">{titolo}</h1>
-      <p className="max-w-xs text-lg text-white/80">{hint}</p>
-      <p className="text-sm text-white/50">
-        {tipo === 'arcade' ? '⚡ Arcade · a tempo, 3 vite' : '🧩 Rompicapo · niente fretta, ci sono gli aiuti'}
-      </p>
-      <div className="w-full max-w-xs">
-        <div className="mb-1 flex justify-between text-sm text-white/60">
-          <span>Bravura</span>
-          <span>{bravura.toFixed(1)} / 10</span>
+      {etichetta && <p className="text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">{etichetta}</p>}
+      <h1 className="text-4xl font-semibold text-panna-50">{titolo}</h1>
+      <Scheda className="w-full max-w-xs text-left">
+        <p className="text-lg leading-snug">{hint}</p>
+        <p className="mt-3 flex items-center gap-2 text-sm text-inchiostro-chiaro">
+          <Icona nome={tipo === 'arcade' ? 'fulmine' : 'stella'} className="h-4 w-4" />
+          {tipo === 'arcade' ? 'Arcade · a tempo, 3 vite' : 'Rompicapo · niente fretta, ci sono gli aiuti'}
+        </p>
+        <div className="mt-4">
+          <div className="mb-1 flex justify-between text-sm text-inchiostro-chiaro">
+            <span>Bravura</span>
+            <span className="font-bold text-inchiostro">{bravura.toFixed(1)} / 10</span>
+          </div>
+          <div className="h-2.5 overflow-hidden rounded-full bg-panna-200">
+            <div className="h-full rounded-full bg-oro-500" style={{ width: `${bravura * 10}%` }} />
+          </div>
+          {record > 0 && <p className="mt-2 text-sm text-inchiostro-chiaro">Record: {record}</p>}
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-notte-600">
-          <div className="h-full rounded-full bg-turchese-400" style={{ width: `${bravura * 10}%` }} />
-        </div>
-        {record > 0 && <p className="mt-3 text-sm text-white/60">Record: {record}</p>}
-      </div>
-      <button
-        onClick={onVia}
-        className="animate-respiro mt-4 rounded-2xl bg-oro-500 px-14 py-5 text-2xl font-bold text-notte-900 shadow-[0_0_40px_var(--color-oro-500)] active:scale-95"
-      >
+      </Scheda>
+      <Bottone onClick={onVia} respira className="mt-2 px-16">
         Via!
-      </button>
+      </Bottone>
     </div>
   );
 }

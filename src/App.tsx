@@ -2,13 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { setMutoAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
+import { SCENE } from '@/content/scene';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
 import { Collezione } from '@/ui/Collezione';
 import { Intestazione } from '@/ui/Intestazione';
+import { Icona } from '@/ui/kit';
 import { Palestra } from '@/ui/Palestra';
 import { SpiegazioneSchermo, StoriaSchermo } from '@/ui/Schede';
+import { Benvenuto } from '@/ui/Benvenuto';
 import { Sentiero } from '@/ui/Sentiero';
 
 type Scheda = 'sentiero' | 'palestra' | 'collezione';
@@ -49,11 +52,18 @@ function useNavigazione() {
   return { cima, base, apri, sostituisci, chiudi, scheda };
 }
 
+/** Tutte le schermate stanno nella colonna di un telefono, anche su tablet e computer. */
+function Colonna({ children }: { children: React.ReactNode }) {
+  return <div className="mx-auto min-h-full max-w-md">{children}</div>;
+}
+
 export default function App() {
   const nav = useNavigazione();
   const muto = useProfilo((p) => p.muto);
   const viste = useProfilo((p) => p.spiegazioniViste);
   const segnaSpiegazione = useProfilo((p) => p.segnaSpiegazione);
+  const benvenutoFatto = useProfilo((p) => p.benvenuto.fatto);
+  const completaBenvenuto = useProfilo((p) => p.completaBenvenuto);
 
   useEffect(() => setMutoAudio(muto), [muto]);
 
@@ -65,8 +75,24 @@ export default function App() {
 
   const { cima } = nav;
 
+  // Prima apertura: benvenuto, poi dritti al primo livello.
+  if (!benvenutoFatto && cima.tipo === 'scheda') {
+    return (
+      <Colonna>
+      <Benvenuto
+        onFine={(motivo, obiettivo) => {
+          completaBenvenuto(motivo, obiettivo);
+          const primo = SENTIERO[0];
+          if (primo) gioca(primo.gioco, primo.id);
+        }}
+      />
+      </Colonna>
+    );
+  }
+
   if (cima.tipo === 'spiegazione') {
     return (
+      <Colonna>
       <SpiegazioneSchermo
         gioco={cima.gioco}
         onAvanti={() => {
@@ -74,22 +100,29 @@ export default function App() {
           nav.sostituisci(cima.poi);
         }}
       />
+      </Colonna>
     );
   }
 
   if (cima.tipo === 'partita') {
     return (
+      <Colonna>
       <Partita
         key={`${cima.gioco}-${cima.livello ?? 'palestra'}`}
         gioco={cima.gioco}
         livello={SENTIERO.find((l) => l.id === cima.livello)}
         onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
       />
+      </Colonna>
     );
   }
 
   if (cima.tipo === 'storia') {
-    return <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />;
+    return (
+      <Colonna>
+        <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />
+      </Colonna>
+    );
   }
 
   return (
@@ -104,27 +137,32 @@ export default function App() {
 }
 
 function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) => void }) {
-  const voci: { s: Scheda; icona: string; nome: string }[] = [
-    { s: 'sentiero', icona: '🗺️', nome: 'Sentiero' },
-    { s: 'palestra', icona: '🏋️', nome: 'Palestra' },
-    { s: 'collezione', icona: '🃏', nome: 'Collezione' },
+  const voci: { s: Scheda; icona: 'mappa' | 'fulmine' | 'carte'; nome: string }[] = [
+    { s: 'sentiero', icona: 'mappa', nome: 'Sentiero' },
+    { s: 'palestra', icona: 'fulmine', nome: 'Palestra' },
+    { s: 'collezione', icona: 'carte', nome: 'Collezione' },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-notte-700 bg-notte-900/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-0 z-20 rounded-t-3xl bg-panna-100 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(0_0_0/0.25)]">
       <div className="mx-auto flex max-w-md">
-        {voci.map((v) => (
-          <button
-            key={v.s}
-            onClick={() => {
-              if (v.s !== attiva) suona('tap');
-              onScheda(v.s);
-            }}
-            className={`flex flex-1 flex-col items-center py-2.5 text-xs ${v.s === attiva ? 'text-oro-400' : 'text-white/50'}`}
-          >
-            <span className={`text-2xl ${v.s === attiva ? '' : 'opacity-60 grayscale'}`}>{v.icona}</span>
-            {v.nome}
-          </button>
-        ))}
+        {voci.map((v) => {
+          const on = v.s === attiva;
+          return (
+            <button
+              key={v.s}
+              onClick={() => {
+                if (!on) suona('tap');
+                onScheda(v.s);
+              }}
+              className={`flex flex-1 flex-col items-center gap-0.5 pt-2.5 pb-2 text-xs ${on ? 'font-bold text-notte-800' : 'text-inchiostro-chiaro'}`}
+              aria-current={on ? 'page' : undefined}
+            >
+              <Icona nome={v.icona} className={`h-7 w-7 ${on ? 'fill-azzurro' : ''}`} />
+              {v.nome}
+              <span className={`mt-0.5 h-0.5 w-6 rounded-full ${on ? 'bg-notte-800' : 'bg-transparent'}`} />
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
@@ -154,6 +192,8 @@ function Partita({
         bravuraDopo: f.bravuraDopo,
         livello: livello?.id,
         storia: livello?.storia,
+        comboMax: f.comboMax,
+        puliti: f.puliti,
       });
       if (r.cartaNuova) carta.current = r.cartaNuova;
       return r;
@@ -162,7 +202,16 @@ function Partita({
   );
 
   const Play = GIOCHI[gioco].Play;
+  // Dietro la partita, la scena della tappa in cui stai giocando: scurita, per restare "dentro" il paese.
+  const scena = SCENE.find((x) => x.n === (livello?.tappa ?? 1));
   return (
+    <>
+      {scena && (
+        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
+          <img src={scena.file} alt="" className="h-full w-full scale-110 object-cover blur-[3px] brightness-[0.35] saturate-[0.8]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-notte-900/70 via-notte-900/30 to-notte-900/80" />
+        </div>
+      )}
     <Play
       bravura={bravura}
       record={record}
@@ -172,5 +221,6 @@ function Partita({
       onFine={onFine}
       onEsci={(dopo) => onEsci(dopo ? carta.current : undefined)}
     />
+    </>
   );
 }

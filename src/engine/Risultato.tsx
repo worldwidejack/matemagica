@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { suona } from '@/audio/sfx';
+import { Bottone, Scheda } from '@/ui/kit';
 import type { RiepilogoPartita } from '@/profilo/store';
 import type { FinePartita } from './partita';
 
@@ -45,60 +46,80 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAn
   const nuovoRecord = punteggio > riepilogo.recordPrima && punteggio > 0;
   const delta = riepilogo.bravuraDopo - riepilogo.bravuraPrima;
 
+  const [fiamma, setFiamma] = useState(false);
+  /** Alla prima partita del giorno, prima di uscire si festeggia la fiamma (come Duolingo). */
+  const continua = () => {
+    if (riepilogo.fiammaAccesa && !fiamma) return setFiamma(true);
+    onEsci();
+  };
+
+  if (fiamma) return <FiammaSchermo giorni={riepilogo.streak} onAvanti={onEsci} />;
+
   return (
-    <div className="flex min-h-full flex-col items-center justify-center gap-5 px-6 text-center">
-      <p className="text-sm tracking-widest text-white/50 uppercase">
+    <div className="cielo-stellato flex min-h-full flex-col items-center justify-center gap-5 px-6 py-8 text-center">
+      <p className="text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">
         {etichetta ? `${etichetta} · ` : ''}
         {titolo}
       </p>
 
-      <div className="flex gap-3 text-6xl">
+      <div className="flex gap-2">
         {[1, 2, 3].map((i) => (
-          <span
+          <svg
             key={i}
-            className={i <= visibili ? 'animate-stella text-oro-400 drop-shadow-[0_0_14px_var(--color-oro-500)]' : 'text-white/10'}
+            viewBox="0 0 24 24"
+            className={`h-16 w-16 ${i === 2 ? '-translate-y-3' : ''} ${i <= visibili ? 'animate-stella drop-shadow-[0_0_14px_var(--color-oro-500)]' : ''}`}
+            aria-hidden
           >
-            ★
-          </span>
+            <path
+              d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"
+              fill={i <= visibili ? 'var(--color-oro-400)' : 'rgb(255 255 255 / 0.15)'}
+              stroke={i <= visibili ? 'var(--color-oro-600)' : 'none'}
+              strokeWidth={1}
+            />
+          </svg>
         ))}
       </div>
-      <p className="text-xl">{FRASI[stelle]}</p>
+      <h1 className="text-3xl font-semibold text-panna-50">{FRASI[stelle]}</h1>
 
       <div>
-        <p className="text-6xl font-black tabular-nums text-oro-400">{punteggio}</p>
-        {nuovoRecord && <p className="animate-pop mt-1 font-bold text-turchese-300">Nuovo record!</p>}
+        <p className="titolo text-6xl font-semibold tabular-nums text-oro-400">{punteggio}</p>
+        {nuovoRecord && <p className="animate-pop mt-1 font-bold text-oro-300">Nuovo record!</p>}
       </div>
 
-      <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-sm">
-        {fine.dati.map((d) => (
-          <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
-        ))}
-        <Dato etichetta="XP" valore={`+${riepilogo.xpGuadagnati}`} />
-      </div>
+      <Scheda className="w-full max-w-xs">
+        <div className="grid grid-cols-3 divide-x divide-panna-200 text-center">
+          {fine.dati.map((d) => (
+            <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
+          ))}
+          <Dato etichetta="XP" valore={`+${riepilogo.xpGuadagnati}`} />
+        </div>
+        <p className="mt-3 border-t border-panna-200 pt-3 text-sm text-inchiostro-chiaro">
+          Bravura {riepilogo.bravuraPrima.toFixed(1)} → <span className="font-bold text-inchiostro">{riepilogo.bravuraDopo.toFixed(1)}</span>
+          {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
+        </p>
+      </Scheda>
 
-      <p className="text-sm text-white/70">
-        Bravura {riepilogo.bravuraPrima.toFixed(1)} →{' '}
-        <span className="font-bold text-turchese-300">{riepilogo.bravuraDopo.toFixed(1)}</span>
-        {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
-      </p>
-
-      {riepilogo.livelloDopo > riepilogo.livelloPrima && (
-        <p className="animate-pop rounded-xl bg-turchese-500/20 px-4 py-2 font-bold text-turchese-300">
-          Sei salito al livello {riepilogo.livelloDopo}!
+      {riepilogo.missioniNuove.map((m) => (
+        <p key={m.id} className="animate-pop w-full max-w-xs rounded-2xl bg-oro-400 px-4 py-2.5 text-left text-inchiostro shadow">
+          <span className="font-bold">Missione completata</span> · {m.testo} <span className="font-bold">+{m.premioXp} XP</span>
+        </p>
+      ))}
+      {riepilogo.obiettivoRaggiunto && (
+        <p className="animate-pop w-full max-w-xs rounded-2xl bg-panna-100 px-4 py-2.5 text-inchiostro shadow">
+          Obiettivo del giorno raggiunto: {riepilogo.obiettivo} {riepilogo.obiettivo === 1 ? 'partita' : 'partite'}!
         </p>
       )}
-      {riepilogo.streak > 1 && <p className="text-white/80">🔥 {riepilogo.streak} giorni di fila</p>}
+      {riepilogo.livelloDopo > riepilogo.livelloPrima && (
+        <p className="animate-pop rounded-2xl bg-azzurro px-4 py-2 font-bold text-inchiostro">Sei salito al livello {riepilogo.livelloDopo}!</p>
+      )}
 
-      <div className="mt-2 flex w-full max-w-xs flex-col gap-3">
-        <button
-          onClick={inPalestra ? onAncora : onEsci}
-          className="rounded-2xl bg-oro-500 py-4 text-xl font-bold text-notte-900 shadow-[0_0_30px_var(--color-oro-500)] active:scale-95"
-        >
+      <div className="mt-2 flex w-full max-w-xs flex-col items-center gap-2">
+        <Bottone freccia={!inPalestra} className="w-full" onClick={inPalestra ? onAncora : continua}>
           {inPalestra ? 'Ancora una!' : 'Continua'}
-        </button>
-        <button onClick={inPalestra ? onEsci : onAncora} className="py-2 text-white/60">
+        </Bottone>
+        <Bottone variante="vuoto" onClick={inPalestra ? continua : onAncora}>
           {inPalestra ? 'Torna alla Palestra' : 'Rigioca'}
-        </button>
+        </Bottone>
       </div>
     </div>
   );
@@ -106,9 +127,36 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAn
 
 function Dato({ etichetta, valore }: { etichetta: string; valore: string }) {
   return (
-    <div className="rounded-xl bg-notte-700 px-2 py-3">
-      <p className="text-lg font-bold">{valore}</p>
-      <p className="text-white/50">{etichetta}</p>
+    <div className="px-1">
+      <p className="titolo text-xl font-semibold">{valore}</p>
+      <p className="text-xs text-inchiostro-chiaro">{etichetta}</p>
+    </div>
+  );
+}
+
+/** La fiamma a tutto schermo: il numero dei giorni di fila sale di uno. */
+function FiammaSchermo({ giorni, onAvanti }: { giorni: number; onAvanti: () => void }) {
+  const [mostrato, setMostrato] = useState(Math.max(0, giorni - 1));
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setMostrato(giorni);
+      suona('livello');
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [giorni]);
+  return (
+    <div className="cielo-stellato flex min-h-full flex-col items-center justify-center gap-6 px-6 text-center">
+      <div className="animate-pop text-[7rem] leading-none drop-shadow-[0_0_40px_var(--color-tramonto)]">🔥</div>
+      <p key={mostrato} className="titolo animate-pop text-8xl font-semibold text-oro-400 tabular-nums">
+        {mostrato}
+      </p>
+      <h1 className="text-3xl font-semibold text-panna-50">{giorni === 1 ? 'giorno di fila!' : 'giorni di fila!'}</h1>
+      <p className="max-w-xs text-lg text-panna-100/80">
+        {giorni === 1 ? 'La fiamma è accesa. Torna domani per tenerla viva.' : 'Non spegnerla: basta una partita al giorno.'}
+      </p>
+      <Bottone freccia className="w-full max-w-xs" onClick={onAvanti}>
+        Continua
+      </Bottone>
     </div>
   );
 }

@@ -26,6 +26,7 @@ type Stato<R> = {
   punteggio: number;
   aiutiTotali: number;
   sbagliTotali: number;
+  pulitiTotali: number;
   diffRisolti: number[];
   aiutiQui: number;
   sbagliQui: number;
@@ -66,6 +67,7 @@ export function PuzzleShell<R, A>({
       punteggio: prima?.punteggio ?? 0,
       aiutiTotali: prima?.aiutiTotali ?? 0,
       sbagliTotali: prima?.sbagliTotali ?? 0,
+      pulitiTotali: prima?.pulitiTotali ?? 0,
       diffRisolti: prima?.diffRisolti ?? [],
       aiutiQui: 0,
       sbagliQui: 0,
@@ -94,6 +96,7 @@ export function PuzzleShell<R, A>({
       esiti: [...s.esiti, esito],
       aiutiTotali: s.aiutiTotali + s.aiutiQui,
       sbagliTotali: s.sbagliTotali + s.sbagliQui,
+      pulitiTotali: s.pulitiTotali + (esito === 'risolto' && pulito ? 1 : 0),
       diffRisolti: esito === 'risolto' ? [...s.diffRisolti, s.d] : s.diffRisolti,
       d: dentroLimiti(diffDopoRompicapo(s.d, esito === 'risolto', pulito), limiti),
     };
@@ -149,6 +152,7 @@ export function PuzzleShell<R, A>({
         { etichetta: 'Risolti', valore: `${risolti}/${totale}` },
         { etichetta: 'Aiuti', valore: String(st.aiutiTotali) },
       ],
+      puliti: st.pulitiTotali,
     };
     suona('fine');
     setFine({ fine: f, riepilogo: onFine(f) });
@@ -190,7 +194,7 @@ export function PuzzleShell<R, A>({
   return (
     <div ref={campo} className="relative flex min-h-full flex-col px-4 pt-3 pb-4">
       <header className="flex items-center justify-between text-lg">
-        <button onClick={() => onEsci(false)} className="text-2xl text-white/50" aria-label="Esci">
+        <button onClick={() => onEsci(false)} className="text-2xl text-panna-100/50" aria-label="Esci">
           ✕
         </button>
         <div className="flex gap-2" aria-label={`Rompicapo ${st.indice + 1} di ${totale}`}>
@@ -198,19 +202,19 @@ export function PuzzleShell<R, A>({
             const e = st.esiti[i];
             const colore =
               e === 'risolto'
-                ? 'bg-turchese-400'
+                ? 'bg-oro-400'
                 : e === 'saltato'
-                  ? 'bg-white/25'
+                  ? 'bg-panna-100/40'
                   : i === st.indice
                     ? 'bg-oro-400 animate-respiro'
-                    : 'bg-notte-600';
+                    : 'bg-panna-100/20';
             return <span key={i} className={`h-3 w-3 rounded-full ${colore}`} />;
           })}
         </div>
         <div className="relative min-w-16 text-right font-bold tabular-nums text-oro-400">
           {st.punteggio}
           {st.chiuso === 'risolto' && (
-            <span key={`pti-${st.indice}`} className="animate-sali absolute top-6 right-0 text-base text-turchese-300">
+            <span key={`pti-${st.indice}`} className="animate-sali absolute top-6 right-0 text-base text-oro-300">
               +{st.guadagno}
             </span>
           )}
@@ -224,7 +228,7 @@ export function PuzzleShell<R, A>({
       {st.aiutiQui > 0 && st.chiuso === null && (
         <div className="mb-3 flex flex-col gap-2">
           {aiuti.slice(0, st.aiutiQui).map((a, i) => (
-            <p key={i} className="animate-pop rounded-2xl bg-turchese-500/15 px-4 py-3 text-turchese-300">
+            <p key={i} className="animate-pop rounded-2xl bg-azzurro px-4 py-3 text-inchiostro">
               💡 {a}
             </p>
           ))}
@@ -234,16 +238,16 @@ export function PuzzleShell<R, A>({
       {st.chiuso !== null ? (
         <div className="animate-pop flex flex-col gap-3">
           <div
-            className={`rounded-2xl px-4 py-3 ${st.chiuso === 'risolto' ? 'bg-turchese-500/15' : 'bg-notte-700'}`}
+            className={`rounded-2xl px-4 py-3 bg-panna-100 text-inchiostro`}
           >
-            <p className={`font-bold ${st.chiuso === 'risolto' ? 'text-turchese-300' : 'text-white/70'}`}>
+            <p className={`font-bold ${st.chiuso === 'risolto' ? 'text-oro-600' : 'text-inchiostro-chiaro'}`}>
               {st.chiuso === 'risolto' ? (st.sbagliQui === 0 && st.aiutiQui === 0 ? 'Perfetto!' : 'Risolto!') : 'La soluzione'}
             </p>
-            <p className="mt-1 text-white/85">{game.soluzione(st.round)}</p>
+            <p className="mt-1 text-inchiostro">{game.soluzione(st.round)}</p>
           </div>
           <button
             onClick={avanti}
-            className="rounded-2xl bg-oro-500 py-4 text-xl font-bold text-notte-900 shadow-[0_0_30px_var(--color-oro-500)] active:scale-95"
+            className="titolo rounded-full border-2 border-oro-600/50 bg-oro-400 py-3.5 text-xl font-semibold text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]"
           >
             {st.indice + 1 < totale ? 'Avanti' : 'Fine'}
           </button>
@@ -253,11 +257,11 @@ export function PuzzleShell<R, A>({
           <button
             onClick={aiuto}
             disabled={st.aiutiQui >= aiuti.length}
-            className="flex-1 rounded-2xl bg-notte-700 py-3 font-bold text-turchese-300 disabled:opacity-40"
+            className="flex-1 rounded-full bg-panna-100 py-3 font-bold text-inchiostro disabled:opacity-40"
           >
             💡 Aiuto {aiuti.length > 0 ? `(${aiuti.length - st.aiutiQui})` : ''}
           </button>
-          <button onClick={salta} className="rounded-2xl bg-notte-800 px-5 py-3 text-white/60">
+          <button onClick={salta} className="rounded-full bg-panna-100/15 px-5 py-3 text-panna-100">
             Salta
           </button>
         </div>

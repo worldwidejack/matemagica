@@ -1,11 +1,11 @@
 ---
 progetto: Matemagica
 stato: attivo
-aggiornato: 2026-10-07
+aggiornato: 2026-10-08
 dettaglio: CLAUDE.md
 ---
 ## Siamo arrivati a
-MVP quasi completo (7/10, da zero in un giorno): 7 giochi, sentiero di 40 livelli, Palestra, collezione di 8 storie, XP/streak, installabile come app e offline. Manca solo identità visiva e nome. Contenuti (spiegazioni, storie, sequenze, ordine del sentiero) in bozza, aspettano papà.
+MVP con 7 giochi, sentiero di 40 livelli, Palestra, collezione, missioni del giorno, fiamma; installabile e offline. **8/10: grafica "ora blu" approvata e costruita** (stile della P + ambientazione della T): 8 scene dipinte dal porto alla torre, tutte le schermate ridisegnate. Contenuti ancora in bozza, aspettano papà (PDF in `docs/papa/`).
 
 ## Prossimo passo
-Jack: prova dal telefono e passa a papà il PDF `docs/papa/01-per-papa.pdf`; poi porta le sue risposte. Claude: le trasforma nel gioco. Dopo: identità visiva (B8).
+Jack: prova la grafica nuova dal telefono (preview della PR) e passa il PDF a papà. Claude: giro mascotte e icone dei giochi disegnate; poi le risposte di papà nel gioco.
