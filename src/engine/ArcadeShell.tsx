@@ -16,6 +16,7 @@ import {
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
+import { rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 type Stato<R, A> = {
@@ -96,6 +97,7 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
   if (dopo > prima) {
     st.annuncioCombo = dopo;
     suona('combo');
+    vibra(25);
   } else {
     suona('giusto', st.combo / 12);
   }
@@ -129,9 +131,13 @@ export function ArcadeShell<R, A>({
   limiti,
   etichetta,
   inPalestra,
+  seme,
+  condividi,
   onFine,
   onEsci,
 }: PlayProps & { game: ArcadeGame<R, A> }) {
+  // Con un seme (sfida del giorno) i quesiti sono gli stessi per tutti.
+  const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
   const totale = game.roundPerPartita ?? PARTITA.round;
   const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura, limiti));
   // I timer leggono e scrivono il ref; lo schermo si disegna da questa copia.
@@ -166,6 +172,7 @@ export function ArcadeShell<R, A>({
         { etichetta: 'Combo max', valore: String(st.comboMax) },
       ],
       comboMax: st.comboMax,
+      giuste: st.giuste,
     };
     st.fase = 'fine';
     st.locked = true;
@@ -192,7 +199,7 @@ export function ArcadeShell<R, A>({
   const nuovoRound = useCallback(() => {
     const st = s.current;
     if (st.roundGiocati >= totale || st.vite <= 0) return chiudi();
-    st.round = game.generate(st.d, Math.random);
+    st.round = game.generate(st.d, rng.current);
     st.nRound++;
     st.given = null;
     st.correct = null;
@@ -262,9 +269,10 @@ export function ArcadeShell<R, A>({
     setFine(null);
     s.current = statoIniziale<R, A>(bravura, limiti);
     s.current.fase = 'gioco';
+    if (seme !== undefined) rng.current = rngConSeme(seme);
     suona('tap');
     nuovoRound();
-  }, [bravura, limiti, nuovoRound, pulisci]);
+  }, [bravura, limiti, nuovoRound, pulisci, seme]);
 
   if (st.fase === 'fine' && fine) {
     return (
@@ -274,6 +282,7 @@ export function ArcadeShell<R, A>({
         fine={fine.fine}
         riepilogo={fine.riepilogo}
         inPalestra={inPalestra}
+        condividi={condividi?.(fine.fine)}
         onAncora={via}
         onEsci={() => onEsci(true)}
       />

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { suona } from '@/audio/sfx';
+import type { GameId } from '@/engine/cartuccia';
 
 /**
  * I mattoni dell'interfaccia nello stile approvato (riferimento: stile della P,
@@ -78,7 +79,7 @@ export function Scheda({ children, className = '' }: { children: ReactNode; clas
   );
 }
 
-type NomeIcona = 'freccia' | 'mappa' | 'fulmine' | 'carte' | 'chiudi' | 'suono' | 'muto' | 'lucchetto' | 'stella' | 'indietro';
+type NomeIcona = 'freccia' | 'mappa' | 'fulmine' | 'carte' | 'chiudi' | 'suono' | 'muto' | 'lucchetto' | 'stella' | 'indietro' | 'persona' | 'calendario' | 'condividi';
 
 /** Icone a tratto, stesso spessore delle linee dell'illustrazione. */
 export function Icona({ nome, className = 'h-6 w-6' }: { nome: NomeIcona; className?: string }) {
@@ -119,6 +120,25 @@ export function Icona({ nome, className = 'h-6 w-6' }: { nome: NomeIcona; classN
       </>
     ),
     stella: <path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" />,
+    condividi: (
+      <>
+        <path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" />
+        <path d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12" />
+      </>
+    ),
+    persona: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
+      </>
+    ),
+    calendario: (
+      <>
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+        <path d="M3.5 10h17M8 3v4M16 3v4" />
+        <path d="m12 12.5.8 1.7 1.9.2-1.4 1.3.4 1.9-1.7-.9-1.7.9.4-1.9-1.4-1.3 1.9-.2z" />
+      </>
+    ),
   };
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
@@ -142,5 +162,37 @@ export function Stelline({ n, className = '' }: { n: number; className?: string 
         </svg>
       ))}
     </span>
+  );
+}
+
+/** Il disco della medaglia: bronzo, argento o oro intorno all'icona. */
+export function Medaglione({ icona, grado, grande }: { icona: string; grado: 0 | 1 | 2 | 3; grande?: boolean }) {
+  const anello = ['ring-panna-100/20', 'ring-tramonto', 'ring-azzurro', 'ring-oro-500'][grado];
+  const fondo = ['bg-panna-100/10 grayscale opacity-50', 'bg-pesca', 'bg-panna-50', 'bg-oro-300'][grado];
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center rounded-full ring-4 ${anello} ${fondo} ${
+        grande ? 'h-16 w-16 text-3xl' : 'h-11 w-11 text-2xl'
+      }`}
+    >
+      {icona}
+    </span>
+  );
+}
+
+/**
+ * L'icona dipinta di un gioco (medaglione tondo, public/giochi/<id>.webp,
+ * ritagliata da scripts/icone-giochi.py). Le emoji restano solo nei messaggi condivisi.
+ */
+export function IconaGioco({ gioco, className = 'h-14 w-14' }: { gioco: GameId; className?: string }) {
+  return (
+    <img
+      src={`/giochi/${gioco}.webp`}
+      alt=""
+      width={256}
+      height={256}
+      draggable={false}
+      className={`shrink-0 rounded-full drop-shadow-[0_3px_6px_rgb(0_0_0/0.35)] ${className}`}
+    />
   );
 }

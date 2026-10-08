@@ -32,7 +32,7 @@ const ORDINE: Riga[] = [
   { gioco: 'bilancia' },
   { gioco: 'catena', storia: 'lo-shu' },
   // ── Tappa 4 ──
-  { gioco: 'piu-grande' },
+  { gioco: 'quadrato' },
   { gioco: 'regola' },
   { gioco: 'coppie' },
   { gioco: 'bersaglio' },
@@ -94,7 +94,8 @@ function fasciaPer(k: number): Limiti {
   return [Math.round(min * 10) / 10, Math.round(max * 10) / 10];
 }
 
-export const SENTIERO: Livello[] = (() => {
+/** Le 8 tappe scritte a mano (con papà): il viaggio dal porto alla torre. */
+export const SENTIERO_BASE: Livello[] = (() => {
   const apparizioni = new Map<GameId, number>();
   return ORDINE.map((r, i) => {
     const k = apparizioni.get(r.gioco) ?? 0;
@@ -111,3 +112,79 @@ export const SENTIERO: Livello[] = (() => {
     };
   });
 })();
+
+// ── Oltre la torre: il sentiero infinito ────────────────────────────────
+
+/**
+ * Dopo la torre il viaggio continua tra le costellazioni, all'infinito: ogni
+ * tappa è una costellazione e i livelli si generano da soli. Ogni tappa
+ * contiene 5 giochi diversi (seme fisso: uguale per tutti) e la fascia di
+ * difficoltà resta alta ma mai piatta: 1 livello su 5 è "di respiro".
+ */
+export const COSTELLAZIONI = [
+  'Orsa Maggiore',
+  'Cassiopea',
+  'Orione',
+  'Lira',
+  'Cigno',
+  'Andromeda',
+  'Pegaso',
+  'Perseo',
+  'Drago',
+  'Gemelli',
+  'Scorpione',
+  'Sagittario',
+  'Aquila',
+  'Corona Boreale',
+  'Delfino',
+  'Leone',
+] as const;
+
+/** Tappe generate da tenere pronte: ~300 livelli in più bastano per anni. */
+const TAPPE_GENERATE = 60;
+
+/** I giochi che girano nelle tappe tra le stelle. */
+const ROTAZIONE: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'misto'];
+
+function semeLivelli(t: number): () => number {
+  let a = (t * 2654435761) >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let x = a;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function nomeTappa(n: number): string {
+  if (n <= TAPPE.length) return TAPPE[n - 1] ?? '';
+  const k = n - TAPPE.length - 1;
+  const nome = COSTELLAZIONI[k % COSTELLAZIONI.length] ?? 'Le stelle';
+  const giro = Math.floor(k / COSTELLAZIONI.length);
+  return giro === 0 ? nome : `${nome} ${['', 'II', 'III', 'IV', 'V', 'VI'][giro] ?? giro + 1}`;
+}
+
+const SENTIERO_STELLE: Livello[] = (() => {
+  const livelli: Livello[] = [];
+  for (let t = 0; t < TAPPE_GENERATE; t++) {
+    const tappa = TAPPE.length + t + 1;
+    const rng = semeLivelli(tappa);
+    // 5 giochi diversi, mescolati col seme della tappa.
+    const giochi = [...ROTAZIONE].sort(() => rng() - 0.5).slice(0, 5);
+    const respiro = Math.floor(rng() * 5);
+    giochi.forEach((gioco, k) => {
+      const numero = SENTIERO_BASE.length + t * 5 + k + 1;
+      // Sale piano da 6-9 fino a 7-10; il livello "di respiro" è una fascia più bassa.
+      const su = Math.min(1, t / 20);
+      const limiti: Limiti = k === respiro ? [3, 6.5] : [Math.round((6 + su) * 10) / 10, Math.round((9 + su) * 10) / 10];
+      livelli.push({ id: `L${numero}`, numero, gioco, limiti, debutto: false, tappa });
+    });
+  }
+  return livelli;
+})();
+
+/** Tutto il sentiero: le 8 tappe di papà e poi le stelle. */
+export const SENTIERO: Livello[] = [...SENTIERO_BASE, ...SENTIERO_STELLE];
+
+export const TAPPE_TOTALI = SENTIERO.length / 5;

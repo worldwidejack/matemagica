@@ -26,8 +26,7 @@ Ogni idea nuova finisce qui, non nell'MVP. Si riapre dopo B8 e il giro con papà
 
 ## Rifiniture notate giocando
 - [ ] Bersaglio: al primissimo livello "sommare tutto" è permesso (scelta da confermare con papà)
-- [ ] Se vinci una storia e poi rigiochi e esci con ✕, la schermata "Nuova carta!" si perde
-  (la carta resta comunque in Collezione)
+- [x] Se vinci una storia e poi rigiochi e esci con ✕, la schermata "Nuova carta!" si perde (8/10)
 - [ ] Suoni veri al posto di quelli sintetizzati (con l'identità, B8)
 
 ## Piattaforma

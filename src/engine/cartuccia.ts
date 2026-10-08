@@ -19,7 +19,10 @@ export type GameId =
   | 'stima'
   | 'bersaglio'
   | 'bilancia'
-  | 'regola';
+  | 'regola'
+  | 'quadrato'
+  /** Lampo misto: i giochi arcade mescolati, un quesito ciascuno. */
+  | 'misto';
 
 // ── Arcade: a tempo, vite, combo ─────────────────────────────────────────
 

@@ -14,6 +14,7 @@ import {
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
+import { rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 type Esito = 'risolto' | 'saltato';
@@ -47,9 +48,13 @@ export function PuzzleShell<R, A>({
   limiti,
   etichetta,
   inPalestra,
+  seme,
+  condividi,
   onFine,
   onEsci,
 }: PlayProps & { game: PuzzleGame<R, A> }) {
+  // Con un seme (sfida del giorno) i rompicapo sono gli stessi per tutti.
+  const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
   const totale = game.roundPerPartita ?? ROMPICAPO.roundPredefiniti;
   const [fase, setFase] = useState<'pronto' | 'gioco' | 'fine'>('pronto');
   const [st, setSt] = useState<Stato<R> | null>(null);
@@ -60,7 +65,7 @@ export function PuzzleShell<R, A>({
 
   const nuovoStato = useCallback(
     (d: number, indice: number, prima?: Stato<R>): Stato<R> => ({
-      round: game.generate(d, Math.random),
+      round: game.generate(d, rng.current),
       d,
       indice,
       esiti: prima?.esiti ?? [],
@@ -81,9 +86,10 @@ export function PuzzleShell<R, A>({
     suona('tap');
     setFine(null);
     setNPartita((n) => n + 1);
+    if (seme !== undefined) rng.current = rngConSeme(seme);
     setSt(nuovoStato(dentroLimiti(diffIniziale(bravura), limiti), 0));
     setFase('gioco');
-  }, [bravura, limiti, nuovoStato]);
+  }, [bravura, limiti, nuovoStato, seme]);
 
   const chiudiRompicapo = (s: Stato<R>, esito: Esito): Stato<R> => {
     const pulito = s.aiutiQui === 0 && s.sbagliQui === 0;
@@ -153,6 +159,7 @@ export function PuzzleShell<R, A>({
         { etichetta: 'Aiuti', valore: String(st.aiutiTotali) },
       ],
       puliti: st.pulitiTotali,
+      risolti,
     };
     suona('fine');
     setFine({ fine: f, riepilogo: onFine(f) });
@@ -167,6 +174,7 @@ export function PuzzleShell<R, A>({
         fine={fine.fine}
         riepilogo={fine.riepilogo}
         inPalestra={inPalestra}
+        condividi={condividi?.(fine.fine)}
         onAncora={via}
         onEsci={() => onEsci(true)}
       />

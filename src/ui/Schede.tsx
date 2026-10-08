@@ -4,7 +4,7 @@ import type { GameId } from '@/engine/cartuccia';
 import { SPIEGAZIONI } from '@/content/spiegazioni';
 import { STORIE } from '@/content/storie';
 import { GIOCHI } from '@/games/registro';
-import { Bottone, Scheda } from './kit';
+import { Bottone, IconaGioco, Scheda } from './kit';
 
 /** La mini-lezione che precede la prima partita a un gioco. */
 export function SpiegazioneSchermo({ gioco, onAvanti }: { gioco: GameId; onAvanti: () => void }) {
@@ -14,7 +14,7 @@ export function SpiegazioneSchermo({ gioco, onAvanti }: { gioco: GameId; onAvant
     <div className="cielo-stellato mx-auto flex min-h-full max-w-md flex-col justify-center gap-5 px-6 py-10">
       <p className="text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">Gioco nuovo</p>
       <div className="flex items-center gap-4">
-        <span className="animate-pop flex h-16 w-16 items-center justify-center rounded-2xl bg-azzurro text-4xl">{v.icona}</span>
+        <IconaGioco gioco={gioco} className="animate-pop h-20 w-20" />
         <h1 className="text-4xl font-semibold text-panna-50">{v.titolo}</h1>
       </div>
       <Scheda className="flex flex-col gap-4 p-5">
