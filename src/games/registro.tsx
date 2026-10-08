@@ -10,6 +10,8 @@ import { stimaLampo } from './stima';
 import { numeroBersaglio } from './bersaglio';
 import { laBilancia } from './bilancia';
 import { trovaLaRegola } from './regola';
+import { quadratoMagico } from './quadrato';
+import { lampoMisto } from './misto';
 
 /**
  * Tutti i giochi di Matemagica. Un gioco nuovo = una cartella in src/games/
@@ -73,7 +75,24 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
     tipo: 'rompicapo',
     Play: (p) => <PuzzleShell game={trovaLaRegola} {...p} />,
   },
+  quadrato: {
+    id: 'quadrato',
+    titolo: quadratoMagico.title,
+    icona: '🔢',
+    tipo: 'rompicapo',
+    Play: (p) => <PuzzleShell game={quadratoMagico} {...p} />,
+  },
+  misto: {
+    id: 'misto',
+    titolo: lampoMisto.title,
+    icona: '🎲',
+    tipo: 'arcade',
+    Play: (p) => <ArcadeShell game={lampoMisto} {...p} />,
+  },
 };
 
 /** Ordine di presentazione in Palestra. */
-export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola'];
+export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato'];
+
+/** I giochi arcade che il Lampo misto mescola: si apre quando ne hai sbloccati almeno due. */
+export const GIOCHI_DEL_MISTO: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima'];

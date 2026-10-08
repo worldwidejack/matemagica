@@ -57,6 +57,24 @@
   --animate-accendi: accendi 0.2s ease-out forwards;
   --animate-carta: carta 0.7s var(--ease-rimbalzo) backwards;
   --animate-sale: sale 0.35s var(--ease-rimbalzo);
+  --animate-brilla: brilla 3.2s ease-in-out infinite;
+}
+
+/* Le stelle e le lucine delle scene: si accendono e si spengono piano.
+   Nei cerchi SVG la scala parte dal centro della stella, non dall'angolo. */
+svg .animate-brilla {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes brilla {
+  0%, 100% { opacity: 0.15; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+@keyframes zoom {
+  from { transform: scale(1.15); }
+  to { transform: scale(1); }
 }
 
 @keyframes galleggia {

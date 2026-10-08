@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "simula": "node scripts/simula.ts",
-    "verifica": "node scripts/verifica.ts"
+    "verifica": "node scripts/verifica.ts && node scripts/verifica-quadrato.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

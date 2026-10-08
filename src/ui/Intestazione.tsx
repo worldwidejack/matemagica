@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { suona } from '@/audio/sfx';
-import { SENTIERO } from '@/content/sentiero';
+import { nomeTappa } from '@/content/sentiero';
 import { OBIETTIVI, avanzamento, completata, giornataVuota, missioniDel } from '@/profilo/giornata';
-import { giornoLocale, livelloDa, streakViva } from '@/profilo/progressione';
+import { giornoLocale, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
 import { Icona, Scheda } from './kit';
+import { livelloCorrente } from './progressi';
+import { SfidaDelGiorno } from './SfidaDelGiorno';
 
 /** Barra in cima: fiamma, stelle, il cerchio "Oggi" (obiettivo + missioni), suono. */
-export function Intestazione() {
+export function Intestazione({ onSfida }: { onSfida: () => void }) {
   const xp = useProfilo((p) => p.xp);
   const streak = useProfilo((p) => p.streak);
   const muto = useProfilo((p) => p.muto);
@@ -16,11 +18,13 @@ export function Intestazione() {
   const giornataSalvata = useProfilo((p) => p.giornata);
   const obiettivo = useProfilo((p) => p.benvenuto.obiettivo);
   const setObiettivo = useProfilo((p) => p.setObiettivo);
+  const salvaFiamma = useProfilo((p) => p.salvaFiamma);
   const [aperta, setAperta] = useState(false);
 
   const oggi = giornoLocale(new Date());
   const giornata = giornataSalvata.giorno === oggi ? giornataSalvata : giornataVuota(oggi);
-  const fiamma = streakViva(streak, oggi);
+  const { giorni: fiamma, protetta } = statoFiamma(streak, oggi, salvaFiamma);
+  const giocatoOggi = streak.ultimoGiorno === oggi;
   const stelle = Object.values(stelleLivelli).reduce<number>((s, n) => s + n, 0);
   const missioni = missioniDel(oggi);
   const fatte = missioni.filter((m) => completata(m, giornata)).length;
@@ -35,7 +39,10 @@ export function Intestazione() {
           <span className="text-xs whitespace-nowrap text-panna-100/60">liv. {liv.livello}</span>
         </div>
         <Chip>
-          <span aria-hidden>🔥</span>
+          {/* La fiamma è grigia finché oggi non giochi; il ghiaccio dice che la tiene un salva-fiamma. */}
+          <span aria-hidden className={giocatoOggi ? '' : 'opacity-60 grayscale'}>
+            {protetta ? '🧊' : '🔥'}
+          </span>
           <span className={fiamma > 0 ? '' : 'opacity-50'}>{fiamma}</span>
         </Chip>
         <Chip>
@@ -117,8 +124,17 @@ export function Intestazione() {
                   );
                 })}
               </ul>
+              <div className="mt-5">
+                <SfidaDelGiorno
+                  onGioca={() => {
+                    setAperta(false);
+                    onSfida();
+                  }}
+                />
+              </div>
               <p className="mt-4 text-center text-sm text-inchiostro-chiaro">
-                {SENTIERO.length - Object.keys(stelleLivelli).length} livelli ti aspettano sul sentiero
+                Sei alla tappa {Math.floor(livelloCorrente(stelleLivelli) / 5) + 1} · {nomeTappa(Math.floor(livelloCorrente(stelleLivelli) / 5) + 1)}
+                {salvaFiamma > 0 && ` · 🧊 ×${salvaFiamma}`}
               </p>
             </Scheda>
           </div>

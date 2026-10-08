@@ -5,7 +5,7 @@ aggiornato: 2026-10-08
 dettaglio: CLAUDE.md
 ---
 ## Siamo arrivati a
-MVP con 7 giochi, sentiero di 40 livelli, Palestra, collezione, missioni del giorno, fiamma; installabile e offline. **8/10: grafica "ora blu" approvata e costruita** (stile della P + ambientazione della T): 8 scene dipinte dal porto alla torre, tutte le schermate ridisegnate. Contenuti ancora in bozza, aspettano papà (PDF in `docs/papa/`).
+Notte 8/10: sopra la grafica «ora blu» (PR #3) c'è la PR #4 con Profilo, 12 medaglie, salva-fiamma, sfida del giorno, Lampo misto, il Quadrato magico (gioco nuovo), sentiero infinito tra le costellazioni con carte delle stelle, salto di tappa, icone dei giochi dipinte, coriandoli e feste. Build, lint e verifica verdi. Nessun merge su `main`.
 
 ## Prossimo passo
-Jack: prova la grafica nuova dal telefono (preview della PR) e passa il PDF a papà. Claude: giro mascotte e icone dei giochi disegnate; poi le risposte di papà nel gioco.
+Jack: prova le preview di #3 e #4 dal telefono e decide se unirle. Claude: sezione «carte delle stelle» in Collezione (le carte già si vincono), proposte di mascotte su ChatGPT, doc per papà sul Quadrato.
