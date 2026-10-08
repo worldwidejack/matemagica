@@ -18,6 +18,12 @@ Ogni idea nuova finisce qui, non nell'MVP. Si riapre dopo B8 e il giro con papà
 - [ ] Bilancia con pesi negativi o frazioni (domanda aperta a papà)
 - [ ] Catena con la precedenza delle operazioni (domanda aperta a papà)
 
+## Grafica
+- [ ] Mascotte (giro a parte, regole: niente arti complessi, animabile in AE con J'n'S e da codice nel gioco)
+- [ ] Icone dei 7 giochi disegnate nello stile ora blu (oggi emoji)
+- [ ] Icone del benvenuto (motivi) al posto delle emoji
+- [ ] Animazioni leggere nelle scene (lanterne che tremolano, stelle, barche)
+
 ## Rifiniture notate giocando
 - [ ] Bersaglio: al primissimo livello "sommare tutto" è permesso (scelta da confermare con papà)
 - [ ] Se vinci una storia e poi rigiochi e esci con ✕, la schermata "Nuova carta!" si perde

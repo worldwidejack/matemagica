@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { setMutoAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
+import { SCENE } from '@/content/scene';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
@@ -51,6 +52,11 @@ function useNavigazione() {
   return { cima, base, apri, sostituisci, chiudi, scheda };
 }
 
+/** Tutte le schermate stanno nella colonna di un telefono, anche su tablet e computer. */
+function Colonna({ children }: { children: React.ReactNode }) {
+  return <div className="mx-auto min-h-full max-w-md">{children}</div>;
+}
+
 export default function App() {
   const nav = useNavigazione();
   const muto = useProfilo((p) => p.muto);
@@ -72,6 +78,7 @@ export default function App() {
   // Prima apertura: benvenuto, poi dritti al primo livello.
   if (!benvenutoFatto && cima.tipo === 'scheda') {
     return (
+      <Colonna>
       <Benvenuto
         onFine={(motivo, obiettivo) => {
           completaBenvenuto(motivo, obiettivo);
@@ -79,11 +86,13 @@ export default function App() {
           if (primo) gioca(primo.gioco, primo.id);
         }}
       />
+      </Colonna>
     );
   }
 
   if (cima.tipo === 'spiegazione') {
     return (
+      <Colonna>
       <SpiegazioneSchermo
         gioco={cima.gioco}
         onAvanti={() => {
@@ -91,22 +100,29 @@ export default function App() {
           nav.sostituisci(cima.poi);
         }}
       />
+      </Colonna>
     );
   }
 
   if (cima.tipo === 'partita') {
     return (
+      <Colonna>
       <Partita
         key={`${cima.gioco}-${cima.livello ?? 'palestra'}`}
         gioco={cima.gioco}
         livello={SENTIERO.find((l) => l.id === cima.livello)}
         onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
       />
+      </Colonna>
     );
   }
 
   if (cima.tipo === 'storia') {
-    return <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />;
+    return (
+      <Colonna>
+        <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />
+      </Colonna>
+    );
   }
 
   return (
@@ -186,7 +202,16 @@ function Partita({
   );
 
   const Play = GIOCHI[gioco].Play;
+  // Dietro la partita, la scena della tappa in cui stai giocando: scurita, per restare "dentro" il paese.
+  const scena = SCENE.find((x) => x.n === (livello?.tappa ?? 1));
   return (
+    <>
+      {scena && (
+        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
+          <img src={scena.file} alt="" className="h-full w-full scale-110 object-cover blur-[3px] brightness-[0.35] saturate-[0.8]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-notte-900/70 via-notte-900/30 to-notte-900/80" />
+        </div>
+      )}
     <Play
       bravura={bravura}
       record={record}
@@ -196,5 +221,6 @@ function Partita({
       onFine={onFine}
       onEsci={(dopo) => onEsci(dopo ? carta.current : undefined)}
     />
+    </>
   );
 }

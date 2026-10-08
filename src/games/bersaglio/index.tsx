@@ -71,7 +71,7 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
     <div className="flex flex-col gap-5">
       <div className="text-center">
         <p className="text-panna-100/60">Arriva a</p>
-        <p className="text-7xl font-black tabular-nums text-oro-400 drop-shadow-[0_0_18px_var(--color-oro-500)]">
+        <p className="text-7xl titolo font-semibold tabular-nums text-oro-400 drop-shadow-[0_0_18px_var(--color-oro-500)]">
           {round.bersaglio}
         </p>
       </div>
@@ -83,7 +83,7 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
             onClick={() => tocca(t)}
             disabled={locked}
             className={[
-              'h-20 min-w-20 rounded-2xl px-3 text-3xl font-bold tabular-nums active:scale-95',
+              'h-20 min-w-20 rounded-2xl px-3 text-3xl titolo font-semibold tabular-nums active:scale-95',
               t.nuova ? 'animate-pop' : '',
               scelta === t.id
                 ? 'bg-oro-400 text-inchiostro shadow-[0_0_20px_var(--color-oro-400)]'

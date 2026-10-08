@@ -25,7 +25,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
               : 'border-panna-200 bg-panna-100 text-inchiostro',
         ].join(' ')}
       >
-        <span className="text-[clamp(2.2rem,11vw,3.5rem)] leading-none font-bold tabular-nums">{e.testo}</span>
+        <span className="text-[clamp(2.2rem,11vw,3.5rem)] leading-none titolo font-semibold tabular-nums">{e.testo}</span>
         <span className={`mt-2 h-7 text-xl tabular-nums ${feedback ? 'opacity-80' : 'text-transparent'}`}>
           = {e.valore}
         </span>

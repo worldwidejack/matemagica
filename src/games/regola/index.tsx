@@ -10,12 +10,12 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundRegola, n
       <p className="text-center text-panna-100/60">Qual è il prossimo numero?</p>
       <div className="flex flex-wrap items-center justify-center gap-2">
         {round.termini.map((t, i) => (
-          <span key={i} className="rounded-2xl bg-panna-100 px-3.5 text-inchiostro py-3 text-2xl font-bold tabular-nums">
+          <span key={i} className="rounded-2xl bg-panna-100 px-3.5 text-inchiostro py-3 text-2xl titolo font-semibold tabular-nums">
             {t}
           </span>
         ))}
         <span
-          className={`rounded-2xl border-2 px-3.5 py-3 text-2xl font-bold tabular-nums ${
+          className={`rounded-2xl border-2 px-3.5 py-3 text-2xl titolo font-semibold tabular-nums ${
             risolto ? 'animate-pop border-oro-400 text-oro-400' : 'border-dashed border-oro-500/60 text-oro-400/60'
           }`}
         >
