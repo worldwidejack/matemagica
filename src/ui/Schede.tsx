@@ -3,6 +3,7 @@ import { suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import { SPIEGAZIONI } from '@/content/spiegazioni';
 import { STORIE } from '@/content/storie';
+import { trovaCarta } from '@/content/stelle';
 import { GIOCHI } from '@/games/registro';
 import { Bottone, IconaGioco, Scheda } from './kit';
 
@@ -40,17 +41,29 @@ function Blocco({ titolo, children }: { titolo: string; children: string }) {
 
 /** Una storia: premio del sentiero, o carta riaperta dalla collezione. */
 export function StoriaSchermo({ id, nuova, onAvanti }: { id: string; nuova: boolean; onAvanti: () => void }) {
-  const s = STORIE.find((x) => x.id === id);
+  const s = trovaCarta(id, STORIE);
   useEffect(() => {
     if (nuova) suona('livello');
   }, [nuova]);
   if (!s) return null;
+  // Le carte delle stelle sono blu notte con le stelle d'oro; le storie, carta panna.
+  const stella = s.id.startsWith('stella-');
   return (
     <div className="cielo-stellato mx-auto flex min-h-full max-w-md flex-col justify-center gap-5 px-6 py-10">
-      {nuova && <p className="animate-pop text-center text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">Nuova carta!</p>}
-      <div className="animate-carta rounded-[2rem] border-[6px] border-panna-50 bg-panna-100 p-6 text-inchiostro shadow-[0_12px_40px_rgb(0_0_0/0.4)] outline-2 outline-oro-500">
+      {nuova && (
+        <p className="animate-pop text-center text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">
+          {stella ? 'Nuova carta delle stelle!' : 'Nuova carta!'}
+        </p>
+      )}
+      <div
+        className={`animate-carta rounded-[2rem] border-[6px] p-6 shadow-[0_12px_40px_rgb(0_0_0/0.4)] outline-2 outline-oro-500 ${
+          stella ? 'cielo-stellato border-oro-400 bg-notte-800 text-panna-50' : 'border-panna-50 bg-panna-100 text-inchiostro'
+        }`}
+      >
         <div className="text-center text-6xl">{s.emoji}</div>
-        <p className="mt-2 text-center text-xs font-bold tracking-[0.2em] text-oro-600 uppercase">{s.carta}</p>
+        <p className={`mt-2 text-center text-xs font-bold tracking-[0.2em] uppercase ${stella ? 'text-oro-300' : 'text-oro-600'}`}>
+          {stella ? `✦ ${s.carta} ✦` : s.carta}
+        </p>
         <h1 className="mt-3 text-center text-3xl font-semibold">{s.titolo}</h1>
         <p className="mt-3 text-lg leading-relaxed">{s.testo}</p>
       </div>

@@ -8,6 +8,7 @@ import { SALVA_FIAMMA_MAX, giornoLocale, giornoMeno, livelloDa, statoFiamma } fr
 import { useProfilo } from '@/profilo/store';
 import { IconaGioco, Medaglione, Scheda } from './kit';
 import { giocoSbloccato } from './progressi';
+import { Installa } from './Installa';
 
 /** Il profilo: chi sei nel gioco, cosa hai fatto, le medaglie, le impostazioni. */
 export function Profilo() {
@@ -29,6 +30,9 @@ export function Profilo() {
   return (
     <div className="cielo-stellato min-h-full px-4 pt-4 pb-28">
       <h2 className="text-4xl font-semibold text-panna-50">Profilo</h2>
+      <div className="mt-4">
+        <Installa />
+      </div>
 
       {/* Livello e grado */}
       <Scheda className="mt-4">

@@ -82,6 +82,14 @@ export const MEDAGLIE: Medaglia[] = [
     valore: (d) => tappeComplete(d.stelleLivelli),
   },
   {
+    id: 'corona',
+    nome: 'Corona',
+    icona: '👑',
+    descrizione: 'Fai {n} tappe d’oro (tutti i livelli con 3 stelle)',
+    soglie: [2, 4, 8],
+    valore: (d) => tappeComplete(d.stelleLivelli, 3),
+  },
+  {
     id: 'perfezionista',
     nome: 'Perfezionista',
     icona: '💎',
@@ -147,8 +155,8 @@ export const MEDAGLIE: Medaglia[] = [
   },
   {
     id: 'gufo',
-    nome: 'Gufo',
-    icona: '🦉',
+    nome: 'Nottambulo',
+    icona: '🌙',
     descrizione: 'Gioca {n} partite dopo mezzanotte',
     soglie: [3, 15, 50],
     valore: (d) => d.stat.notturne,

@@ -122,6 +122,8 @@ export function Sentiero({
         const dischi = scena?.dischi ?? cielo?.dischi ?? [];
         const primo = tappa.livelli[0];
         const raggiunta = primo !== undefined && livelloAperto(primo.numero - 1, stelle);
+        // Tappa d'oro: tutti e 5 i livelli con 3 stelle.
+        const doro = tappa.livelli.every((l) => (stelle[l.id] ?? 0) === 3);
         return (
           <section key={tappa.n} className="relative" aria-label={`Tappa ${tappa.n}: ${tappa.nome}`}>
             <div className="relative w-full overflow-hidden" style={{ aspectRatio: `1 / ${scena?.rapporto ?? RAPPORTO_CIELO}` }}>
@@ -157,7 +159,12 @@ export function Sentiero({
               {/* Sfumature nel blu della notte: le scene si fondono una nell'altra. */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-notte-900/80 to-transparent" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-notte-900/80 to-transparent" />
-              <div className="absolute top-3 left-3 rounded-full bg-panna-100/95 px-3.5 py-1 text-sm text-inchiostro shadow">
+              <div
+                className={`absolute top-3 left-3 rounded-full px-3.5 py-1 text-sm text-inchiostro shadow ${
+                  doro ? 'bg-oro-400 shadow-[0_0_0_2px_var(--color-oro-600),0_0_16px_var(--color-oro-400)]' : 'bg-panna-100/95'
+                }`}
+              >
+                {doro && <span className="mr-1">👑</span>}
                 <span className="font-bold">Tappa {tappa.n}</span> · <span className="titolo italic">{tappa.nome}</span>
                 {tappa.n > TAPPE.length && <span className="ml-1">✦</span>}
               </div>

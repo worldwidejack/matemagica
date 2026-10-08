@@ -1,5 +1,6 @@
 import type { GameId } from '../engine/cartuccia.ts';
 import type { Limiti } from '../engine/regole.ts';
+import { STELLE } from './stelle.ts';
 
 /**
  * Il sentiero: la strada principale di Matemagica. MISTO per scelta (deciso
@@ -178,7 +179,9 @@ const SENTIERO_STELLE: Livello[] = (() => {
       // Sale piano da 6-9 fino a 7-10; il livello "di respiro" è una fascia più bassa.
       const su = Math.min(1, t / 20);
       const limiti: Limiti = k === respiro ? [3, 6.5] : [Math.round((6 + su) * 10) / 10, Math.round((9 + su) * 10) / 10];
-      livelli.push({ id: `L${numero}`, numero, gioco, limiti, debutto: false, tappa });
+      // Il primo giro di costellazioni regala una carta delle stelle al quinto livello.
+      const storia = k === 4 ? STELLE[t]?.id : undefined;
+      livelli.push({ id: `L${numero}`, numero, gioco, limiti, debutto: false, tappa, storia });
     });
   }
   return livelli;

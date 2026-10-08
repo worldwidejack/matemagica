@@ -4,6 +4,7 @@ import { GIOCHI, GIOCHI_DEL_MISTO, ORDINE_GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
 import { Icona, IconaGioco } from './kit';
 import { giocoSbloccato, primoLivelloDi } from './progressi';
+import { Installa } from './Installa';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
 
 /** Un gioco solo, a oltranza: per chi preferisce allenare un argomento. */
@@ -13,11 +14,17 @@ export function Palestra({ onGioca, onSfida }: { onGioca: (g: GameId) => void; o
   const record = useProfilo((p) => p.record);
   const arcadeAperti = GIOCHI_DEL_MISTO.filter((g) => giocoSbloccato(g, stelle)).length;
   const mistoAperto = arcadeAperti >= 2;
+  const partite = useProfilo((p) => p.partite);
 
   return (
     <div className="cielo-stellato min-h-full px-4 pt-4 pb-28">
       <h2 className="text-4xl font-semibold text-panna-50">Palestra</h2>
       <p className="mt-1 text-panna-100/75">Un gioco solo, quanto vuoi. Il livello si adatta a te.</p>
+      {partite >= 3 && (
+        <div className="mt-5">
+          <Installa discreta />
+        </div>
+      )}
       <div className="mt-5">
         <SfidaDelGiorno onGioca={onSfida} />
       </div>
