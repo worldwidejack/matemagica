@@ -39,9 +39,13 @@ magia; mi piace lo stile alla Kiki's Delivery Service, ma è troppo normale; la 
 portare a qualcosa sopra le nuvole, così all'inizio non lo vedi». Giro 2 (`foglio-scelta-2-nuvole.jpg`):
 stesso stile Ghibli, si parte da una valle di montagna, la scala sale e sparisce nelle nuvole, la
 cima si scopre solo al livello 40 (le nuvole si aprono a ogni tappa; dopo la cima la scala
-continua tra le stelle). **Aspetta la scelta della cima**: 1 osservatorio coi pianeti, 2 isole a
-forma di solidi, 3 biblioteca volante, 4 albero delle stelle. Mascotte in sospeso (nella scena c'è
-già il gatto bianco accanto alla streghetta). Tutto in `docs/grafica/giro-15-10/`, chat ChatGPT
+continua tra le stelle). Bocciato anche questo: «non mi piacciono le scalinate». **Cambio di metodo** (proposto da Jack):
+prima una ricerca di reference, poi i disegni. Tavola di 22 reference numerate (mondi magici: Matemagica
+1959, Monument Valley, La città incantata, Howl, Laputa, Sky, Ori, Botanicula, Gorogoa, Kiki; cartoni a
+scatti: Cuphead, Chuchel, Lost in Play, Missi; mascotte: Calcifer, i nerini, i Nooms, Finch; app:
+Duolingo, Royal Match, Brilliant, Prodigy). Non è nel repo (è pubblico e le immagini hanno copyright):
+sta nelle note di sessione, `matemagica-reference/`. **Aspetta i numeri di Jack**: la direzione nuova
+si costruisce da quelli, non da un altro giro di mockup. Tutto in `docs/grafica/giro-15-10/`, chat ChatGPT
 nelle note di sessione. Poi: le 8 scene del sentiero nel mondo scelto, identità applicata
 (colori, font, bottoni), 8 animazioni (tocco, giusto, sbagliato, combo, livello finito, stella,
 streak, sblocco), suoni, mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e
