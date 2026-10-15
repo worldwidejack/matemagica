@@ -24,6 +24,24 @@ Le sue risposte entrano in: `src/content/spiegazioni.ts`, `storie.ts`, `sequenze
 `sentiero.ts` (ordine), e nei generatori se trova trucchi nuovi. Tutti i contenuti con
 `autore: 'bozza'` sono di Claude e aspettano lui.
 
+**PR aperte, nessuna su `main`:** #3 grafica «ora blu» (stile scelto da Jack l'8/10 dopo 20
+proposte: ligne claire + paesino mediterraneo al tramonto, riferimento in
+`docs/grafica/RIFERIMENTO-…` su quel branch), #4 notte dell'8/10 (profilo, medaglie, sfida del
+giorno, Quadrato magico…), **#5 animazioni a scatti** (15/10, questo branch). Su `main` i colori
+Tailwind sui `<button>` vengono ignorati (`button { color: inherit }` fuori da `@layer`): in #3
+è già sistemato con `@layer base`.
+
+**Identità e animazioni (15 ottobre 2026).** Jack vuole che l'app sia unica per le animazioni:
+al tocco forme che si animano fotogramma per fotogramma, cartoon, amichevoli, UI cozy. Fatto:
+il motore (sotto) e un giro di 4 direzioni, tutte dentro il mondo «ora blu» (1 maiolica,
+2 forme anni '50, 3 cartone rubber hose, 4 filo di luce) + 4 mascotte nella stessa posa (A gatto
+bianco, B gatto mago, C polpo, D geco): `docs/grafica/giro-15-10/foglio-scelta.jpg`, originali in
+`originali/`, chat ChatGPT nelle note di sessione. **Aspetta la scelta di Jack** (numero +
+lettera, es. «2B»); il nome lo decide con papà. Poi: identità applicata (colori, font, bottoni),
+8 animazioni (tocco, giusto, sbagliato, combo, livello finito, stella, streak, sblocco), suoni,
+mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e intermedi da codice) che
+reagisce alle risposte. Obiettivo: online entro mer 21 ottobre.
+
 ---
 
 ## Visione
@@ -111,6 +129,22 @@ stai sbagliando file.
 - Ogni 5 livelli una storia: si sblocca la prima volta che quel livello prende una stella e
   diventa una carta della collezione.
 
+### Animazioni a scatti (`src/anim/`)
+- Ogni animazione è un **foglio di fotogrammi WebP** in griglia, suonato a **12 disegni al
+  secondo** senza passaggi morbidi (lo scatto del cartone). I fotogrammi vengono da After Effects
+  (sequenza PNG con alfa, solo se la corsia Adobe è libera: Gary ha la precedenza) o da ChatGPT
+  (griglia su fondo magenta). Un'animazione nuova = un comando:
+  `/opt/homebrew/bin/python3.14 scripts/fogli.py <cartella|griglia.png> --nome giusto [--griglia 4x2]`
+  → `src/anim/fogli/<nome>.webp` + `.json` e `src/anim/manifest.ts` rigenerato (non si tocca a mano).
+  Con `--anteprima` scrive un foglio di controllo su magenta/notte/crema; `--tremolio 3` fa
+  tremare un disegno fermo.
+- Nell'app: `<Scatto nome larghezza giro onFine />` dove serve; `scoppia(nome, x, y)` da qualsiasi
+  file per un'animazione sopra a tutto; `<StratoScoppi tocco="tocco" />` montato una volta fa
+  partire il tocco su ogni bottone; `<FiltriTremolio />` + classe `tremolio` per i contorni che
+  vibrano (sullo strato del contorno, non sul testo). `precaricaFogli()` all'avvio.
+- Prova: **`/prova.html`** (pagina a parte, il gioco non la vede). Misurato in Chrome: cambio di
+  disegno ogni ~83 ms, tremolio forte senza perdere fotogrammi. Budget: ~40 KB ad animazione.
+
 ---
 
 ## Struttura
@@ -128,9 +162,13 @@ stai sbagliando file.
   /profilo       → store.ts (zustand + localStorage, v2 con migrazione), progressione.ts
   /ui            → Sentiero, Palestra, Collezione, Schede (spiegazione, storia), Intestazione
   /audio         → sfx.ts (suoni sintetizzati con Web Audio, zero file)
+  /anim          → Scatto, scoppi, Tremolio, orologio (un rAF per tutti), precarica,
+                   manifest.ts (GENERATO) e fogli/ (WebP + json, da scripts/fogli.py)
+  /prova         → la pagina di prova delle animazioni (prova.html)
 /public          → manifest, icone PWA, sw.js (offline)
-/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py
+/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py, fogli.py
 /docs/papa       → documenti per papà e le sue risposte
+/docs/grafica    → giro-15-10: foglio di scelta delle direzioni e delle mascotte, originali
 ```
 
 I moduli puri (`engine/regole.ts`, `engine/caso.ts`, `games/*/logica.ts`, `content/*`) usano
@@ -151,6 +189,7 @@ Il resto usa l'alias `@/`.
 
 Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula` · `npm run verifica`
 · `python3 scripts/pdf-papa.py docs/papa/<file>.md` · `python3 scripts/icone.py`
+· `python3.14 scripts/fogli.py <sorgente> --nome <animazione>` (Pillow e numpy: il python3 di sistema non li ha)
 
 ## Flusso
 
@@ -194,3 +233,9 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
   tastierino: sul telefono, a tempo, il tastierino rallenta più del calcolo.
 - *(2026-10-07, B8)* Service worker scritto a mano (40 righe) invece di un plugin PWA: zero
   dipendenze nuove.
+- *(2026-10-15, animazioni)* Animazioni come fogli di fotogrammi WebP suonati cambiando
+  `background-position`, niente Lottie o librerie: zero dipendenze, e i fotogrammi possono
+  arrivare sia da After Effects sia dai disegni di ChatGPT.
+- *(2026-10-15, animazioni)* Build a due pagine (`index.html` + `prova.html`) per provare le
+  animazioni dal telefono senza toccare il gioco. `sw.js` ora mette ogni pagina nella sua casella
+  di cache: prima ogni navigazione veniva salvata come `/`.
