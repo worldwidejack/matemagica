@@ -137,3 +137,12 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Tremolio del disegno a mano (src/anim/Tremolio.tsx monta i filtri SVG) ── */
+.tremolio {
+  filter: url(#tremolio);
+}
+
+.tremolio-forte {
+  filter: url(#tremolio-forte);
+}

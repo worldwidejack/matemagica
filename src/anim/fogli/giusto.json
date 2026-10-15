@@ -1,0 +1,11 @@
+{
+ "nome": "giusto",
+ "fps": 12,
+ "fotogrammi": 8,
+ "colonne": 3,
+ "righe": 3,
+ "w": 320,
+ "h": 272,
+ "loop": false,
+ "kb": 36.0
+}
