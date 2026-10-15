@@ -142,8 +142,10 @@ stai sbagliando file.
   file per un'animazione sopra a tutto; `<StratoScoppi tocco="tocco" />` montato una volta fa
   partire il tocco su ogni bottone; `<FiltriTremolio />` + classe `tremolio` per i contorni che
   vibrano (sullo strato del contorno, non sul testo). `precaricaFogli()` all'avvio.
-- Prova: **`/prova.html`** (pagina a parte, il gioco non la vede). Misurato in Chrome: cambio di
-  disegno ogni ~83 ms, tremolio forte senza perdere fotogrammi. Budget: ~40 KB ad animazione.
+- Prova: **`/prova.html`** (pagina a parte, il gioco non la vede). Verifica: `npm run guarda` (vedi
+  Comandi) dà i ms fra un disegno e l'altro e una foto per disegno; il pannello browser nascosto e le
+  schede di Chrome in background fermano `requestAnimationFrame`, lì le animazioni non si misurano.
+  Misurato: ~83-86 ms a disegno, tremolio forte 60 fps. Budget: ~40 KB ad animazione.
 
 ---
 
@@ -190,6 +192,7 @@ Il resto usa l'alias `@/`.
 Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula` · `npm run verifica`
 · `python3 scripts/pdf-papa.py docs/papa/<file>.md` · `python3 scripts/icone.py`
 · `python3.14 scripts/fogli.py <sorgente> --nome <animazione>` (Pillow e numpy: il python3 di sistema non li ha)
+· `npm run guarda -- <url di prova.html> <cartella>`: Chrome headless, tempi veri e una foto per disegno di ogni animazione
 
 ## Flusso
 
