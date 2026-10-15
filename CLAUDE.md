@@ -32,15 +32,20 @@ Tailwind sui `<button>` vengono ignorati (`button { color: inherit }` fuori da `
 è già sistemato con `@layer base`.
 
 **Identità e animazioni (15 ottobre 2026).** Jack vuole che l'app sia unica per le animazioni:
-al tocco forme che si animano fotogramma per fotogramma, cartoon, amichevoli, UI cozy. Fatto:
-il motore (sotto) e un giro di 4 direzioni, tutte dentro il mondo «ora blu» (1 maiolica,
-2 forme anni '50, 3 cartone rubber hose, 4 filo di luce) + 4 mascotte nella stessa posa (A gatto
-bianco, B gatto mago, C polpo, D geco): `docs/grafica/giro-15-10/foglio-scelta.jpg`, originali in
-`originali/`, chat ChatGPT nelle note di sessione. **Aspetta la scelta di Jack** (numero +
-lettera, es. «2B»); il nome lo decide con papà. Poi: identità applicata (colori, font, bottoni),
-8 animazioni (tocco, giusto, sbagliato, combo, livello finito, stella, streak, sblocco), suoni,
-mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e intermedi da codice) che
-reagisce alle risposte. Obiettivo: online entro mer 21 ottobre.
+al tocco forme che si animano fotogramma per fotogramma, cartoon, amichevoli, UI cozy. Fatto il
+motore (sotto). Giro 1 (4 direzioni dentro «ora blu»: maiolica, forme anni '50, rubber hose, filo
+di luce; 4 mascotte: gatto, gatto mago, polpo, geco) **bocciato**: «il mare non c'entra con la
+magia; mi piace lo stile alla Kiki's Delivery Service, ma è troppo normale; la scalinata dovrebbe
+portare a qualcosa sopra le nuvole, così all'inizio non lo vedi». Giro 2 (`foglio-scelta-2-nuvole.jpg`):
+stesso stile Ghibli, si parte da una valle di montagna, la scala sale e sparisce nelle nuvole, la
+cima si scopre solo al livello 40 (le nuvole si aprono a ogni tappa; dopo la cima la scala
+continua tra le stelle). **Aspetta la scelta della cima**: 1 osservatorio coi pianeti, 2 isole a
+forma di solidi, 3 biblioteca volante, 4 albero delle stelle. Mascotte in sospeso (nella scena c'è
+già il gatto bianco accanto alla streghetta). Tutto in `docs/grafica/giro-15-10/`, chat ChatGPT
+nelle note di sessione. Poi: le 8 scene del sentiero nel mondo scelto, identità applicata
+(colori, font, bottoni), 8 animazioni (tocco, giusto, sbagliato, combo, livello finito, stella,
+streak, sblocco), suoni, mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e
+intermedi da codice) che reagisce alle risposte. Obiettivo: online entro mer 21 ottobre.
 
 ---
 
@@ -170,7 +175,7 @@ stai sbagliando file.
 /public          → manifest, icone PWA, sw.js (offline)
 /scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py, fogli.py
 /docs/papa       → documenti per papà e le sue risposte
-/docs/grafica    → giro-15-10: foglio di scelta delle direzioni e delle mascotte, originali
+/docs/grafica    → giro-15-10: fogli di scelta (giro 1 bocciato, giro 2 sopra le nuvole), originali
 ```
 
 I moduli puri (`engine/regole.ts`, `engine/caso.ts`, `games/*/logica.ts`, `content/*`) usano
