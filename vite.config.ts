@@ -11,4 +11,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      // Il gioco, più la pagina di prova delle animazioni (/prova.html), che non tocca l'app.
+      input: {
+        gioco: fileURLToPath(new URL('./index.html', import.meta.url)),
+        prova: fileURLToPath(new URL('./prova.html', import.meta.url)),
+      },
+    },
+  },
 })
