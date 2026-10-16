@@ -19,6 +19,15 @@ livelli in 8 tappe, Palestra, collezione di 8 storie, spiegazione al debutto di 
 XP/livello giocatore/streak, PWA installabile e offline. Mancano solo identità visiva e nome
 definitivo (B8: gusto di Jack e papà).
 
+**Grafica (8 ottobre 2026): stile "ora blu" approvato da Jack** — stile della proposta P
+(ligne claire, colori piatti, filo di grana) con l'ambientazione della T (paesino
+mediterraneo sul mare al tramonto). Riferimento: `docs/grafica/RIFERIMENTO-stile-P-ambientazione-T.webp`;
+tutte le proposte scartate in `docs/grafica/proposte/`. Fatti: palette dai pixel del riferimento,
+Fraunces (titoli) + Nunito, sentiero a 8 scene dipinte dal porto alla torre (tramonto → notte),
+benvenuto stile Duolingo, obiettivo del giorno + 3 missioni, fiamma a tutto schermo, partita con la
+scena della tappa scurita dietro. Da fare: mascotte (giro a parte) e icone dei giochi disegnate
+(oggi sono emoji).
+
 **Prossimo: il giro con papà.** Il documento è `docs/papa/01-per-papa.md` (+ PDF da stampare).
 Le sue risposte entrano in: `src/content/spiegazioni.ts`, `storie.ts`, `sequenze.ts`,
 `sentiero.ts` (ordine), e nei generatori se trova trucchi nuovi. Tutti i contenuti con
@@ -129,7 +138,9 @@ stai sbagliando file.
   /ui            → Sentiero, Palestra, Collezione, Schede (spiegazione, storia), Intestazione
   /audio         → sfx.ts (suoni sintetizzati con Web Audio, zero file)
 /public          → manifest, icone PWA, sw.js (offline)
-/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py
+/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py, scene.py, dischi.py
+/public/scene    → le 8 scene del sentiero (WebP), generate da scripts/scene.py
+/docs/grafica    → riferimento approvato, proposte, scene originali, dischi-manuali.json
 /docs/papa       → documenti per papà e le sue risposte
 ```
 
@@ -192,5 +203,13 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
   sul numero di quesiti per partita.
 - *(2026-10-07, B5)* Catena e Stima a scelta multipla (4 e 3 opzioni) invece che col
   tastierino: sul telefono, a tempo, il tastierino rallenta più del calcolo.
+- *(2026-10-08, grafica)* Nuove dipendenze `@fontsource-variable/fraunces` e `/nunito`: i caratteri
+  dentro il progetto, così la PWA funziona offline (Google Fonts da rete no).
+- *(2026-10-08, grafica)* Il sentiero sale dal basso verso l'alto (dal porto alla torre) e i livelli
+  stanno sopra i dischi di pietra DIPINTI nelle scene: `scripts/dischi.py` li trova da solo (pietra
+  chiara, calda e liscia); dove sbaglia si corregge in `docs/grafica/scene/dischi-manuali.json`.
+- *(2026-10-08, grafica)* Le scene arrivano da ChatGPT nella chat della proposta P (stesso stile).
+  Chrome blocca i download multipli da chatgpt.com: si salvano come catture dell'anteprima (~672 px,
+  sufficienti a tutta larghezza su telefono).
 - *(2026-10-07, B8)* Service worker scritto a mano (40 righe) invece di un plugin PWA: zero
   dipendenze nuove.

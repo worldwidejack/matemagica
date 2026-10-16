@@ -59,13 +59,13 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
               onClick={() => tocca(c.id)}
               disabled={locked || via}
               className={[
-                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] font-bold tabular-nums transition-all duration-200',
+                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] titolo font-semibold tabular-nums transition-all duration-200',
                 via ? 'scale-50 opacity-0' : 'active:scale-90',
                 scelta === c.id
-                  ? 'scale-105 bg-turchese-500 text-notte-900 shadow-[0_0_20px_var(--color-turchese-400)]'
+                  ? 'scale-105 bg-oro-400 text-inchiostro shadow-[0_0_20px_var(--color-oro-400)]'
                   : errore
-                    ? 'bg-pericolo-400/30'
-                    : 'bg-notte-700',
+                    ? 'bg-pericolo-400 text-panna-50'
+                    : 'bg-panna-100 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
                 correct === false && !via ? 'opacity-50' : '',
               ].join(' ')}
             >
@@ -74,7 +74,7 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
           );
         })}
       </div>
-      <p className="text-center text-sm text-white/50">
+      <p className="text-center text-sm text-panna-100/50">
         {(round.coppie * 2 - tolte.size) / 2} coppie da trovare · attento ai numeri senza compagno
       </p>
     </div>

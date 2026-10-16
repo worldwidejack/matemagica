@@ -5,7 +5,7 @@
  * - file statici (js, css, icone): prima la cache, poi la rete.
  * Per forzare un aggiornamento della cache basta cambiare VERSIONE.
  */
-const VERSIONE = 'matemagica-v1';
+const VERSIONE = 'matemagica-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSIONE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/icona-192.png'])));

@@ -48,22 +48,57 @@ export function giornoLocale(data: Date): string {
   return `${data.getFullYear()}-${m}-${g}`;
 }
 
-function giornoPrima(giorno: string): string {
+function dataDi(giorno: string): Date {
   const [a, m, g] = giorno.split('-').map(Number);
-  return giornoLocale(new Date(a ?? 1970, (m ?? 1) - 1, (g ?? 1) - 1));
+  return new Date(a ?? 1970, (m ?? 1) - 1, g ?? 1);
+}
+
+/** Giorni di calendario tra due date "AAAA-MM-GG" (b − a). */
+export function giorniTra(a: string, b: string): number {
+  return Math.round((dataDi(b).getTime() - dataDi(a).getTime()) / 86_400_000);
+}
+
+/** Il giorno `n` giorni prima (n negativo = dopo). */
+export function giornoMeno(giorno: string, n: number): string {
+  const d = dataDi(giorno);
+  d.setDate(d.getDate() - n);
+  return giornoLocale(d);
 }
 
 export type Streak = { giorni: number; ultimoGiorno: string | null };
 
-/** Streak dopo aver giocato `oggi`: +1 se ieri avevi giocato, 1 se hai saltato. */
-export function streakDopoPartita(s: Streak, oggi: string): Streak {
-  if (s.ultimoGiorno === oggi) return s;
-  if (s.ultimoGiorno === giornoPrima(oggi)) return { giorni: s.giorni + 1, ultimoGiorno: oggi };
-  return { giorni: 1, ultimoGiorno: oggi };
+/**
+ * Il salva-fiamma (come lo "streak freeze" di Duolingo, ma senza monete): se
+ * salti un giorno e hai un salva-fiamma, la fiamma resta accesa. Se ne vincono
+ * arrivando a 3 giorni di fila e poi a ogni settimana; se ne tengono al massimo 2.
+ */
+export const SALVA_FIAMMA_MAX = 2;
+
+export type DopoStreak = { streak: Streak; salvaUsati: number; salvaVinto: boolean };
+
+/** Streak dopo aver giocato `oggi`: +1 se ieri avevi giocato (o i giorni saltati sono coperti), 1 se no. */
+export function streakDopoPartita(s: Streak, oggi: string, salva = 0): DopoStreak {
+  if (s.ultimoGiorno === oggi) return { streak: s, salvaUsati: 0, salvaVinto: false };
+  const saltati = s.ultimoGiorno ? giorniTra(s.ultimoGiorno, oggi) - 1 : Infinity;
+  const coperti = saltati >= 0 && saltati <= salva;
+  const giorni = coperti ? s.giorni + 1 : 1;
+  const salvaUsati = coperti ? saltati : 0;
+  const salvaVinto = giorni === 3 || (giorni > 3 && giorni % 7 === 0);
+  return { streak: { giorni, ultimoGiorno: oggi }, salvaUsati, salvaVinto };
 }
 
-/** La streak da mostrare: se l'ultimo giorno giocato non è né oggi né ieri, è spenta. */
-export function streakViva(s: Streak, oggi: string): number {
-  if (s.ultimoGiorno === oggi || s.ultimoGiorno === giornoPrima(oggi)) return s.giorni;
-  return 0;
+/**
+ * La streak da mostrare: viva se hai giocato oggi o ieri, o se i giorni saltati
+ * sono coperti dai salva-fiamma che hai. `protetta` = la tiene in vita un salva-fiamma.
+ */
+export function streakViva(s: Streak, oggi: string, salva = 0): number {
+  return statoFiamma(s, oggi, salva).giorni;
+}
+
+export function statoFiamma(s: Streak, oggi: string, salva = 0): { giorni: number; protetta: boolean } {
+  if (!s.ultimoGiorno) return { giorni: 0, protetta: false };
+  const saltati = giorniTra(s.ultimoGiorno, oggi) - 1;
+  if (saltati <= 0) return { giorni: s.giorni, protetta: false };
+  if (saltati <= salva) return { giorni: s.giorni, protetta: true };
+  return { giorni: 0, protetta: false };
 }

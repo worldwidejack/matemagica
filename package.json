@@ -9,9 +9,11 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "simula": "node scripts/simula.ts",
-    "verifica": "node scripts/verifica.ts"
+    "verifica": "node scripts/verifica.ts && node scripts/verifica-quadrato.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/nunito": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

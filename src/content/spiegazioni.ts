@@ -47,4 +47,14 @@ export const SPIEGAZIONI: Record<GameId, Spiegazione> = {
     trucco: 'Guarda i salti tra un numero e l’altro. Se i salti non sono uguali, guarda come cambiano i salti.',
     esempio: '2, 5, 8, 11, ?  →  si aggiunge sempre 3  →  14',
   },
+  quadrato: {
+    come: 'Una griglia di numeri (3 × 3, più avanti 4 × 4): ogni riga, colonna e diagonale fa la stessa somma. Riempi le caselle vuote.',
+    trucco: 'Cerca la riga (o colonna, o diagonale) a cui manca un numero solo. Poi chiediti: quanto vale il centro?',
+    esempio: '8 · 1 · 6  →  somma 15: in ogni riga, colonna e diagonale.',
+  },
+  misto: {
+    come: 'Un quesito per gioco, sempre diverso: confronti, catene, stime e coppie mescolati.',
+    trucco: 'Leggi il nome del gioco sopra al quesito prima di tutto: cambia il modo di pensare.',
+    esempio: '17 × 3 o 49 + 4?  →  poi una catena  →  poi una stima…',
+  },
 };
