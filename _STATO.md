@@ -1,11 +1,13 @@
 ---
 progetto: Matemagica
 stato: attivo
-aggiornato: 2026-10-08
+aggiornato: 2026-10-16
 dettaglio: CLAUDE.md
+rimasti: scelti stile S5 e struttura «Sassi e isole»; mockup della struttura mandati a Jack
+primo_passo: Jack: dice sì o cosa cambiare sul foglio-struttura; poi Claude fa il codice
 ---
 ## Siamo arrivati a
-Notte 8/10: sopra la grafica «ora blu» (PR #3) c'è la PR #4 con Profilo, 12 medaglie, salva-fiamma, sfida del giorno, Lampo misto, il Quadrato magico (gioco nuovo), sentiero infinito tra le costellazioni con carte delle stelle, salto di tappa, icone dei giochi dipinte, coriandoli e feste. Build, lint e verifica verdi. Nessun merge su `main`.
+16/10: dalla tavola e da un giro di 7 stili Jack ha scelto lo stile S5 (anni '50 grafico) e la struttura «Sassi e isole» (livello = sasso, isola = tappa di 5 livelli, nuvole che si diradano). Mockup della struttura mandati (`docs/grafica/giro-16-10/foglio-struttura.jpg`, branch claude/animazioni-a-scatti).
 
 ## Prossimo passo
-Jack: prova le preview di #3 e #4 dal telefono e decide se unirle. Claude: sezione «carte delle stelle» in Collezione (le carte già si vincono), proposte di mascotte su ChatGPT, doc per papà sul Quadrato.
+Jack: sì o correzioni sul foglio-struttura. Claude: branch da main con PR #4 + #5, isole 1-4 dipinte, Sentiero riscritto (progetto in `_handoff/struttura-sassi-e-isole.json`), online mer 21 all'80%. Papà: PDF `docs/papa/01-per-papa.pdf` e nome dell'app.

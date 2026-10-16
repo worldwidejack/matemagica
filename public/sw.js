@@ -24,14 +24,17 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
   if (req.mode === 'navigate') {
+    // ogni pagina nella sua casella: '/' è il gioco, '/prova.html' la prova delle animazioni
+    const percorso = new URL(req.url).pathname;
+    const chiave = percorso.endsWith('.html') ? percorso : '/';
     e.respondWith(
       fetch(req)
         .then((r) => {
           const copia = r.clone();
-          caches.open(VERSIONE).then((c) => c.put('/', copia));
+          caches.open(VERSIONE).then((c) => c.put(chiave, copia));
           return r;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(chiave)),
     );
     return;
   }

@@ -231,3 +231,12 @@ body::after {
     radial-gradient(1.2px 1.2px at 8% 60%, var(--color-panna-50) 50%, transparent 51%),
     radial-gradient(1px 1px at 92% 70%, var(--color-panna-50) 50%, transparent 51%);
 }
+
+/* ── Tremolio del disegno a mano (src/anim/Tremolio.tsx monta i filtri SVG) ── */
+.tremolio {
+  filter: url(#tremolio);
+}
+
+.tremolio-forte {
+  filter: url(#tremolio-forte);
+}

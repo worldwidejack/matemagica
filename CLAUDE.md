@@ -19,19 +19,47 @@ livelli in 8 tappe, Palestra, collezione di 8 storie, spiegazione al debutto di 
 XP/livello giocatore/streak, PWA installabile e offline. Mancano solo identità visiva e nome
 definitivo (B8: gusto di Jack e papà).
 
-**Grafica (8 ottobre 2026): stile "ora blu" approvato da Jack** — stile della proposta P
-(ligne claire, colori piatti, filo di grana) con l'ambientazione della T (paesino
-mediterraneo sul mare al tramonto). Riferimento: `docs/grafica/RIFERIMENTO-stile-P-ambientazione-T.webp`;
-tutte le proposte scartate in `docs/grafica/proposte/`. Fatti: palette dai pixel del riferimento,
-Fraunces (titoli) + Nunito, sentiero a 8 scene dipinte dal porto alla torre (tramonto → notte),
-benvenuto stile Duolingo, obiettivo del giorno + 3 missioni, fiamma a tutto schermo, partita con la
-scena della tappa scurita dietro. Da fare: mascotte (giro a parte) e icone dei giochi disegnate
-(oggi sono emoji).
-
 **Prossimo: il giro con papà.** Il documento è `docs/papa/01-per-papa.md` (+ PDF da stampare).
 Le sue risposte entrano in: `src/content/spiegazioni.ts`, `storie.ts`, `sequenze.ts`,
 `sentiero.ts` (ordine), e nei generatori se trova trucchi nuovi. Tutti i contenuti con
 `autore: 'bozza'` sono di Claude e aspettano lui.
+
+**PR aperte, nessuna su `main`:** #3 grafica «ora blu» (stile scelto da Jack l'8/10 dopo 20
+proposte: ligne claire + paesino mediterraneo al tramonto, riferimento in
+`docs/grafica/RIFERIMENTO-…` su quel branch), #4 notte dell'8/10 (profilo, medaglie, sfida del
+giorno, Quadrato magico…), **#5 animazioni a scatti** (15/10, questo branch). Su `main` i colori
+Tailwind sui `<button>` vengono ignorati (`button { color: inherit }` fuori da `@layer`): in #3
+è già sistemato con `@layer base`.
+
+**Identità e animazioni (15 ottobre 2026).** Jack vuole che l'app sia unica per le animazioni:
+al tocco forme che si animano fotogramma per fotogramma, cartoon, amichevoli, UI cozy. Fatto il
+motore (sotto). Giro 1 (4 direzioni dentro «ora blu»: maiolica, forme anni '50, rubber hose, filo
+di luce; 4 mascotte: gatto, gatto mago, polpo, geco) **bocciato**: «il mare non c'entra con la
+magia; mi piace lo stile alla Kiki's Delivery Service, ma è troppo normale; la scalinata dovrebbe
+portare a qualcosa sopra le nuvole, così all'inizio non lo vedi». Giro 2 (`foglio-scelta-2-nuvole.jpg`):
+stesso stile Ghibli, si parte da una valle di montagna, la scala sale e sparisce nelle nuvole, la
+cima si scopre solo al livello 40 (le nuvole si aprono a ogni tappa; dopo la cima la scala
+continua tra le stelle). Bocciato anche questo: «non mi piacciono le scalinate». **Cambio di metodo** (proposto da Jack):
+prima una ricerca di reference, poi i disegni. Tavola di 22 reference numerate (mondi magici: Matemagica
+1959, Monument Valley, La città incantata, Howl, Laputa, Sky, Ori, Botanicula, Gorogoa, Kiki; cartoni a
+scatti: Cuphead, Chuchel, Lost in Play, Missi; mascotte: Calcifer, i nerini, i Nooms, Finch; app:
+Duolingo, Royal Match, Brilliant, Prodigy). Non è nel repo (è pubblico e le immagini hanno copyright):
+sta nelle note di sessione, `matemagica-reference/`. **Aspetta i numeri di Jack**: la direzione nuova
+si costruisce da quelli, non da un altro giro di mockup. Tutto in `docs/grafica/giro-15-10/`, chat ChatGPT
+nelle note di sessione. Poi: le 8 scene del sentiero nel mondo scelto, identità applicata
+(colori, font, bottoni), 8 animazioni (tocco, giusto, sbagliato, combo, livello finito, stella,
+streak, sblocco), suoni, mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e
+intermedi da codice) che reagisce alle risposte. Obiettivo: online entro mer 21 ottobre.
+
+**Stile e struttura (16 ottobre 2026).** Dalla tavola Jack ha scelto i numeri; giro 3 di 7 stili × 3 pezzi
+(`docs/grafica/giro-16-10/foglio-esplorazione.jpg`): vince **S5**, modernismo grafico anni '50 alla Matemagica
+1959 (`originali/mm-s5a.png`, `mm-s5b.png`, `mm-s5c2.png`), gatto nero. Il problema era la scala (ogni livello
+disegnato come un'isola): struttura **«Sassi e isole»**, scelta da Jack: livello = sasso piccolo sul sentierino,
+tappa = isola con 5 sassi e il monumento della sua storia in cima, l'isola dopo è una sagoma dietro un velo di
+nuvole che si dirada a ogni livello e si apre al 5°; dopo l'8ª isola le costellazioni di PR #4. Mockup in
+`docs/grafica/giro-16-10/struttura/` (`foglio-struttura.jpg`). **Aspetta il sì di Jack**, poi: branch nuovo da
+`main` con #4 + #5, `src/content/isole.ts`, `Sentiero.tsx` riscritto (Isola, Sasso, Velo, Etichetta, gatto con
+`<Scatto>`), isole 1-4 dipinte per il 21, le altre come costellazioni finché papà non conferma le storie.
 
 ---
 
@@ -120,6 +148,24 @@ stai sbagliando file.
 - Ogni 5 livelli una storia: si sblocca la prima volta che quel livello prende una stella e
   diventa una carta della collezione.
 
+### Animazioni a scatti (`src/anim/`)
+- Ogni animazione è un **foglio di fotogrammi WebP** in griglia, suonato a **12 disegni al
+  secondo** senza passaggi morbidi (lo scatto del cartone). I fotogrammi vengono da After Effects
+  (sequenza PNG con alfa, solo se la corsia Adobe è libera: Gary ha la precedenza) o da ChatGPT
+  (griglia su fondo magenta). Un'animazione nuova = un comando:
+  `/opt/homebrew/bin/python3.14 scripts/fogli.py <cartella|griglia.png> --nome giusto [--griglia 4x2]`
+  → `src/anim/fogli/<nome>.webp` + `.json` e `src/anim/manifest.ts` rigenerato (non si tocca a mano).
+  Con `--anteprima` scrive un foglio di controllo su magenta/notte/crema; `--tremolio 3` fa
+  tremare un disegno fermo.
+- Nell'app: `<Scatto nome larghezza giro onFine />` dove serve; `scoppia(nome, x, y)` da qualsiasi
+  file per un'animazione sopra a tutto; `<StratoScoppi tocco="tocco" />` montato una volta fa
+  partire il tocco su ogni bottone; `<FiltriTremolio />` + classe `tremolio` per i contorni che
+  vibrano (sullo strato del contorno, non sul testo). `precaricaFogli()` all'avvio.
+- Prova: **`/prova.html`** (pagina a parte, il gioco non la vede). Verifica: `npm run guarda` (vedi
+  Comandi) dà i ms fra un disegno e l'altro e una foto per disegno; il pannello browser nascosto e le
+  schede di Chrome in background fermano `requestAnimationFrame`, lì le animazioni non si misurano.
+  Misurato: ~83-86 ms a disegno, tremolio forte 60 fps. Budget: ~40 KB ad animazione.
+
 ---
 
 ## Struttura
@@ -137,11 +183,13 @@ stai sbagliando file.
   /profilo       → store.ts (zustand + localStorage, v2 con migrazione), progressione.ts
   /ui            → Sentiero, Palestra, Collezione, Schede (spiegazione, storia), Intestazione
   /audio         → sfx.ts (suoni sintetizzati con Web Audio, zero file)
+  /anim          → Scatto, scoppi, Tremolio, orologio (un rAF per tutti), precarica,
+                   manifest.ts (GENERATO) e fogli/ (WebP + json, da scripts/fogli.py)
+  /prova         → la pagina di prova delle animazioni (prova.html)
 /public          → manifest, icone PWA, sw.js (offline)
-/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py, scene.py, dischi.py
-/public/scene    → le 8 scene del sentiero (WebP), generate da scripts/scene.py
-/docs/grafica    → riferimento approvato, proposte, scene originali, dischi-manuali.json
+/scripts         → simula.ts, verifica.ts, icone.py, pdf-papa.py, fogli.py
 /docs/papa       → documenti per papà e le sue risposte
+/docs/grafica    → giro-15-10: fogli di scelta (giro 1 bocciato, giro 2 sopra le nuvole), originali
 ```
 
 I moduli puri (`engine/regole.ts`, `engine/caso.ts`, `games/*/logica.ts`, `content/*`) usano
@@ -162,6 +210,8 @@ Il resto usa l'alias `@/`.
 
 Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula` · `npm run verifica`
 · `python3 scripts/pdf-papa.py docs/papa/<file>.md` · `python3 scripts/icone.py`
+· `python3.14 scripts/fogli.py <sorgente> --nome <animazione>` (Pillow e numpy: il python3 di sistema non li ha)
+· `npm run guarda -- <url di prova.html> <cartella>`: Chrome headless, tempi veri e una foto per disegno di ogni animazione
 
 ## Flusso
 
@@ -203,13 +253,11 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
   sul numero di quesiti per partita.
 - *(2026-10-07, B5)* Catena e Stima a scelta multipla (4 e 3 opzioni) invece che col
   tastierino: sul telefono, a tempo, il tastierino rallenta più del calcolo.
-- *(2026-10-08, grafica)* Nuove dipendenze `@fontsource-variable/fraunces` e `/nunito`: i caratteri
-  dentro il progetto, così la PWA funziona offline (Google Fonts da rete no).
-- *(2026-10-08, grafica)* Il sentiero sale dal basso verso l'alto (dal porto alla torre) e i livelli
-  stanno sopra i dischi di pietra DIPINTI nelle scene: `scripts/dischi.py` li trova da solo (pietra
-  chiara, calda e liscia); dove sbaglia si corregge in `docs/grafica/scene/dischi-manuali.json`.
-- *(2026-10-08, grafica)* Le scene arrivano da ChatGPT nella chat della proposta P (stesso stile).
-  Chrome blocca i download multipli da chatgpt.com: si salvano come catture dell'anteprima (~672 px,
-  sufficienti a tutta larghezza su telefono).
 - *(2026-10-07, B8)* Service worker scritto a mano (40 righe) invece di un plugin PWA: zero
   dipendenze nuove.
+- *(2026-10-15, animazioni)* Animazioni come fogli di fotogrammi WebP suonati cambiando
+  `background-position`, niente Lottie o librerie: zero dipendenze, e i fotogrammi possono
+  arrivare sia da After Effects sia dai disegni di ChatGPT.
+- *(2026-10-15, animazioni)* Build a due pagine (`index.html` + `prova.html`) per provare le
+  animazioni dal telefono senza toccare il gioco. `sw.js` ora mette ogni pagina nella sua casella
+  di cache: prima ogni navigazione veniva salvata come `/`.
