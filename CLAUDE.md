@@ -51,6 +51,16 @@ nelle note di sessione. Poi: le 8 scene del sentiero nel mondo scelto, identità
 streak, sblocco), suoni, mascotte col metodo del Bro (neutra → 8-10 espressioni, blink e
 intermedi da codice) che reagisce alle risposte. Obiettivo: online entro mer 21 ottobre.
 
+**Stile e struttura (16 ottobre 2026).** Dalla tavola Jack ha scelto i numeri; giro 3 di 7 stili × 3 pezzi
+(`docs/grafica/giro-16-10/foglio-esplorazione.jpg`): vince **S5**, modernismo grafico anni '50 alla Matemagica
+1959 (`originali/mm-s5a.png`, `mm-s5b.png`, `mm-s5c2.png`), gatto nero. Il problema era la scala (ogni livello
+disegnato come un'isola): struttura **«Sassi e isole»**, scelta da Jack: livello = sasso piccolo sul sentierino,
+tappa = isola con 5 sassi e il monumento della sua storia in cima, l'isola dopo è una sagoma dietro un velo di
+nuvole che si dirada a ogni livello e si apre al 5°; dopo l'8ª isola le costellazioni di PR #4. Mockup in
+`docs/grafica/giro-16-10/struttura/` (`foglio-struttura.jpg`). **Aspetta il sì di Jack**, poi: branch nuovo da
+`main` con #4 + #5, `src/content/isole.ts`, `Sentiero.tsx` riscritto (Isola, Sasso, Velo, Etichetta, gatto con
+`<Scatto>`), isole 1-4 dipinte per il 21, le altre come costellazioni finché papà non conferma le storie.
+
 ---
 
 ## Visione
