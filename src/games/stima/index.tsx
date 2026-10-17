@@ -1,14 +1,16 @@
 import type { ArcadeGame, ArcadeViewProps } from '@/engine/cartuccia';
-import { formatta, genera, tempo, type RoundStima } from './logica';
+import { formatta, genera, rivela, tempo, type RoundStima } from './logica';
 
 function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<RoundStima, number>) {
   const feedback = correct !== null;
   return (
     <div className="flex flex-col gap-8">
       <div className="text-center">
+        {round.sopra && <p className="mb-2 text-xl text-panna-100/75">{round.sopra}</p>}
         <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none titolo font-semibold tabular-nums">{round.testo}</p>
+        {round.formula && <p className="mt-3 text-base text-panna-100/60 tabular-nums">{round.formula}</p>}
         <p className={`mt-3 text-xl ${feedback ? 'text-panna-100/80' : 'text-panna-100/50'}`}>
-          {feedback ? `= ${formatta(Math.round(round.valore * 10) / 10)}` : '≈ quanto, più o meno?'}
+          {feedback ? `= ${rivela(round)}` : (round.domanda ?? '≈ quanto, più o meno?')}
         </p>
       </div>
       <div className="flex flex-col gap-3">
@@ -30,6 +32,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
               ].join(' ')}
             >
               ≈ {formatta(o)}
+              {round.unita && <span className="ml-1.5 text-2xl">{round.unita}</span>}
             </button>
           );
         })}
@@ -46,6 +49,6 @@ export const stimaLampo: ArcadeGame<RoundStima, number> = {
   generate: genera,
   View: Vista,
   check: (r, i) => i === r.giusta,
-  timeFor: (_r, d) => tempo(d),
+  timeFor: (r, d) => tempo(d, r),
   roundPerPartita: 15,
 };

@@ -128,12 +128,13 @@ export function genera(d: number, rng: Rng): RoundBersaglio {
     if (passiMinimi(numeri, bersaglio, f.passiMin) < f.passiMin) continue;
     return { numeri, bersaglio, soluzione };
   }
+  // Riserva: lo stesso esempio della spiegazione, che vuole due passi (3, 4, 6 → 18 si faceva con 3 × 6).
   return {
-    numeri: [3, 4, 6],
-    bersaglio: 18,
+    numeri: [4, 5, 3],
+    bersaglio: 23,
     soluzione: [
-      { a: 3, op: '×', b: 4, r: 12 },
-      { a: 12, op: '+', b: 6, r: 18 },
+      { a: 4, op: '×', b: 5, r: 20 },
+      { a: 20, op: '+', b: 3, r: 23 },
     ],
   };
 }

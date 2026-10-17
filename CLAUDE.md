@@ -92,13 +92,17 @@ smonta i trucchi ovvi e `npm run verifica` li misura su 46.000 quesiti:
 
 | Gioco | Trucco smontato | Misura |
 |---|---|---|
-| Chi è più grande? | "vince il numero più grosso"; numeri in comune | sbaglia nel 51%; 0% numeri in comune |
-| Coppie magiche | "l'ultima coppia è obbligata" | numeri esca in ~99,6% delle griglie (d≥2) |
-| Catena | "guardo solo l'ultima operazione" | l'esca del penultimo passo c'è sempre |
-| Stima lampo | "la giusta è quella in mezzo"; "guardo l'ultima cifra" | 33/33/34%; opzioni arrotondate |
+| Chi è più grande? | "vince il numero più grosso"; numeri in comune; "vince il quadrato" (4 × 4 contro 9 + 6); "vince il dividendo più grande" | sbaglia nel 48% da d2; 0 numeri in comune; 47%; 51% |
+| Coppie magiche | "l'ultima coppia è obbligata"; primi: "sommo e basta" / "scarto i non primi"; differenza: "guardo solo le unità" | esche nel ~99,6% delle griglie (d≥2); sbagliano nel 100% / 98%; coppia falsa nel 100% |
+| Catena | "guardo solo l'ultima operazione" (cerco due risposte legate da lei) | indovina 26% (a caso 25%): le risposte sono due coppie, la giusta è "prima" o "dopo" 50/50 |
+| Stima lampo | "la giusta è quella in mezzo"; "guardo l'ultima cifra"; "guardo le distanze fra le opzioni" | 34/32/34%; opzioni arrotondate; 34% (a caso 33%) |
 | Il Numero bersaglio | "sommo tutto"; un'operazione sola | 0% da d≥2; risolutore esaustivo |
-| La Bilancia | "la leggo da una bilancia sola" | soluzione unica e incrocio obbligato (forza bruta) |
-| Trova la regola | "aggiungo l'ultimo salto" | 100% / 38% / 0% / 0% / 0% per fascia |
+| La Bilancia | "la leggo da una bilancia sola"; da d 7 "i pesi sono tutti positivi" | soluzione unica e incrocio obbligato (forza bruta, anche sui negativi); negativi 15-23%, la chiesta è la negativa nel 34% |
+| Trova la regola | "aggiungo l'ultimo salto"; "mi ricordo la risposta" (sequenze scritte) | 100% / 42% / 0% / 0% / 0% per fascia; ogni sequenza scritta ≤ 19% dei quesiti (prima fino a metà) |
+
+Le famiglie nuove dalle risposte di papà (16/10) restano minoritarie: in Chi è più grande? mista
+23%, divisione 11% (da d 4), quadrato 6% (da d 2); in Coppie differenza 15%, multiplo 9%, primi
+10%; in Stima resto, distanze e temperature ~10% l'una.
 
 ## Principi
 
@@ -261,3 +265,25 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
 - *(2026-10-15, animazioni)* Build a due pagine (`index.html` + `prova.html`) per provare le
   animazioni dal telefono senza toccare il gioco. `sw.js` ora mette ogni pagina nella sua casella
   di cache: prima ogni navigazione veniva salvata come `/`.
+- *(2026-10-17, risposte di papà)* **Catena**: l'esca "risultato prima dell'ultimo passo, sempre"
+  era essa stessa un trucco (cerco due risposte legate dall'ultima operazione: 85-97%). Ora le 4
+  risposte sono due coppie legate dall'ultima operazione e la giusta è il "prima" o il "dopo" a
+  caso (26%). Si tengono solo le catene dove vanno bene tutti e due i modi e l'altra coppia sopra e
+  sotto, se no il ÷ e i numeri piccoli tradivano la giusta.
+- *(2026-10-17)* **Stima**: esche spaziate a caso e in rapporto, mescolate con Fisher-Yates. Prima
+  "guardo le distanze fra le opzioni" indovinava nel 61-67% e la giusta stava sul terzo bottone
+  solo nel 25%. Nelle conversioni la formula è sempre scritta: allena la stima, non la memoria.
+- *(2026-10-17)* **Trova la regola**: ogni sequenza scritta esce al massimo nel 12% dei quesiti
+  (prima quota fissa del 50%: da d 9 "guarda e racconta" era metà dei quesiti, e la risposta si
+  impara a memoria). Prezzo: a d 3 ci sono meno scritte e il trucco in fascia 1 sale dal 35% al 42%;
+  quelle di papà a d 8 scendono dal 26% al 12%.
+- *(2026-10-17)* **Bilancia**: da d 7 l'avviso "una forma può pesare meno di zero" c'è sempre,
+  anche quando non succede (~80% delle volte): mostrarlo solo coi negativi sarebbe un indizio. Il
+  tasto ± sta nella vista della Bilancia (il Tastierino comune non ha il meno). Con tre bilance la
+  vista è più compatta: prima a d 8-10 sforava 375×812 nel 2-29% dei rompicapo.
+- *(2026-10-17)* **Chi è più grande?**: un numero in comune non passa mai (prima, dopo 450
+  tentativi, sì); le divisioni hanno 1,5 s in più. Il classico n² contro (n−1)(n+1) ora perde metà
+  delle volte (con "+ c"): prima vinceva sempre il quadrato, ed era un trucco.
+- *(2026-10-17)* **Coppie**: `verifica` prova tutti gli ordini di gioco con `formano`, perché in
+  differenza e multiplo un numero ha più compagni (il vecchio controllo "compagno unico" non vale
+  più). `verifica` misura il tempo solo della generazione, non dei suoi controlli.
