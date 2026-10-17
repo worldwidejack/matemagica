@@ -1,5 +1,5 @@
 import type { ArcadeGame, ArcadeViewProps } from '@/engine/cartuccia';
-import { genera, giusta, tempo, type Lato, type RoundPiuGrande } from './logica';
+import { genera, giusta, risultato, tempo, type Lato, type RoundPiuGrande } from './logica';
 
 function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<RoundPiuGrande, Lato>) {
   const feedback = correct !== null;
@@ -27,7 +27,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
       >
         <span className="text-[clamp(2.2rem,11vw,3.5rem)] leading-none titolo font-semibold tabular-nums">{e.testo}</span>
         <span className={`mt-2 h-7 text-xl tabular-nums ${feedback ? 'opacity-80' : 'text-transparent'}`}>
-          = {e.valore}
+          {risultato(e.valore)}
         </span>
       </button>
     );
@@ -50,5 +50,5 @@ export const piuGrande: ArcadeGame<RoundPiuGrande, Lato> = {
   generate: genera,
   View: Vista,
   check: giusta,
-  timeFor: (_round, d) => tempo(d),
+  timeFor: (round, d) => tempo(d, round),
 };
