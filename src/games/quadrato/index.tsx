@@ -58,7 +58,7 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-sm text-panna-100/55">Righe, colonne e diagonali: stessa somma.</p>
+        <p className="text-sm text-panna-100/70">Righe, colonne e diagonali: stessa somma.</p>
         {round.sommaData && (
           <p className="rounded-full bg-oro-400/15 px-3 py-0.5 text-sm font-bold text-oro-300">
             Somma magica: <span className="tabular-nums">{testoNumero(round.somma)}</span>

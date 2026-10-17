@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { suona } from '@/audio/sfx';
-import { SCENE } from '@/content/scene';
+import { isolaDellaTappa } from '@/content/isole';
 import { MOTIVI, OBIETTIVI } from '@/profilo/giornata';
 import { Bottone } from './kit';
 
@@ -11,20 +11,41 @@ import { Bottone } from './kit';
 export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: number) => void }) {
   const [passo, setPasso] = useState<0 | 1 | 2>(0);
   const [motivo, setMotivo] = useState<string | null>(null);
-  const scena = SCENE[0];
+  // L'isola della tappa 1 (segue la storia, come sulla mappa); bimbo e gatto al suo primo sasso.
+  const isola = isolaDellaTappa(1);
+  const primo = isola?.sassi[0] ?? { x: 0.5, y: 0.56 };
 
   if (passo === 0) {
     return (
-      <div className="relative flex min-h-full flex-col">
-        {scena && <img src={scena.file} alt="" className="absolute inset-0 h-full w-full object-cover" />}
-        <div className="absolute inset-0 bg-gradient-to-b from-notte-900/85 via-notte-900/10 to-notte-900/90" />
+      <div className="cielo-stellato relative flex min-h-dvh flex-col overflow-hidden">
         <div className="relative px-6 pt-[calc(env(safe-area-inset-top)+3.5rem)] text-center">
           <h1 className="animate-pop text-6xl font-semibold text-panna-50 drop-shadow-lg">Matemagica</h1>
           <p className="titolo mt-3 text-xl text-panna-100 italic">Piccole sfide, grandi viaggi nella mente</p>
         </div>
-        <div className="relative mt-auto flex flex-col items-center gap-3 px-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
+        {/* L'isola 1 nella notte S5, col bimbo mago e il gatto che aspettano al primo sasso. */}
+        {isola && (
+          <div className="pointer-events-none flex min-h-0 flex-1 items-center justify-center py-4" aria-hidden>
+            {/* Larga quanto lascia lo spazio sopra e sotto (titolo, testo, bottone: ~26rem), col rapporto vero. */}
+            <div className="relative" style={{ width: `min(80%, calc((100dvh - 26rem) / ${isola.rapporto}))` }}>
+              <img src={isola.file} alt="" className="w-full" />
+              <img
+                src="/personaggi/mago.webp"
+                alt=""
+                className="animate-respiro-scatti absolute h-[20%] origin-bottom"
+                style={{ left: `${primo.x * 100 - 22}%`, top: `${primo.y * 100 - 17}%` }}
+              />
+              <img
+                src="/personaggi/gatto.webp"
+                alt=""
+                className="animate-respiro-scatti absolute h-[10%] origin-bottom"
+                style={{ left: `${primo.x * 100 - 10}%`, top: `${primo.y * 100 - 7}%`, animationDelay: '-0.8s' }}
+              />
+            </div>
+          </div>
+        )}
+        <div className="relative flex flex-col items-center gap-3 px-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
           <p className="max-w-xs text-center text-lg text-panna-50 drop-shadow">
-            Un paese sul mare, un sentiero fino alla torre. Ogni gradino è un gioco che allena la mente.
+            Isole che volano nella notte, un sasso dopo l'altro. Ogni sasso è un gioco che allena la mente.
           </p>
           <Bottone freccia respira className="w-full max-w-xs" onClick={() => setPasso(1)}>
             Iniziamo

@@ -1,262 +1,483 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { suona } from '@/audio/sfx';
-import { SCENE, type Disco } from '@/content/scene';
-import { SENTIERO, TAPPE, TAPPE_TOTALI, nomeTappa, type Livello } from '@/content/sentiero';
-import { rngConSeme } from '@/engine/caso';
-import { GIOCHI } from '@/games/registro';
+import { menoMovimento } from '@/anim/orologio';
+import { StratoScoppi, scoppia } from '@/anim/scoppi';
+import type { Punto } from '@/content/isole';
+import { SENTIERO, TAPPE, type Livello } from '@/content/sentiero';
+import type { Stelle } from '@/engine/regole';
 import { useProfilo } from '@/profilo/store';
-import { Bottone, Icona, IconaGioco, Stelline } from './kit';
+import { Bottone } from './kit';
 import { livelloAperto, livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
-
-/** Le tappe tra le stelle sono un po' più basse delle scene dipinte. */
-const RAPPORTO_CIELO = 1.35;
-
-/**
- * Oltre la torre ogni tappa è una costellazione: i 5 livelli sono le sue
- * stelle, in posizioni fisse per tappa (seme = numero della tappa).
- */
-function cieloDi(n: number): { dischi: Disco[]; stelle: { x: number; y: number; r: number; brilla: boolean }[] } {
-  const rng = rngConSeme(n * 7919);
-  const lato = rng() < 0.5 ? 1 : -1;
-  const dischi = Array.from({ length: 5 }, (_, k) => ({
-    x: 0.5 + lato * (k % 2 === 0 ? -1 : 1) * (0.12 + rng() * 0.16),
-    y: 0.86 - k * 0.165 + (rng() - 0.5) * 0.04,
-    r: 0.085 - k * 0.004,
-  }));
-  const stelle = Array.from({ length: 70 }, () => ({ x: rng(), y: rng(), r: 0.6 + rng() * 1.6, brilla: rng() < 0.3 }));
-  return { dischi, stelle };
-}
-
-/** Lucine che brillano nel cielo delle scene dipinte (solo nella parte alta). */
-function lucineDi(n: number): { x: number; y: number; ritardo: number }[] {
-  const rng = rngConSeme(n * 104729);
-  return Array.from({ length: 9 }, () => ({ x: 0.05 + rng() * 0.9, y: 0.03 + rng() * 0.22, ritardo: rng() * 4 }));
-}
-
-function Costellazione({ n, dischi, stelle }: { n: number; dischi: Disco[]; stelle: ReturnType<typeof cieloDi>['stelle'] }) {
-  const punti = dischi.map((d) => `${d.x * 100},${d.y * 100 * RAPPORTO_CIELO}`).join(' ');
-  return (
-    <div className="absolute inset-0 bg-gradient-to-b from-notte-950 via-notte-900 to-notte-950">
-      <svg viewBox={`0 0 100 ${100 * RAPPORTO_CIELO}`} className="absolute inset-0 h-full w-full" aria-hidden>
-        {/* Nebbia di via lattea, diversa per ogni tappa. */}
-        <ellipse
-          cx={30 + (n % 5) * 10}
-          cy={40 + (n % 3) * 20}
-          rx="70"
-          ry="18"
-          transform={`rotate(${-30 + (n % 7) * 9} 50 67)`}
-          fill="var(--color-notte-700)"
-          opacity="0.35"
-        />
-        {stelle.map((s, i) => (
-          <circle
-            key={i}
-            cx={s.x * 100}
-            cy={s.y * 100 * RAPPORTO_CIELO}
-            r={s.r * 0.18}
-            fill={i % 7 === 0 ? 'var(--color-oro-300)' : 'var(--color-panna-50)'}
-            className={s.brilla ? 'animate-brilla' : ''}
-            style={s.brilla ? { animationDelay: `${(i % 9) * 0.45}s` } : undefined}
-            opacity={0.85}
-          />
-        ))}
-        <polyline points={punti} fill="none" stroke="var(--color-oro-300)" strokeWidth="0.35" strokeDasharray="1.2 1.4" opacity="0.6" />
-      </svg>
-    </div>
-  );
-}
+import { cieloA, disegnaMappa, disponi, tracciato, type Mappa, type Pezzo, type PezzoTappa } from './sentiero/mappa';
+import {
+  Bandierina,
+  Etichetta,
+  Fumetto,
+  Immagine,
+  IsolaFinta,
+  NuvolaFinta,
+  Personaggi,
+  Sasso,
+  StelleCielo,
+  type StatoSasso,
+} from './sentiero/pezzi';
+import { Velo } from './sentiero/Velo';
 
 /**
- * Il sentiero: si sale dal porto alla torre, dal basso verso l'alto. Ogni tappa
- * è una scena dipinta (src/content/scene.ts) e i livelli stanno esattamente
- * sopra i 5 dischi di pietra disegnati.
+ * Il sentiero «Sassi e isole» (stile S5): un LIVELLO è un sasso, una TAPPA è un'isola
+ * con 5 sassi e il monumento della sua storia in cima. Si sale dal basso. Si vedono
+ * solo le isole raggiunte; sopra la più alta, la prossima è una sagoma dietro le nuvole.
+ * Il bimbo mago e il gatto nero aspettano accanto al sasso a cui sei arrivato.
+ *
+ * La geometria sta in sentiero/mappa.ts, i pezzi piatti in sentiero/pezzi.tsx.
  */
+
+/** Cosa è appena successo, da raccontare quando si torna sulla mappa. */
+type Evento =
+  /** Il 5° sasso di un'isola: le nuvole si aprono sulla tappa dopo. */
+  | { tipo: 'scoperta'; da: Livello; tappa: number }
+  /** Un sasso qualsiasi: bimbo e gatto saltano al sasso dopo. */
+  | { tipo: 'salto'; da: Livello };
+
+/** I tempi della scoperta (ms), allineati alle classi .via-sx, .colora, .appari di index.css. */
+const SCOPERTA = { scoppio: 150, nuvole: 700, salto: 1400, sassi: 1500, scorri: 1500, fumetto: 2400, fine: 2900 };
+const SALTO = { salto: 350, fumetto: 1350, velo: 900, fine: 1600 };
+
+function leggiEvento(id: string | undefined, stelle: Record<string, Stelle>, corrente: number): Evento | null {
+  if (!id || menoMovimento()) return null;
+  const da = SENTIERO.find((l) => l.id === id);
+  // Vale solo se è proprio il livello appena prima di dove sei arrivato.
+  if (!da || (stelle[da.id] ?? 0) === 0 || corrente !== da.numero) return null;
+  if (da.numero % 5 === 0 && SENTIERO[corrente]?.tappa === da.tappa + 1) return { tipo: 'scoperta', da, tappa: da.tappa + 1 };
+  return { tipo: 'salto', da };
+}
+
+/** Solo in sviluppo: ?scoperta=L5 fa ripartire la sequenza (per fotografarla). */
+function eventoDiProva(): string | undefined {
+  if (!import.meta.env.DEV) return undefined;
+  return new URLSearchParams(window.location.search).get('scoperta') ?? undefined;
+}
+
+/** In % della mappa: x sulla larghezza, y sull'altezza. */
+function posto(p: Punto, alto: number): { left: string; top: string } {
+  return { left: `${p.x}%`, top: `${(p.y / alto) * 100}%` };
+}
+
+function statoDi(l: Livello, corrente: number, stelle: Record<string, Stelle>): StatoSasso {
+  const i = l.numero - 1;
+  if (i === corrente) return 'attuale';
+  if ((stelle[l.id] ?? 0) > 0) return 'fatto';
+  return livelloAperto(i, stelle) ? 'aperto' : 'chiuso';
+}
+
 export function Sentiero({
   onLivello,
   onSfida,
   onSalto,
+  appenaFatto,
+  onVisto,
 }: {
   onLivello: (l: Livello) => void;
   onSfida: () => void;
-  /** Test per saltare a una tappa chiusa. */
+  /** Test per saltare alla tappa velata. */
   onSalto: (tappa: number) => void;
+  /** Il livello che ha appena preso la PRIMA stella (stato della navigazione, non del profilo). */
+  appenaFatto?: string;
+  /** La mappa l'ha raccontato: App può dimenticarlo. */
+  onVisto?: () => void;
 }) {
   const stelle = useProfilo((p) => p.stelleLivelli);
   const corrente = livelloCorrente(stelle);
-  const rifCorrente = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    rifCorrente.current?.scrollIntoView({ block: 'center' });
-  }, []);
-
-  // Si vedono le 8 tappe del paese e, oltre la torre, le costellazioni fino a una dopo quella raggiunta.
-  const tappaCorrente = Math.floor(corrente / 5) + 1;
-  const quanteTappe = Math.min(TAPPE_TOTALI, Math.max(TAPPE.length, tappaCorrente + 1));
-  const tappe = Array.from({ length: quanteTappe }, (_, t) => ({
-    nome: nomeTappa(t + 1),
-    n: t + 1,
-    livelli: SENTIERO.slice(t * 5, t * 5 + 5),
-  }));
+  const mappa = useMemo(() => disegnaMappa(corrente), [corrente]);
   const livelloAttuale = SENTIERO[corrente];
 
+  // L'evento si legge una volta sola, quando la mappa si apre; col grado del velo a cui arrivare.
+  const [avvio] = useState(() => {
+    const evento = leggiEvento(appenaFatto ?? eventoDiProva(), stelle, corrente);
+    const tappa = SENTIERO[corrente]?.tappa ?? 1;
+    const fattiQui = SENTIERO.filter((l) => l.tappa === tappa && (stelle[l.id] ?? 0) > 0).length;
+    // Il velo si dirada davanti ai tuoi occhi: parte dal grado di prima.
+    const primaDi = evento?.tipo === 'salto' && evento.da.tappa === tappa ? Math.max(0, fattiQui - 1) : fattiQui;
+    return { evento, grado: fattiQui, primaDi };
+  });
+  const evento = avvio.evento;
+  const [finito, setFinito] = useState(evento === null);
+  const inCorso = evento !== null && !finito;
+  const [grado, setGrado] = useState(avvio.primaDi);
+
+  const rifMappa = useRef<HTMLDivElement>(null);
+  const rifCorrente = useRef<HTMLButtonElement>(null);
+  const rifInizio = useRef<HTMLSpanElement>(null);
+  const rifMonumenti = useRef(new Map<number, HTMLSpanElement>());
+  const [largo, setLargo] = useState(() => Math.min(448, window.innerWidth));
+
+  useEffect(() => {
+    const el = rifMappa.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => e && setLargo(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Raccontato: App può dimenticare il livello appena fatto (così non riparte).
+  useEffect(() => {
+    if (appenaFatto) onVisto?.();
+  }, [appenaFatto, onVisto]);
+
+  useEffect(() => {
+    const { evento, grado } = avvio;
+    const centra = (el: Element | null, morbido = false) => el?.scrollIntoView({ block: 'center', behavior: morbido ? 'smooth' : 'auto' });
+    const timer: number[] = [];
+    const poi = (ms: number, f: () => void) => timer.push(window.setTimeout(f, ms));
+    if (evento?.tipo === 'scoperta') {
+      centra(rifInizio.current);
+      poi(SCOPERTA.scoppio, () => {
+        const r = rifMonumenti.current.get(evento.da.tappa)?.getBoundingClientRect();
+        if (r) scoppia('giusto', r.left, r.top, 170);
+        suona('stella');
+      });
+      poi(SCOPERTA.nuvole, () => suona('livello'));
+      poi(SCOPERTA.scorri, () => centra(rifCorrente.current, true));
+      poi(SCOPERTA.fine, () => setFinito(true));
+    } else {
+      centra(rifCorrente.current);
+      if (evento) {
+        poi(SALTO.velo, () => setGrado(grado));
+        poi(SALTO.fine, () => setFinito(true));
+      }
+    }
+    return () => timer.forEach((t) => window.clearTimeout(t));
+    // `avvio` non cambia mai: gira solo all'apertura della mappa.
+  }, [avvio]);
+
+  const tappaScoperta = inCorso && evento?.tipo === 'scoperta' ? evento.tappa : null;
+  const cimaCielo = mappa.pezzi[0]?.cieloSopra ?? 0;
+
   return (
-    <div className="pb-20">
-      <div className="pointer-events-none fixed top-[calc(env(safe-area-inset-top)+3.9rem)] z-20 w-full max-w-md px-3">
-        <div className="pointer-events-auto inline-block">
+    <div className="pb-24">
+      <StratoScoppi />
+      <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+3.9rem)] z-[27] mx-auto flex max-w-md justify-end px-3">
+        <div className="pointer-events-auto">
           <SfidaDelGiorno compatta onGioca={onSfida} />
         </div>
       </div>
-      {/* In cima al viaggio: il titolo nel cielo, sopra la torre. */}
-      <div className="cielo-stellato px-6 pt-10 pb-6 text-center">
+
+      {/* In cima al viaggio: il titolo nel cielo, sopra l'isola più alta. */}
+      <div className="px-6 pt-24 pb-2 text-center" style={{ background: cieloA(cimaCielo) }}>
         <h1 className="text-5xl font-semibold text-panna-50">Matemagica</h1>
         <p className="titolo mt-2 text-lg text-panna-100/80 italic">Piccole sfide, grandi viaggi nella mente</p>
-        {quanteTappe < TAPPE_TOTALI && (
-          <p className="mt-3 text-sm text-panna-100/55">Il sentiero continua tra le stelle, una costellazione dopo l'altra.</p>
-        )}
       </div>
 
-      {[...tappe].reverse().map((tappa) => {
-        const scena = SCENE.find((s) => s.n === tappa.n);
-        const cielo = scena ? null : cieloDi(tappa.n);
-        const dischi = scena?.dischi ?? cielo?.dischi ?? [];
-        const primo = tappa.livelli[0];
-        const raggiunta = primo !== undefined && livelloAperto(primo.numero - 1, stelle);
-        // Tappa d'oro: tutti e 5 i livelli con 3 stelle.
-        const doro = tappa.livelli.every((l) => (stelle[l.id] ?? 0) === 3);
-        return (
-          <section key={tappa.n} className="relative" aria-label={`Tappa ${tappa.n}: ${tappa.nome}`}>
-            <div className="relative w-full overflow-hidden" style={{ aspectRatio: `1 / ${scena?.rapporto ?? RAPPORTO_CIELO}` }}>
-              {scena ? (
-                <img
-                  src={scena.file}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className={`absolute inset-0 h-full w-full object-cover transition-[filter] duration-700 ${
-                    raggiunta ? '' : 'brightness-[0.55] saturate-[0.45]'
-                  }`}
-                />
-              ) : (
-                cielo && (
-                  <div className={raggiunta ? '' : 'opacity-60'}>
-                    <Costellazione n={tappa.n} dischi={cielo.dischi} stelle={cielo.stelle} />
-                  </div>
-                )
-              )}
-              {scena && raggiunta && (
-                <div className="pointer-events-none absolute inset-0" aria-hidden>
-                  {lucineDi(tappa.n).map((l, i) => (
-                    <span
-                      key={i}
-                      className="animate-brilla absolute h-1 w-1 rounded-full bg-panna-50 shadow-[0_0_6px_2px_var(--color-oro-300)]"
-                      style={{ left: `${l.x * 100}%`, top: `${l.y * 100}%`, animationDelay: `${l.ritardo}s` }}
-                    />
-                  ))}
-                </div>
-              )}
+      <div ref={rifMappa} className="relative overflow-x-clip">
+        {mappa.pezzi.map((p) => (
+          <PezzoVista
+            key={`${p.tipo}-${p.n}`}
+            pezzo={p}
+            stelle={stelle}
+            grado={grado}
+            tappaCorrente={mappa.tappaCorrente}
+            onSalto={onSalto}
+            scoperta={tappaScoperta}
+          />
+        ))}
 
-              {/* Sfumature nel blu della notte: le scene si fondono una nell'altra. */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-notte-900/80 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-notte-900/80 to-transparent" />
-              <div
-                className={`absolute top-3 left-3 rounded-full px-3.5 py-1 text-sm text-inchiostro shadow ${
-                  doro ? 'bg-oro-400 shadow-[0_0_0_2px_var(--color-oro-600),0_0_16px_var(--color-oro-400)]' : 'bg-panna-100/95'
-                }`}
-              >
-                {doro && <span className="mr-1">👑</span>}
-                <span className="font-bold">Tappa {tappa.n}</span> · <span className="titolo italic">{tappa.nome}</span>
-                {tappa.n > TAPPE.length && <span className="ml-1">✦</span>}
-              </div>
-              {!raggiunta && (
-                <div className="absolute inset-x-0 top-1/3 flex flex-col items-center gap-2">
-                  <p className="titolo rounded-2xl bg-notte-950/70 px-4 py-2 text-center text-panna-100 backdrop-blur-sm">
-                    Si apre finendo la tappa {tappa.n - 1}
-                  </p>
-                  {/* Solo la prima tappa chiusa si può saltare: niente salti nel vuoto. */}
-                  {tappa.n === tappaCorrente + 1 && (
-                    <button
-                      onClick={() => {
-                        suona('tap');
-                        onSalto(tappa.n);
-                      }}
-                      className="rounded-full bg-panna-100/90 px-4 py-1.5 text-sm font-bold text-inchiostro shadow active:scale-95"
-                    >
-                      Sei già bravo? Salta qui con un test
-                    </button>
-                  )}
-                </div>
-              )}
+        <Sovrapposto
+          mappa={mappa}
+          corrente={corrente}
+          stelle={stelle}
+          largo={largo}
+          evento={inCorso ? evento : null}
+          rifCorrente={rifCorrente}
+          rifInizio={rifInizio}
+          rifMonumenti={rifMonumenti}
+          onLivello={onLivello}
+        />
+      </div>
 
-              {tappa.livelli.map((l, k) => {
-                const d = dischi[k];
-                if (!d) return null;
-                const i = l.numero - 1;
-                const aperto = livelloAperto(i, stelle);
-                const s = stelle[l.id] ?? 0;
-                const eCorrente = i === corrente;
-                const fatto = s > 0;
-                return (
-                  <div
-                    key={l.id}
-                    className={`absolute -translate-x-1/2 -translate-y-1/2 ${eCorrente ? 'z-10' : ''}`}
-                    style={{ left: `${d.x * 100}%`, top: `${d.y * 100}%`, width: `${d.r * 200 * 1.08}%` }}
-                  >
-                    {eCorrente && (
-                      <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 animate-[galleggia_2s_ease-in-out_infinite] whitespace-nowrap rounded-xl bg-panna-50 px-3 py-1 text-center text-inchiostro shadow-lg">
-                        <span className="flex items-center gap-2">
-                          <IconaGioco gioco={l.gioco} className="h-8 w-8" />
-                          <span className="text-left">
-                            <span className="titolo block text-base leading-tight font-semibold">Gioca!</span>
-                            <span className="block text-[11px] text-inchiostro-chiaro">{GIOCHI[l.gioco].titolo}</span>
-                          </span>
-                        </span>
-                        <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-panna-50" />
-                      </div>
-                    )}
-                    <button
-                      ref={eCorrente ? rifCorrente : undefined}
-                      disabled={!aperto}
-                      onClick={() => {
-                        suona('tap');
-                        onLivello(l);
-                      }}
-                      aria-label={`Livello ${l.numero}: ${GIOCHI[l.gioco].titolo}${aperto ? '' : ', chiuso'}`}
-                      className={[
-                        'titolo relative flex aspect-[2.3/1] w-full items-center justify-center rounded-[50%] text-[clamp(1rem,4.5vw,1.5rem)] font-semibold transition-transform active:scale-90',
-                        eCorrente
-                          ? 'animate-respiro bg-oro-400/95 text-inchiostro shadow-[0_0_0_3px_var(--color-oro-600),0_0_28px_var(--color-oro-400)]'
-                          : fatto
-                            ? 'bg-oro-400/85 text-inchiostro shadow-[0_0_0_2px_var(--color-oro-600)]'
-                            : aperto
-                              ? 'bg-panna-100/80 text-inchiostro'
-                              : 'bg-notte-950/35 text-panna-100/80',
-                        // Tra le stelle i dischi sono stelle: un alone d'oro li fa vedere sul blu.
-                        cielo && !fatto && !eCorrente ? 'shadow-[0_0_0_1.5px_var(--color-oro-300),0_0_18px_var(--color-oro-300)]' : '',
-                      ].join(' ')}
-                    >
-                      {aperto ? l.numero : <Icona nome="lucchetto" className="h-[45%] w-[45%]" />}
-                    </button>
-                    {fatto && (
-                      <div className="mt-0.5 flex justify-center text-[clamp(0.7rem,3vw,1rem)] drop-shadow">
-                        <Stelline n={s} />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
-
-      {/* Il grande pulsante, come nel riferimento: riprende dal livello a cui sei arrivato. */}
+      {/* Il grande pulsante: riprende dal livello a cui sei arrivato. */}
       {livelloAttuale && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-20 flex justify-center px-6">
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[26] flex justify-center px-6">
           <Bottone freccia className="pointer-events-auto w-full max-w-xs" onClick={() => onLivello(livelloAttuale)}>
             Continua
           </Bottone>
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Un pezzo della mappa nel suo riquadro di cielo: isola, costellazione, velo o fondo. */
+function PezzoVista({
+  pezzo: p,
+  stelle,
+  grado,
+  tappaCorrente,
+  onSalto,
+  scoperta,
+}: {
+  pezzo: Pezzo;
+  stelle: Record<string, Stelle>;
+  grado: number;
+  tappaCorrente: number;
+  onSalto: (tappa: number) => void;
+  scoperta: number | null;
+}) {
+  const pct = (u: number) => `${(u / p.h) * 100}%`;
+  const stile: CSSProperties = {
+    aspectRatio: `100 / ${p.h}`,
+    background: `linear-gradient(to top, ${cieloA(p.cieloSotto)}, ${cieloA(p.cieloSopra)})`,
+  };
+
+  if (p.tipo === 'velo') {
+    return (
+      <section className="relative" style={stile} aria-label="La prossima isola, nascosta dalle nuvole">
+        <Velo pezzo={p} grado={grado} tappaSotto={tappaCorrente} onSalto={onSalto} className={scoperta ? 'appari' : ''} />
+      </section>
+    );
+  }
+
+  if (p.tipo === 'fondo') {
+    return (
+      <div className="relative" style={stile} aria-hidden>
+        <StelleCielo stelle={p.stelle} alto={p.h} />
+        {[
+          { x: -14, y: 4, w: 74, file: '/isole/nuvola-1.webp', r: 290 / 785 },
+          { x: 46, y: 10, w: 70, file: '/isole/nuvola-1.webp', r: 290 / 785 },
+          { x: 30, y: 0, w: 26, file: '/isole/nuvola-2.webp', r: 267 / 356 },
+        ].map((n, i) => (
+          <Immagine
+            key={i}
+            src={n.file}
+            pigra
+            className="absolute"
+            style={{ left: `${n.x}%`, top: pct(n.y), width: `${n.w}%`, height: pct(n.w * n.r) }}
+            segnaposto={<NuvolaFinta />}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  const fatti = p.livelli.map((l) => (stelle[l.id] ?? 0) > 0);
+  const prese = p.livelli.reduce((s, l) => s + (stelle[l.id] ?? 0), 0);
+  const titolo = p.n <= TAPPE.length ? `Isola ${p.n}` : `Tappa ${p.n}`;
+  const svela = scoperta === p.n;
+
+  return (
+    <section className="relative" style={stile} aria-label={`${titolo}: ${p.nome}`}>
+      <Etichetta titolo={titolo} nome={p.nome} fatti={fatti} stelle={prese} />
+      {p.tipo === 'cielo' && (
+        <svg viewBox={`0 0 100 ${p.h}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+          {/* Una striscia di via lattea, piatta, diversa per ogni tappa. */}
+          <ellipse
+            cx={p.nebbia.cx}
+            cy={p.nebbia.cy}
+            rx="70"
+            ry="14"
+            transform={`rotate(${p.nebbia.ruota} 50 ${p.h / 2})`}
+            fill="var(--color-notte-700)"
+            opacity="0.45"
+          />
+        </svg>
+      )}
+      <StelleCielo stelle={p.stelle} alto={p.h} />
+      {p.tipo === 'isola' && (
+        <Immagine
+          src={p.isola.file}
+          pigra={Math.abs(p.n - tappaCorrente) > 1}
+          className={`pointer-events-none absolute ${svela ? 'colora' : ''}`}
+          style={{ left: `${p.riquadro.x}%`, top: pct(p.riquadro.y - p.y), width: `${p.riquadro.w}%`, height: pct(p.riquadro.h) }}
+          segnaposto={<IsolaFinta />}
+        />
+      )}
+      {svela && <NuvoleCheSiAprono pezzo={p} />}
+    </section>
+  );
+}
+
+/** La scoperta: le due metà della nuvola scorrono via a scatti, a sinistra e a destra. */
+function NuvoleCheSiAprono({ pezzo: p }: { pezzo: PezzoTappa }) {
+  const r = p.tipo === 'isola' ? p.riquadro : { x: 6, y: p.y + 15, w: 88, h: p.h - 18 };
+  const lato = 52;
+  const alto = lato * (455 / 506);
+  const cy = r.y - p.y + r.h * 0.45;
+  const pct = (u: number) => `${(u / p.h) * 100}%`;
+  const comune = { top: pct(cy - alto / 2), width: `${lato}%`, height: pct(alto) };
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
+      {/* Le due metà si toccano (anzi si sovrappongono di poco): all'inizio è una nuvola sola. */}
+      <Immagine
+        src="/isole/nuvola-sx.webp"
+        className="via-sx absolute"
+        style={{ ...comune, left: `${r.x + r.w / 2 - lato + 1}%` }}
+        segnaposto={<NuvolaFinta />}
+      />
+      <Immagine
+        src="/isole/nuvola-dx.webp"
+        className="via-dx absolute"
+        style={{ ...comune, left: `${r.x + r.w / 2 - 1}%` }}
+        segnaposto={<NuvolaFinta />}
+      />
+    </div>
+  );
+}
+
+/** Sopra i pezzi: la linea di puntini, i sassi, bimbo e gatto, il fumetto, le bandierine. */
+function Sovrapposto({
+  mappa,
+  corrente,
+  stelle,
+  largo,
+  evento,
+  rifCorrente,
+  rifInizio,
+  rifMonumenti,
+  onLivello,
+}: {
+  mappa: Mappa;
+  corrente: number;
+  stelle: Record<string, Stelle>;
+  largo: number;
+  evento: Evento | null;
+  rifCorrente: React.RefObject<HTMLButtonElement | null>;
+  rifInizio: React.RefObject<HTMLSpanElement | null>;
+  rifMonumenti: React.RefObject<Map<number, HTMLSpanElement>>;
+  onLivello: (l: Livello) => void;
+}) {
+  const { alto, percorso, velo } = mappa;
+  const attuale = SENTIERO[corrente];
+  const qui = attuale ? mappa.posti.get(attuale.id) : undefined;
+  const da = evento ? mappa.posti.get(evento.da.id) : undefined;
+  const fumetto = useMemo(() => {
+    if (!qui) return null;
+    const k = largo / 100;
+    // Le etichette in cima a ogni isola e il bottone del test sotto le nuvole: il fumetto li evita.
+    const ostacoli = mappa.pezzi.flatMap((p) =>
+      p.tipo === 'isola' || p.tipo === 'cielo'
+        ? [{ x: 12, y: p.y * k - 10, w: 200, h: 66 }]
+        : p.tipo === 'velo'
+          ? [{ x: 12, y: (p.y + p.h) * k - 80, w: 170, h: 80 }]
+          : [],
+    );
+    return disponi(qui, percorso.filter((p) => p !== qui), largo, ostacoli);
+  }, [qui, percorso, largo, mappa.pezzi]);
+  const lato = fumetto?.lato ?? 'sx';
+  const tappe = mappa.pezzi.filter((p): p is PezzoTappa => p.tipo === 'isola' || p.tipo === 'cielo');
+
+  // Fatto: dal livello 1 a dove sei. Da fare: da lì in su, fino dentro le nuvole.
+  const fatto = percorso.slice(0, corrente + 1);
+  const resto = [...percorso.slice(corrente), ...(velo ? [velo.arrivo] : [])];
+
+  // La scoperta parte inquadrando il monumento appena vinto e le nuvole sopra.
+  const inizio =
+    evento?.tipo === 'scoperta' && da && qui ? { x: (da.x + qui.x) / 2, y: (da.y + qui.y) / 2 - 8 } : undefined;
+
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <svg viewBox={`0 0 100 ${alto}`} preserveAspectRatio="none" className="absolute inset-0 z-10 h-full w-full" aria-hidden>
+        <path
+          d={tracciato(resto, alto, corrente)}
+          fill="none"
+          stroke="var(--color-panna-100)"
+          strokeOpacity="0.45"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          strokeDasharray="0 2.7"
+        />
+        <path
+          d={tracciato(fatto, alto)}
+          fill="none"
+          stroke="var(--color-oro-300)"
+          strokeWidth="1.35"
+          strokeLinecap="round"
+          strokeDasharray="0 2.7"
+        />
+      </svg>
+
+      {/* I segnaposti invisibili: punta dei monumenti (scoppio) e prima inquadratura. */}
+      {tappe.map(
+        (p) =>
+          p.tipo === 'isola' && (
+            <span
+              key={`m-${p.n}`}
+              ref={(el) => {
+                if (el) rifMonumenti.current.set(p.n, el);
+                else rifMonumenti.current.delete(p.n);
+              }}
+              className="absolute h-0 w-0"
+              style={posto(p.monumento, alto)}
+            />
+          ),
+      )}
+      {inizio && <span ref={rifInizio} className="absolute h-0 w-0" style={posto(inizio, alto)} />}
+
+      {/* Bimbo e gatto: saltano dal sasso di prima al sasso attuale. */}
+      {qui && (
+        <Personaggi
+          lato={lato}
+          className={`z-10 ${da ? 'salto' : ''}`}
+          style={
+            {
+              ...posto(qui, alto),
+              ...(da
+                ? {
+                    '--x0': `${da.x}%`,
+                    '--y0': `${(da.y / alto) * 100}%`,
+                    '--ritardo': `${evento?.tipo === 'scoperta' ? SCOPERTA.salto : SALTO.salto}ms`,
+                  }
+                : {}),
+            } as CSSProperties
+          }
+        />
+      )}
+
+      {tappe.map((p) =>
+        p.livelli.map((l, k) => {
+          const punto = p.sassi[k];
+          if (!punto) return null;
+          const stato = statoDi(l, corrente, stelle);
+          const nuovo = evento?.tipo === 'scoperta' && p.n === evento.tappa;
+          return (
+            <Sasso
+              key={l.id}
+              numero={l.numero}
+              gioco={l.gioco}
+              stato={stato}
+              stelle={stelle[l.id] ?? 0}
+              rif={stato === 'attuale' ? rifCorrente : undefined}
+              className={`pointer-events-auto ${stato === 'attuale' ? 'z-[11]' : 'z-10'} ${nuovo ? 'appari' : ''}`}
+              style={{ ...posto(punto, alto), ...(nuovo ? ({ '--ritardo': `${SCOPERTA.sassi + k * 80}ms` } as CSSProperties) : {}) }}
+              onTocca={() => {
+                suona('tap');
+                onLivello(l);
+              }}
+            />
+          );
+        }),
+      )}
+
+      {/* Isola d'oro: tutte e 15 le stelle, una bandierina sul monumento. */}
+      {tappe.map(
+        (p) =>
+          p.tipo === 'isola' &&
+          p.livelli.every((l) => (stelle[l.id] ?? 0) === 3) && <Bandierina key={`b-${p.n}`} style={posto(p.monumento, alto)} />,
+      )}
+
+      {attuale && qui && fumetto && (
+        <Fumetto
+          gioco={attuale.gioco}
+          spostamento={fumetto.spostamento}
+          distanza={fumetto.distanza}
+          sotto={fumetto.sotto}
+          className={`z-[22] ${evento ? 'appari' : ''}`}
+          style={{
+            ...posto(qui, alto),
+            ...(evento
+              ? ({ '--ritardo': `${evento.tipo === 'scoperta' ? SCOPERTA.fumetto : SALTO.fumetto}ms` } as CSSProperties)
+              : {}),
+          }}
+        />
       )}
     </div>
   );

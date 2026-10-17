@@ -2,43 +2,57 @@
 @import "@fontsource-variable/fraunces/full.css";
 @import "@fontsource-variable/nunito";
 
-/* ── Palette "ora blu": presa dai pixel del riferimento approvato
-   (docs/grafica/RIFERIMENTO-stile-P-ambientazione-T.png). Ogni colore del
-   gioco passa da qui. I nomi vecchi (notte, oro, turchese…) restano, rimappati. */
+/* ── Palette S5 (16/10): modernismo grafico anni '50 alla «Paperino nel mondo della
+   Matemagica». Pochi colori decisi, piatti, misurati dai mockup approvati
+   (docs/grafica/giro-16-10/originali/mm-s5a.png, mm-s5c2.png). Ogni colore del gioco
+   passa da qui. I nomi vecchi (notte, oro, panna, turchese…) restano, rimappati. */
 @theme {
-  /* cielo dell'ora blu, dal fondo alla cima */
-  --color-notte-950: #0c1d36;
-  --color-notte-900: #12294b;
-  --color-notte-800: #173e70;
-  --color-notte-700: #1f4c86;
-  --color-notte-600: #2b5c9a;
+  /* notte blu oltremare, dalla più scura alla più chiara */
+  --color-notte-nero: #050a2e; /* il cielo tra le costellazioni, oltre l'8ª isola */
+  --color-notte-950: #0a134d;
+  --color-notte-900: #021756;
+  --color-notte-800: #01227e;
+  --color-notte-700: #012882;
+  --color-notte-600: #2a46a8;
 
-  /* carta panna: schede, pulsanti chiari, barra in basso */
-  --color-panna-50: #fdf8ee;
-  --color-panna-100: #f8eedf;
-  --color-panna-200: #eed5ae;
-  --color-pesca: #fce1c4;
-  --color-azzurro: #c9d4e8;
+  /* viola delle rocce sotto le isole */
+  --color-viola-700: #2e2586;
+  --color-viola-500: #654da8;
 
-  /* inchiostro: il testo sopra la carta */
-  --color-inchiostro: #1b2a44;
-  --color-inchiostro-chiaro: #4a5873;
+  /* verde delle isole */
+  --color-verde: #3d7a5c;
+  --color-verde-scuro: #24523d;
 
-  --color-oro-300: #fde3a6;
-  --color-oro-400: #fdcb70;
-  --color-oro-500: #f0b54d;
-  --color-oro-600: #c99a45;
+  /* crema: schede, pulsanti chiari, barra in basso, nuvole */
+  --color-panna-50: #fff3df;
+  --color-panna-100: #fde2bc;
+  --color-panna-200: #f5d292;
+  --color-pesca: #f8c7a0;
+  --color-lilla: #c6a8ba;
+  --color-azzurro: #dccbe0;
 
-  /* il tramonto e il mantello dell'apprendista */
-  --color-tramonto: #f39a69;
-  --color-mantello: #c45c36;
+  /* inchiostro: il testo sopra la crema */
+  --color-inchiostro: #17163f;
+  --color-inchiostro-chiaro: #4b4673;
 
-  /* nomi storici, rimappati sulla palette nuova */
-  --color-turchese-300: #c9d4e8;
-  --color-turchese-400: #8fb3dc;
-  --color-turchese-500: #5f8cb9;
-  --color-magenta-400: #e7799a;
+  /* oro / giallo */
+  --color-oro-300: #fcd174;
+  --color-oro-400: #fed347;
+  --color-oro-500: #e6b658;
+  --color-oro-600: #b0832f; /* solo ombre e bordi dei bottoni d'oro: come testo non regge */
+  --color-oro-700: #7d5c16; /* l'oro per il TESTO sulla crema: 4,9:1 su panna-100 */
+
+  /* arancio dei coriandoli e la tunica blu del bimbo mago */
+  --color-tramonto: #f08a4b;
+  --color-mantello: #2b3c9e;
+
+  /* nomi storici, rimappati sulla palette S5 */
+  --color-turchese-300: #a9d3bc;
+  --color-turchese-400: #5fae8f;
+  --color-turchese-500: #3d7a5c;
+  --color-magenta-400: #e8564a;
   --color-pericolo-400: #e2634a;
+  --color-pericolo-600: #c0432c; /* fondo dei bottoni rossi con testo crema: 4,7:1 */
 
   --font-display: "Fraunces Variable", Georgia, serif;
   --font-corpo: "Nunito Variable", ui-rounded, system-ui, sans-serif;
@@ -57,29 +71,97 @@
   --animate-accendi: accendi 0.2s ease-out forwards;
   --animate-carta: carta 0.7s var(--ease-rimbalzo) backwards;
   --animate-sale: sale 0.35s var(--ease-rimbalzo);
-  --animate-brilla: brilla 3.2s ease-in-out infinite;
+  /* a scatti, come un cartone: niente passaggi morbidi */
+  --animate-respiro-scatti: respiro-scatti 1.6s steps(1, end) infinite;
+  --animate-ammicca: ammicca 2.4s steps(1, end) infinite;
+  --animate-trema: trema 0.5s steps(1, end);
+  --animate-galleggia-scatti: galleggia-scatti 1.2s steps(1, end) infinite;
 }
 
-/* Le stelle e le lucine delle scene: si accendono e si spengono piano.
-   Nei cerchi SVG la scala parte dal centro della stella, non dall'angolo. */
-svg .animate-brilla {
-  transform-box: fill-box;
-  transform-origin: center;
+/* ── Il sentiero «Sassi e isole»: tutto a scatti (12 disegni al secondo) ── */
+
+/* Il respiro di bimbo e gatto: 4 pose tenute, niente scorrimento morbido. */
+@keyframes respiro-scatti {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.01, 1.025); }
+  50% { transform: scale(1.02, 1.04); }
+  75% { transform: scale(1.01, 1.025); }
 }
 
-@keyframes brilla {
-  0%, 100% { opacity: 0.15; transform: scale(0.6); }
-  50% { opacity: 1; transform: scale(1.3); }
+/* Il fumetto «Gioca!» sale e scende di due pixel, a scatti. */
+@keyframes galleggia-scatti {
+  0% { translate: 0 0; }
+  50% { translate: 0 -3px; }
 }
 
-@keyframes zoom {
-  from { transform: scale(1.15); }
-  to { transform: scale(1); }
+@keyframes ammicca {
+  0% { opacity: 1; }
+  70% { opacity: 0.35; }
+  85% { opacity: 1; }
 }
 
-@keyframes galleggia {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, -5px); }
+/* La nuvola toccata trema: 6 pose. */
+@keyframes trema {
+  0% { translate: 0 0; }
+  16% { translate: -6px 0; }
+  33% { translate: 5px 0; }
+  50% { translate: -4px 0; }
+  66% { translate: 3px 0; }
+  83% { translate: -1px 0; }
+  100% { translate: 0 0; }
+}
+
+/* Il salto di bimbo e gatto: il gruppo va in linea retta dal sasso di prima
+   (--x0, --y0) al suo posto; dentro, l'arco su e giù. 12 pose in 1 s. */
+.salto {
+  animation: salto 1s steps(12, end) var(--ritardo, 0ms) both;
+}
+.salto .arco {
+  animation: salto-arco 1s linear var(--ritardo, 0ms) both;
+}
+@keyframes salto {
+  from { left: var(--x0); top: var(--y0); }
+}
+@keyframes salto-arco {
+  0% { translate: 0 0; animation-timing-function: steps(3, end); }
+  25% { translate: 0 -30px; animation-timing-function: steps(3, end); }
+  50% { translate: 0 -42px; animation-timing-function: steps(3, end); }
+  75% { translate: 0 -30px; animation-timing-function: steps(3, end); }
+  100% { translate: 0 0; }
+}
+
+/* La scoperta: le due metà della nuvola scorrono via, l'isola si colora, i sassi appaiono. */
+.via-sx {
+  animation: via-sx 0.9s steps(10, end) 0.7s both;
+}
+.via-dx {
+  animation: via-dx 0.9s steps(10, end) 0.7s both;
+}
+@keyframes via-sx {
+  to { translate: -105% 0; opacity: 0; }
+}
+@keyframes via-dx {
+  to { translate: 105% 0; opacity: 0; }
+}
+.colora {
+  animation: colora 0.6s steps(6, end) 1s both;
+}
+@keyframes colora {
+  from { filter: brightness(0); opacity: 0.55; }
+  to { filter: brightness(1); opacity: 1; }
+}
+.appari {
+  animation: appari 0.3s steps(3, end) var(--ritardo, 1.5s) both;
+}
+@keyframes appari {
+  from { opacity: 0; }
+}
+
+/* Il velo che si dirada: tra un grado e l'altro le nuvole si spostano a scatti. */
+.velo-passo {
+  transition-property: translate, scale, opacity, filter;
+  transition-duration: 0.6s;
+  transition-timing-function: steps(6, end);
 }
 
 @keyframes sale {
@@ -158,9 +240,9 @@ body,
 
 body {
   margin: 0;
-  /* il cielo dell'ora blu: più scuro in alto, come nel riferimento */
-  background: linear-gradient(180deg, var(--color-notte-900) 0%, var(--color-notte-800) 55%, var(--color-notte-700) 100%) fixed;
-  background-color: var(--color-notte-800);
+  /* la notte blu oltremare di S5: più scura in alto */
+  background: linear-gradient(180deg, var(--color-notte-950) 0%, var(--color-notte-900) 50%, var(--color-notte-800) 100%) fixed;
+  background-color: var(--color-notte-900);
   color: var(--color-panna-50);
   font-family: var(--font-corpo);
   -webkit-font-smoothing: antialiased;

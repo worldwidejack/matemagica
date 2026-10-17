@@ -64,16 +64,20 @@ const ORDINE: Riga[] = [
   { gioco: 'bilancia', storia: 'ramanujan', nome: 'Il gran finale' },
 ];
 
-/** I nomi delle tappe: il paese sale dal porto alla torre, dal tramonto alla notte. */
+/**
+ * I nomi delle tappe: ogni tappa è un'isola col monumento della storia del suo 5° livello
+ * (gauss la torre, al-Khwarizmi l'arco, …). Le isole dipinte hanno il nome anche in
+ * isole.ts (`nomeDellaTappa` preferisce quello): se papà cambia l'ordine, cambia anche qui.
+ */
 export const TAPPE = [
-  'Il porto',
-  'I vicoli',
-  'La piazza',
-  'Il campanile',
-  'I limoni',
-  'Le mura',
-  'Il castello',
-  'La torre delle stelle',
+  'La torre',
+  "L'arco",
+  'La tartaruga',
+  "L'obelisco",
+  "L'albero",
+  "L'anello",
+  'La leva',
+  "L'osservatorio",
 ] as const;
 
 export type Livello = {

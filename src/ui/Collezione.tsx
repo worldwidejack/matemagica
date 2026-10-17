@@ -1,4 +1,5 @@
 import { suona } from '@/audio/sfx';
+import { titoloTappa } from '@/content/isole';
 import { STORIE } from '@/content/storie';
 import { useProfilo } from '@/profilo/store';
 import { Icona } from './kit';
@@ -33,7 +34,7 @@ export function Collezione({ onCarta }: { onCarta: (id: string) => void }) {
               >
                 <span className={presa ? 'text-5xl' : ''}>{presa ? s.emoji : <Icona nome="lucchetto" className="h-8 w-8" />}</span>
                 <span className={`titolo text-base font-semibold ${presa ? '' : 'text-sm'}`}>
-                  {presa ? s.carta : `Tappa ${Math.ceil((livelloDiStoria(s.id)?.numero ?? 5) / 5)}`}
+                  {presa ? s.carta : titoloTappa(Math.ceil((livelloDiStoria(s.id)?.numero ?? 5) / 5))}
                 </span>
               </button>
             </li>

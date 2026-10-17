@@ -248,7 +248,7 @@ export function PuzzleShell<R, A>({
           <div
             className={`rounded-2xl px-4 py-3 bg-panna-100 text-inchiostro`}
           >
-            <p className={`font-bold ${st.chiuso === 'risolto' ? 'text-oro-600' : 'text-inchiostro-chiaro'}`}>
+            <p className={`font-bold ${st.chiuso === 'risolto' ? 'text-oro-700' : 'text-inchiostro-chiaro'}`}>
               {st.chiuso === 'risolto' ? (st.sbagliQui === 0 && st.aiutiQui === 0 ? 'Perfetto!' : 'Risolto!') : 'La soluzione'}
             </p>
             <p className="mt-1 text-inchiostro">{game.soluzione(st.round)}</p>

@@ -192,7 +192,7 @@ export function IconaGioco({ gioco, className = 'h-14 w-14' }: { gioco: GameId; 
       width={256}
       height={256}
       draggable={false}
-      className={`shrink-0 rounded-full drop-shadow-[0_3px_6px_rgb(0_0_0/0.35)] ${className}`}
+      className={`shrink-0 rounded-full drop-shadow-[2px_3px_0_rgb(0_0_0/0.28)] ${className}`}
     />
   );
 }

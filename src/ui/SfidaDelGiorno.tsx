@@ -32,10 +32,14 @@ export function SfidaDelGiorno({ onGioca, compatta }: { onGioca: () => void; com
           suona('tap');
           onGioca();
         }}
-        className="animate-pop flex items-center gap-2 rounded-full bg-oro-400 py-1.5 pr-4 pl-2 text-inchiostro shadow-[0_4px_0_var(--color-oro-600),0_8px_20px_rgb(0_0_0/0.3)] active:translate-y-0.5"
+        className="animate-pop flex min-h-12 items-center gap-1.5 rounded-full border-[1.5px] border-inchiostro bg-oro-400 py-1 pr-3.5 pl-1 text-inchiostro shadow-[3px_4px_0_rgb(0_0_0/0.28)] active:translate-y-0.5"
       >
-        <IconaGioco gioco={sfida.gioco} className="h-9 w-9" />
-        <span className="titolo text-base font-semibold">Sfida del giorno</span>
+        <IconaGioco gioco={sfida.gioco} className="h-8 w-8" />
+        <span className="titolo text-left text-sm leading-tight font-semibold">
+          Sfida
+          <br />
+          del giorno
+        </span>
       </button>
     );
   }

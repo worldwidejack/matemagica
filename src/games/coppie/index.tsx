@@ -74,7 +74,7 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
           );
         })}
       </div>
-      <p className="text-center text-sm text-panna-100/50">
+      <p className="text-center text-sm text-panna-100/70">
         {(round.coppie * 2 - tolte.size) / 2} coppie da trovare · attento ai numeri senza compagno
       </p>
     </div>

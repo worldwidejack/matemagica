@@ -244,7 +244,7 @@ function Impostazioni() {
       </Scheda>
       <div className="mt-6 text-center">
         {conferma === 0 ? (
-          <button onClick={() => setConferma(1)} className="text-sm text-panna-100/50 underline underline-offset-4">
+          <button onClick={() => setConferma(1)} className="text-sm text-panna-100/70 underline underline-offset-4">
             Cancella i progressi
           </button>
         ) : (
@@ -260,7 +260,7 @@ function Impostazioni() {
                   azzera();
                   window.scrollTo(0, 0);
                 }}
-                className="rounded-full bg-pericolo-400 px-5 py-2 font-bold text-panna-50"
+                className="rounded-full bg-pericolo-600 px-5 py-2 font-bold text-panna-50"
               >
                 Sì, cancella
               </button>

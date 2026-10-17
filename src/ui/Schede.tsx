@@ -61,7 +61,7 @@ export function StoriaSchermo({ id, nuova, onAvanti }: { id: string; nuova: bool
         }`}
       >
         <div className="text-center text-6xl">{s.emoji}</div>
-        <p className={`mt-2 text-center text-xs font-bold tracking-[0.2em] uppercase ${stella ? 'text-oro-300' : 'text-oro-600'}`}>
+        <p className={`mt-2 text-center text-xs font-bold tracking-[0.2em] uppercase ${stella ? 'text-oro-300' : 'text-oro-700'}`}>
           {stella ? `✦ ${s.carta} ✦` : s.carta}
         </p>
         <h1 className="mt-3 text-center text-3xl font-semibold">{s.titolo}</h1>

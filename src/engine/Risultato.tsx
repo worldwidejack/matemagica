@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { suona } from '@/audio/sfx';
-import { SCENE } from '@/content/scene';
-import { nomeTappa } from '@/content/sentiero';
+import { ISOLE, isolaDellaTappa, nomeDellaTappa, titoloTappa } from '@/content/isole';
+import { TAPPE } from '@/content/sentiero';
 import { NOMI_GRADO } from '@/profilo/medaglie';
 import { Bottone, Icona, Medaglione, Scheda } from '@/ui/kit';
 import { Coriandoli } from '@/ui/Coriandoli';
@@ -145,7 +145,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
         <div key={medaglia.id} className="animate-pop flex w-full max-w-xs items-center gap-3 rounded-2xl bg-panna-100 px-4 py-2.5 text-left text-inchiostro shadow">
           <Medaglione icona={medaglia.icona} grado={grado} />
           <span>
-            <span className="block text-xs font-bold tracking-wider text-oro-600 uppercase">Medaglia {NOMI_GRADO[grado]}</span>
+            <span className="block text-xs font-bold tracking-wider text-oro-700 uppercase">Medaglia {NOMI_GRADO[grado]}</span>
             <span className="titolo text-lg font-semibold">{medaglia.nome}</span>
           </span>
         </div>
@@ -198,32 +198,65 @@ function Condividi({ testo }: { testo: string }) {
   );
 }
 
-/** Tappa completata: la scena della tappa, i coriandoli, il nome. */
+/** Isola (o tappa) completata: l'isola col suo monumento, i coriandoli, il nome. */
 function TappaSchermo({ tappa, onAvanti }: { tappa: number; onAvanti: () => void }) {
-  const scena = SCENE.find((s) => s.n === tappa);
+  const isola = isolaDellaTappa(tappa);
+  const prossima = isolaDellaTappa(tappa + 1);
+  // «Tutte le isole» solo quando saranno dipinte tutte e 8.
+  const tutte = tappa === TAPPE.length && ISOLE.length >= TAPPE.length;
   useEffect(() => suona('festa'), []);
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-end gap-5 overflow-hidden px-6 pb-[calc(env(safe-area-inset-bottom)+2.5rem)] text-center">
-      {scena ? (
-        <img src={scena.file} alt="" className="animate-[zoom_6s_ease-out_forwards] absolute inset-0 h-full w-full object-cover" />
-      ) : (
-        <div className="cielo-stellato absolute inset-0" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-b from-notte-900/70 via-transparent to-notte-900/95" />
+    <div className="cielo-stellato relative flex min-h-dvh flex-col items-center gap-4 overflow-hidden px-6 pb-[calc(env(safe-area-inset-bottom)+2.5rem)] text-center">
       <Coriandoli quanti={200} durata={4500} />
-      <div className="relative mt-[calc(env(safe-area-inset-top)+3rem)] mb-auto">
-        <p className="animate-pop text-sm font-bold tracking-[0.25em] text-oro-300 uppercase">Tappa {tappa} completata</p>
-        <h1 className="animate-pop mt-2 text-5xl font-semibold text-panna-50 drop-shadow-lg">{nomeTappa(tappa)}</h1>
+      <div className="relative mt-[calc(env(safe-area-inset-top)+3rem)]">
+        <p className="animate-pop text-sm font-bold tracking-[0.25em] text-oro-300 uppercase">{titoloTappa(tappa)} completata</p>
+        <h1 className="animate-pop mt-2 text-5xl font-semibold text-panna-50 drop-shadow-lg">{nomeDellaTappa(tappa)}</h1>
+      </div>
+      {/* L'isola col suo monumento, appena conquistata; senza disegno, una costellazione piatta. */}
+      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+        {isola ? (
+          <img src={isola.file} alt="" className="animate-pop w-[min(82%,calc((100dvh-24rem)*0.85))]" />
+        ) : (
+          <div className="animate-pop aspect-square w-[min(70%,calc(100dvh-24rem))]">
+            <Costellazione seme={tappa} />
+          </div>
+        )}
       </div>
       <p className="relative max-w-xs text-lg text-panna-50 drop-shadow">
-        {tappa === 8
-          ? 'Sei arrivato in cima alla torre. Ma il cielo non finisce: il sentiero continua tra le stelle.'
-          : 'Il sentiero sale ancora: la prossima tappa è aperta.'}
+        {tutte
+          ? 'Hai visitato tutte le isole. Ma il cielo non finisce: il sentiero continua tra le costellazioni.'
+          : prossima
+            ? 'Le nuvole si aprono: la prossima isola ti aspetta.'
+            : 'Il sentiero continua tra le stelle: la prossima tappa è aperta.'}
       </p>
       <Bottone freccia className="relative w-full max-w-xs" onClick={onAvanti}>
         Avanti
       </Bottone>
     </div>
+  );
+}
+
+/** Cinque stelle d'oro piatte unite da puntini: la tappa senza isola dipinta. */
+function Costellazione({ seme }: { seme: number }) {
+  const punti = Array.from({ length: 5 }, (_, k) => {
+    const a = (seme * 2.39 + k * 1.31) % (Math.PI * 2);
+    return { x: 50 + Math.cos(a) * (14 + k * 6), y: 86 - k * 17 + Math.sin(a) * 6 };
+  });
+  const d = punti.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  return (
+    <svg viewBox="0 0 100 100" className="h-full w-full" aria-hidden>
+      <path d={d} fill="none" stroke="var(--color-oro-300)" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="0 3.4" />
+      {punti.map((p, i) => (
+        <path
+          key={i}
+          d={`M${p.x} ${p.y - 7}L${p.x + 1.6} ${p.y - 1.6}L${p.x + 7} ${p.y}L${p.x + 1.6} ${p.y + 1.6}L${p.x} ${p.y + 7}L${p.x - 1.6} ${p.y + 1.6}L${p.x - 7} ${p.y}L${p.x - 1.6} ${p.y - 1.6}Z`}
+          fill="var(--color-oro-400)"
+          stroke="var(--color-inchiostro)"
+          strokeWidth="0.8"
+          strokeLinejoin="round"
+        />
+      ))}
+    </svg>
   );
 }
 

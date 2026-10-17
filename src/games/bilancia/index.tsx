@@ -38,7 +38,7 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundBilancia,
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-center text-sm text-panna-100/55">Tutte le bilance sono in equilibrio.</p>
+      <p className="text-center text-sm text-panna-100/70">Tutte le bilance sono in equilibrio.</p>
       <div className="flex flex-col gap-1.5">
         {round.bilance.map((b, i) => (
           <BilanciaVista key={i} b={b} />

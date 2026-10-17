@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { setMutoAudio, setVibrazioneAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
-import { SCENE } from '@/content/scene';
+import { versoTappa } from '@/content/isole';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
@@ -69,6 +69,9 @@ export default function App() {
   const segnaSpiegazione = useProfilo((p) => p.segnaSpiegazione);
   const benvenutoFatto = useProfilo((p) => p.benvenuto.fatto);
   const completaBenvenuto = useProfilo((p) => p.completaBenvenuto);
+  // Il livello che ha appena preso la prima stella: la mappa lo racconta (salto o scoperta)
+  // quando ci torni, poi si dimentica. È navigazione, non profilo: niente migrazione.
+  const [appenaFatto, setAppenaFatto] = useState<string>();
 
   useEffect(() => setMutoAudio(muto), [muto]);
   useEffect(() => setVibrazioneAudio(vibrazione), [vibrazione]);
@@ -125,6 +128,7 @@ export default function App() {
         livello={SENTIERO.find((l) => l.id === cima.livello)}
         sfida={cima.sfida}
         salto={cima.salto}
+        onPrimaStella={setAppenaFatto}
         onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
       />
       </Colonna>
@@ -142,7 +146,15 @@ export default function App() {
   return (
     <div className="mx-auto min-h-full max-w-md">
       <Intestazione onSfida={giocaSfida} />
-      {cima.scheda === 'sentiero' && <Sentiero onLivello={(l) => gioca(l.gioco, l.id)} onSfida={giocaSfida} onSalto={giocaSalto} />}
+      {cima.scheda === 'sentiero' && (
+        <Sentiero
+          onLivello={(l) => gioca(l.gioco, l.id)}
+          onSfida={giocaSfida}
+          onSalto={giocaSalto}
+          appenaFatto={appenaFatto}
+          onVisto={() => setAppenaFatto(undefined)}
+        />
+      )}
       {cima.scheda === 'palestra' && <Palestra onGioca={(g) => gioca(g)} onSfida={giocaSfida} />}
       {cima.scheda === 'collezione' && <Collezione onCarta={(id) => nav.apri({ tipo: 'storia', id, nuova: false })} />}
       {cima.scheda === 'profilo' && <Profilo />}
@@ -159,7 +171,7 @@ function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) =>
     { s: 'profilo', icona: 'persona', nome: 'Profilo' },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 rounded-t-3xl bg-panna-100 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(0_0_0/0.25)]">
+    <nav className="fixed inset-x-0 bottom-0 z-30 rounded-t-3xl bg-panna-100 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(0_0_0/0.25)]">
       <div className="mx-auto flex max-w-md">
         {voci.map((v) => {
           const on = v.s === attiva;
@@ -189,6 +201,7 @@ function Partita({
   livello,
   sfida,
   salto,
+  onPrimaStella,
   onEsci,
 }: {
   gioco: GameId;
@@ -197,6 +210,8 @@ function Partita({
   sfida?: string;
   /** La tappa a cui si vuole saltare, se è il test di salto. */
   salto?: number;
+  /** Il livello del sentiero ha appena preso la sua prima stella. */
+  onPrimaStella: (livello: string) => void;
   onEsci: (cartaNuova?: string) => void;
 }) {
   const saltaATappa = useProfilo((p) => p.saltaATappa);
@@ -208,6 +223,7 @@ function Partita({
 
   const onFine = useCallback(
     (f: FinePartita) => {
+      const primaVolta = livello !== undefined && f.stelle > 0 && (useProfilo.getState().stelleLivelli[livello.id] ?? 0) === 0;
       const r = registra({
         gioco,
         punteggio: f.punteggio,
@@ -222,11 +238,18 @@ function Partita({
         sfida,
       });
       if (r.cartaNuova) carta.current = r.cartaNuova;
-      // Test di salto superato (almeno 2 stelle): le tappe prima si aprono.
-      if (salto && f.stelle >= 2) saltaATappa(salto);
+      if (primaVolta && livello) onPrimaStella(livello.id);
+      // Test di salto superato (almeno 2 stelle): le tappe prima si aprono. Se il 5° sasso
+      // dell'isola sotto prende così la sua prima stella, sulla mappa le nuvole si aprono.
+      if (salto && f.stelle >= 2) {
+        const quinto = SENTIERO[(salto - 1) * 5 - 1];
+        const nuovo = quinto !== undefined && (useProfilo.getState().stelleLivelli[quinto.id] ?? 0) === 0;
+        saltaATappa(salto);
+        if (nuovo) onPrimaStella(quinto.id);
+      }
       return r;
     },
-    [registra, gioco, livello, sfida, salto, saltaATappa],
+    [registra, gioco, livello, sfida, salto, saltaATappa, onPrimaStella],
   );
 
   const Play = GIOCHI[gioco].Play;
@@ -237,22 +260,13 @@ function Partita({
         [0, 0],
       )
     : undefined;
-  // Dietro la partita, la scena della tappa in cui stai giocando: scurita, per restare "dentro" il paese.
-  const scena = SCENE.find((x) => x.n === (salto ?? livello?.tappa ?? 1));
   return (
-    <>
-      {scena && (
-        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden>
-          <img src={scena.file} alt="" className="h-full w-full scale-110 object-cover blur-[3px] brightness-[0.35] saturate-[0.8]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-notte-900/70 via-notte-900/30 to-notte-900/80" />
-        </div>
-      )}
     <Play
       bravura={bravura}
       record={record}
       limiti={fasciaSalto ?? livello?.limiti}
       etichetta={
-        salto ? `Salta alla tappa ${salto} · servono 2 stelle` : sfida ? 'Sfida del giorno' : livello ? `Livello ${livello.numero}` : 'Palestra'
+        salto ? `Salta ${versoTappa(salto)} · servono 2 stelle` : sfida ? 'Sfida del giorno' : livello ? `Livello ${livello.numero}` : 'Palestra'
       }
       inPalestra={!livello && !sfida && !salto}
       seme={sfida ? sfidaDel(sfida).seme : undefined}
@@ -261,6 +275,5 @@ function Partita({
       // La carta vinta si mostra uscendo, anche se nel frattempo hai rigiocato e sei uscito con ✕.
       onEsci={() => onEsci(carta.current)}
     />
-    </>
   );
 }

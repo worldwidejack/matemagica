@@ -117,7 +117,7 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
         ))}
       </div>
 
-      <p className="h-5 text-center text-sm text-panna-100/55">
+      <p className="h-5 text-center text-sm text-panna-100/70">
         {avviso ??
           (scelta === null ? 'Tocca un numero…' : op === null ? '…poi un’operazione…' : '…poi l’altro numero.')}
       </p>

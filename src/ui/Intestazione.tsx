@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { suona } from '@/audio/sfx';
-import { nomeTappa } from '@/content/sentiero';
+import { doveTappa, nomeDellaTappa } from '@/content/isole';
 import { OBIETTIVI, avanzamento, completata, giornataVuota, missioniDel } from '@/profilo/giornata';
 import { giornoLocale, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
@@ -30,6 +30,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
   const fatte = missioni.filter((m) => completata(m, giornata)).length;
   const quota = Math.min(1, giornata.partite / obiettivo);
   const liv = livelloDa(xp);
+  const tappa = Math.floor(livelloCorrente(stelleLivelli) / 5) + 1;
 
   return (
     <>
@@ -56,7 +57,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
             suona('tap');
             setAperta(true);
           }}
-          className="relative h-10 w-10"
+          className="relative -m-1 h-12 w-12 p-1"
           aria-label={`Oggi: ${giornata.partite} partite su ${obiettivo}, ${fatte} missioni su 3`}
         >
           <Anello quota={quota} />
@@ -64,7 +65,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
             {fatte}/3
           </span>
         </button>
-        <button onClick={() => setMuto(!muto)} className="p-1 text-panna-100/80" aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}>
+        <button onClick={() => setMuto(!muto)} className="-m-2 p-3 text-panna-100/80" aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}>
           <Icona nome={muto ? 'muto' : 'suono'} />
         </button>
       </header>
@@ -115,7 +116,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
                     <li key={m.id} className="rounded-2xl bg-panna-50 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <span className={ok ? 'line-through opacity-60' : ''}>{m.testo}</span>
-                        <span className="shrink-0 text-sm font-bold text-oro-600">{ok ? '✓' : `+${m.premioXp} XP`}</span>
+                        <span className="shrink-0 text-sm font-bold text-oro-700">{ok ? '✓' : `+${m.premioXp} XP`}</span>
                       </div>
                       <div className="mt-2 h-2 overflow-hidden rounded-full bg-panna-200">
                         <div className="h-full rounded-full bg-oro-500 transition-[width]" style={{ width: `${(a / m.obiettivo) * 100}%` }} />
@@ -133,7 +134,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
                 />
               </div>
               <p className="mt-4 text-center text-sm text-inchiostro-chiaro">
-                Sei alla tappa {Math.floor(livelloCorrente(stelleLivelli) / 5) + 1} · {nomeTappa(Math.floor(livelloCorrente(stelleLivelli) / 5) + 1)}
+                Sei {doveTappa(tappa)} · {nomeDellaTappa(tappa)}
                 {salvaFiamma > 0 && ` · 🧊 ×${salvaFiamma}`}
               </p>
             </Scheda>

@@ -344,7 +344,7 @@ export function ArcadeShell<R, A>({
         </div>
       </header>
 
-      <div className="relative mt-2 flex items-center justify-between text-sm text-panna-100/50">
+      <div className="relative mt-2 flex items-center justify-between text-sm text-panna-100/70">
         <span className="tabular-nums">
           {Math.min(st.roundGiocati + (feedback ? 0 : 1), totale)} / {totale}
         </span>
