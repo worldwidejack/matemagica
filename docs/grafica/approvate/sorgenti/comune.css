@@ -1,0 +1,54 @@
+/* Base comune delle schermate S5 (375×812): token dell'app, cielo del sentiero, grana di carta. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&family=Nunito:wght@600;700;800;900&display=block');
+:root {
+  --notte-nero: #050a2e; --notte-950: #0a134d; --notte-900: #021756; --notte-800: #01227e; --notte-700: #012882; --notte-600: #2a46a8;
+  --viola-700: #2e2586; --viola-500: #654da8; --verde: #3d7a5c;
+  --panna-50: #fff3df; --panna-100: #fde2bc; --panna-200: #f5d292; --pesca: #f8c7a0; --lilla: #c6a8ba;
+  --inchiostro: #17163f; --inchiostro-chiaro: #4b4673;
+  --oro-300: #fcd174; --oro-400: #fed347; --oro-500: #e6b658; --oro-600: #b0832f; --oro-700: #7d5c16;
+  --tramonto: #f08a4b; --turchese-300: #a9d3bc; --turchese-400: #5fae8f; --pericolo-400: #e2634a; --pericolo-600: #c0432c;
+  --ombra: 3px 4px 0 rgb(0 0 0 / 0.28);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 375px; height: 812px; overflow: hidden; }
+body { font-family: Nunito, system-ui, sans-serif; color: var(--inchiostro); position: relative;
+  background: linear-gradient(180deg, var(--notte-950) 0%, var(--notte-900) 48%, var(--notte-800) 100%); }
+.abs { position: absolute; }
+.cielo { position: absolute; inset: 0;
+  background-image: url('stelle.svg'),
+    radial-gradient(1.5px 1.5px at 12% 18%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 32% 8%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 22%, var(--oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 76% 12%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 88% 30%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 38%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 46% 44%, var(--oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 52%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 8% 60%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 70%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 40% 66%, var(--panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 80% 84%, var(--panna-50) 50%, transparent 51%); }
+/* scintilla a 4 punte, come quelle del sentiero */
+.scintilla { position: absolute; width: 18px; height: 18px; background: var(--oro-300);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
+/* grana di carta sopra tutto, leggera */
+.grana { position: absolute; inset: 0; pointer-events: none; opacity: .16; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.2 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>"); }
+.carta { background: var(--panna-50); border-radius: 22px; box-shadow: var(--ombra); color: var(--inchiostro); }
+.titolo { font-family: Fraunces, Georgia, serif; font-weight: 700; }
+.bottone { position: absolute; left: 24px; right: 24px; height: 60px; border-radius: 30px; background: var(--oro-400);
+  box-shadow: 0 5px 0 var(--oro-600), var(--ombra); display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: Fraunces, Georgia, serif; font-weight: 700; font-size: 24px; color: var(--inchiostro); }
+.bottone svg { width: 22px; height: 22px; }
+/* il gatto «alla Duo»: sempre su un'ombra ovale, mai coperto */
+.gatto-angolo { position: absolute; }
+.gatto-angolo img { position: relative; display: block; height: 100%; }
+.gatto-angolo::after { content: ''; position: absolute; left: 12%; right: 8%; bottom: -5px; height: 14px; border-radius: 50%; background: rgb(5 10 46 / .6); z-index: -1; }
+.fumetto { position: absolute; padding: 12px 14px; }
+.fumetto::after { content: ''; position: absolute; left: -14px; top: 22px; width: 20px; height: 20px; background: var(--panna-50); clip-path: polygon(100% 0, 100% 100%, 0 50%); }
+.fumetto p { font-size: 16px; line-height: 1.32; font-weight: 700; }
+.fumetto b { font-weight: 900; }
+/* il gatto viaggia su una nuvoletta: ci sta seduto dentro, la nuvola gli copre le zampe */
+.gatto-nuvola { position: absolute; }
+.gatto-nuvola .g { position: absolute; left: 50%; bottom: 18%; transform: translateX(-50%); height: 100%; }
+.gatto-nuvola .n { position: absolute; left: -22%; right: -22%; bottom: -8%; width: 144%; }

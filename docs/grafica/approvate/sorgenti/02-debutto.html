@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>02 Debutto</title>
+<link rel="stylesheet" href="comune.css">
+<style>
+  .etichetta { position: absolute; left: 24px; top: 50px; font-size: 13px; font-weight: 900; letter-spacing: 2.5px; color: var(--oro-300); }
+  .nome { position: absolute; left: 24px; right: 24px; top: 70px; font-size: 38px; line-height: 1.05; color: var(--panna-50); }
+  .conto { position: absolute; left: 40px; right: 40px; height: 96px; border-radius: 22px; background: var(--panna-100);
+    box-shadow: 0 6px 0 var(--panna-200), var(--ombra); display: flex; align-items: center; justify-content: center;
+    font-family: Fraunces, serif; font-weight: 700; font-size: 40px; color: var(--inchiostro); }
+  .conto::before { content: ''; position: absolute; inset: 7px; border-radius: 16px; border: 2px solid rgb(176 131 47 / .25); }
+  .conto.vince { background: var(--oro-400); box-shadow: 0 6px 0 var(--oro-600), var(--ombra); }
+  .vale { position: absolute; right: -10px; top: -14px; background: var(--inchiostro); color: var(--panna-50); border-radius: 12px;
+    padding: 3px 10px; font-family: Nunito; font-weight: 900; font-size: 16px; box-shadow: var(--ombra); }
+  .vince .vale { background: var(--verde); }
+  .vs { position: absolute; left: 0; right: 0; top: 481px; text-align: center; font-family: Fraunces, serif; font-style: italic; font-size: 20px; color: rgb(255 243 223 / .7); }
+</style></head>
+<body>
+  <div class="cielo"></div>
+  <div class="scintilla" style="left:330px;top:46px"></div>
+  <div class="etichetta">GIOCO NUOVO</div>
+  <div class="titolo nome">Chi è più grande?</div>
+  <!-- il gatto spiega: piccolo in alto a sinistra, fumetto a destra, il contenuto sotto (come Duo) -->
+  <div class="gatto-nuvola" style="left:18px;top:150px;height:128px;width:87px"><img class="g" src="../asset/gatto-parla.webp"><img class="n" src="../../../../public/isole/nuvola-1.webp"></div>
+  <div class="carta fumetto" style="left:136px;right:16px;top:150px">
+    <p>Due conti: <b>tocca quello che vale di più.</b> Basta arrotondare.</p>
+    <p style="margin-top:6px">Occhio: 17 × 3 sembra più grande, ma fa 51. <b>49 + 4 fa 53!</b></p>
+  </div>
+  <img class="abs" src="../../../../public/isole/isola-1.webp" style="left:-40px;top:612px;width:470px">
+  <img class="abs" src="../../../../public/isole/nuvola-sx.webp" style="right:0;top:300px;width:110px;opacity:.9">
+  <div class="conto" style="top:372px">17 × 3<span class="vale">51</span></div>
+  <div class="vs">oppure</div>
+  <div class="conto vince" style="top:516px">49 + 4<span class="vale">53</span></div>
+  <div class="bottone" style="bottom:34px">Ho capito, si gioca!</div>
+  <div class="grana"></div>
+</body></html>

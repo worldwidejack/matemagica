@@ -1,6 +1,6 @@
 # Percorso UI: dalla prima apertura al giorno dopo
 
-> 18 ottobre 2026 · **proposta da approvare con Jack** prima di disegnare le schermate.
+> 18 ottobre 2026 · **approvato da Jack il 18/10** (flusso, voce, bimbo muto): si disegnano le schermate.
 > Miniature di Matemagica: `docs/grafica/percorso-ui-miniature.jpg`. Le schermate di Duolingo e Brilliant
 > sono materiale altrui e restano sul Mac: `_handoff/percorso-ui/foglio-app-simili.jpg`.
 
@@ -120,16 +120,13 @@ Cosa cambia nel codice di oggi: il benvenuto diventa del gatto (2 → 3 schermat
 sasso si tocca, la serie del primo giorno diventa una schermata sua, l'invito a installare passa al gatto.
 Tutto il resto (sentiero, salto, debutto, partita, fine partita) c'è già: va solo rivestito.
 
-## 5. Da decidere con Jack
+## 5. Deciso con Jack (18/10)
 
-1. **La voce del gatto.** (a) Fumetto + un borbottio da gatto sintetizzato a ogni lettera (zero file, ogni
-   frase nuova di papà funziona subito, molto anni '50). (b) Voce vera con ElevenLabs, come Koji: bellissima, ma
-   ogni frase è un file da rifare quando il testo cambia. **Consiglio (a) ovunque e (b) solo per le 5-6 frasi
-   fisse del benvenuto.**
-2. **Il bimbo non parla** (è il giocatore, come Jak)?
-3. **I nomi** del gatto e del bimbo: finché non ci sono, nelle battute resta «___».
-4. **Le decisioni sul gatto che parla** prese nell'altra chat: scritte non le ho trovate. Se c'è già qualcosa
-   (carattere, voce, battute), entra qui.
+1. **Il flusso** delle 16 miniature è la base delle schermate.
+2. **La voce del gatto**: fumetto scritto a macchina + un borbottio da gatto sintetizzato a ogni lettera (zero
+   file, ogni frase nuova funziona subito). Voce vera (ElevenLabs) solo per le 5-6 frasi fisse del benvenuto.
+3. **Il bimbo mago non parla**: è il giocatore e fa le magie. Parla solo il gatto.
+4. **Carattere e nome** del gatto: li propone Claude; il nome resta «___» finché non lo scegliamo.
 
 ## Fonti
 

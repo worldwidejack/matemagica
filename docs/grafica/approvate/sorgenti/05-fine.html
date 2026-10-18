@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>05 Fine partita</title>
+<link rel="stylesheet" href="comune.css">
+<style>
+  body { background: var(--tramonto); }
+  /* raggi anni '50 dietro il gatto: il «campo di colore» del 3 stelle */
+  .raggi { position: absolute; left: 50%; top: 360px; width: 900px; height: 900px; margin: -450px 0 0 -450px;
+    background: repeating-conic-gradient(from 0deg, rgb(254 211 71 / .28) 0 9deg, transparent 9deg 22.5deg); border-radius: 50%;
+    -webkit-mask: radial-gradient(circle, #000 18%, transparent 62%); mask: radial-gradient(circle, #000 18%, transparent 62%); }
+  .etichetta { position: absolute; left: 0; right: 0; top: 54px; text-align: center; font-size: 13px; font-weight: 900; letter-spacing: 2.5px; color: var(--inchiostro); opacity: .7; }
+  .stelle { position: absolute; left: 0; right: 0; top: 80px; display: flex; justify-content: center; gap: 6px; }
+  .stelle svg { width: 70px; height: 70px; filter: drop-shadow(3px 4px 0 rgb(0 0 0 / .28)); }
+  .stelle svg:nth-child(2) { transform: translateY(-14px) scale(1.12); }
+  .frase { position: absolute; left: 0; right: 0; top: 168px; text-align: center; font-size: 36px; color: var(--inchiostro); }
+  .scheda { position: absolute; left: 32px; right: 32px; top: 532px; padding: 14px 10px 12px; }
+  .punti { text-align: center; font-family: Fraunces, serif; font-weight: 700; font-size: 46px; line-height: 1; color: var(--inchiostro); }
+  .record { position: absolute; right: -8px; top: -16px; background: var(--inchiostro); color: var(--oro-400); font-weight: 900; font-size: 13px;
+    border-radius: 12px; padding: 4px 10px; transform: rotate(4deg); box-shadow: var(--ombra); }
+  .dati { margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--panna-200); display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+  .dati div + div { border-left: 2px solid var(--panna-200); }
+  .dati small { display: block; font-size: 12px; font-weight: 800; color: var(--inchiostro-chiaro); }
+  .dati b { font-family: Fraunces, serif; font-size: 22px; }
+  .continua { position: absolute; left: 24px; right: 24px; bottom: 64px; height: 58px; border-radius: 29px; background: var(--inchiostro); color: var(--panna-50);
+    box-shadow: 0 5px 0 #000, var(--ombra); display: flex; align-items: center; justify-content: center; gap: 10px; font-family: Fraunces, serif; font-weight: 700; font-size: 23px; }
+  .rigioca { position: absolute; left: 0; right: 0; bottom: 26px; text-align: center; font-weight: 800; font-size: 16px; color: var(--inchiostro); }
+</style></head>
+<body>
+  <div class="raggi"></div>
+  <div class="scintilla" style="left:52px;top:300px;background:var(--panna-50)"></div>
+  <div class="scintilla" style="left:300px;top:250px;width:24px;height:24px;background:var(--panna-50)"></div>
+  <div class="scintilla" style="left:316px;top:470px;width:14px;height:14px;background:var(--oro-400)"></div>
+  <div class="scintilla" style="left:40px;top:470px;width:12px;height:12px;background:var(--oro-400)"></div>
+  <div class="etichetta">LIVELLO 3 · CHI È PIÙ GRANDE?</div>
+  <div class="stelle">
+    <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="#fed347" stroke="#17163f" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="#fed347" stroke="#17163f" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="#fed347" stroke="#17163f" stroke-width="1.3" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="titolo frase">Perfetta. Da mago.</div>
+  <img class="abs" src="../asset/gatto-festeggia.webp" style="left:84px;top:222px;height:300px">
+  <div class="carta scheda">
+    <div class="punti">1.240</div><span class="record">Nuovo record!</span>
+    <div class="dati"><div><small>Giuste</small><b>19/20</b></div><div><small>Combo max</small><b>12</b></div><div><small>XP</small><b>+30</b></div></div>
+  </div>
+  <div class="continua">Continua <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  <div class="rigioca">Rigioca</div>
+  <div class="grana"></div>
+</body></html>

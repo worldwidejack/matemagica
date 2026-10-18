@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>03 Partita</title>
+<link rel="stylesheet" href="comune.css">
+<style>
+  .testa { position: absolute; left: 16px; right: 16px; top: 48px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+  .esci { width: 36px; height: 36px; border-radius: 50%; background: rgb(255 243 223 / .12); display: flex; align-items: center; justify-content: center; }
+  .vite { display: flex; gap: 6px; }
+  .vite i { width: 18px; height: 18px; background: var(--pericolo-400); transform: rotate(45deg); border-radius: 3px; box-shadow: 2px 2px 0 rgb(0 0 0 / .3); }
+  .vite i.persa { background: rgb(255 243 223 / .15); box-shadow: none; }
+  .punti { font-family: Fraunces, serif; font-weight: 700; font-size: 26px; color: var(--oro-400); min-width: 70px; text-align: right; }
+  .riga2 { position: absolute; left: 20px; right: 20px; top: 98px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 15px; font-weight: 800; color: rgb(255 243 223 / .75); }
+  .molt { background: var(--oro-400); color: var(--inchiostro); border-radius: 14px; padding: 3px 12px; font-weight: 900; box-shadow: 0 3px 0 var(--oro-600); }
+  .tempo { position: absolute; left: 20px; right: 20px; top: 130px; height: 22px; border-radius: 11px; background: var(--panna-50);
+    box-shadow: var(--ombra); padding: 4px 4px 4px 30px; }
+  .tempo svg { position: absolute; left: 8px; top: 3px; width: 16px; height: 16px; }
+  .tempo i { display: block; height: 100%; width: 58%; border-radius: 7px; background: var(--turchese-400); }
+  .domanda { position: absolute; left: 0; right: 0; top: 182px; text-align: center; font-size: 26px; color: var(--panna-50); }
+  .conto { position: absolute; left: 24px; right: 24px; height: 150px; border-radius: 26px; background: var(--panna-100);
+    box-shadow: 0 6px 0 var(--panna-200), var(--ombra); display: flex; align-items: center; justify-content: center;
+    font-family: Fraunces, serif; font-weight: 700; font-size: 58px; color: var(--inchiostro); }
+  .conto::before { content: ''; position: absolute; inset: 8px; border-radius: 19px; border: 2px solid rgb(176 131 47 / .25); }
+  .conto.giusta { background: var(--oro-400); box-shadow: 0 6px 0 var(--oro-600), var(--ombra); transform: scale(1.03); }
+  .conto.giusta::before { border-color: rgb(23 22 63 / .2); }
+  .piu { position: absolute; right: 6px; top: -40px; font-family: Fraunces, serif; font-size: 26px; color: var(--oro-300); text-shadow: 2px 2px 0 rgb(0 0 0 / .35); }
+  .spia { position: absolute; right: 26px; bottom: 18px; width: 34px; height: 34px; border-radius: 50%; background: var(--verde);
+    display: flex; align-items: center; justify-content: center; }
+  .bolla { position: absolute; right: 14px; top: 640px; padding: 10px 16px; }
+  .bolla::after { content: ''; position: absolute; left: -16px; top: 18px; width: 22px; height: 20px; background: var(--panna-50); clip-path: polygon(100% 0, 100% 100%, 0 70%); }
+  .bolla p { font-family: Fraunces, serif; font-weight: 700; font-size: 24px; }
+</style></head>
+<body>
+  <div class="cielo"></div>
+  <!-- il campo si scalda col combo: bagliore d'oro dal basso -->
+  <div class="abs" style="inset:0;background:radial-gradient(120% 50% at 50% 105%, rgb(254 211 71 / .22), transparent 70%)"></div>
+  <div class="scintilla" style="left:338px;top:200px;width:12px;height:12px"></div>
+  <!-- il mondo: l'isola su cui si gioca, in basso -->
+  <img class="abs" src="../../../../public/isole/isola-1.webp" style="left:-40px;top:600px;width:470px">
+  <img class="abs" src="../../../../public/isole/nuvola-dx.webp" style="left:0;top:690px;width:120px;opacity:.95">
+  <div class="testa">
+    <div class="esci"><svg width="16" height="16" viewBox="0 0 24 24" stroke="#fde2bc" stroke-width="3" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></div>
+    <div class="vite"><i></i><i></i><i class="persa"></i></div>
+    <div class="punti" style="position:relative">340<span style="position:absolute;right:100%;margin-right:8px;top:6px;font-size:18px;color:var(--oro-300)">+30</span></div>
+  </div>
+  <div class="riga2"><span>7 / 20</span><span class="molt">× 2</span></div>
+  <div class="tempo"><svg viewBox="0 0 24 24" fill="none" stroke="#17163f" stroke-width="2.4" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg><i></i></div>
+  <div class="titolo domanda">Quale vale di più?</div>
+  <div class="conto" style="top:236px">6 × 9</div>
+  <div class="conto giusta" style="top:410px">48 + 7
+    <span class="spia"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff3df" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span></div>
+  <!-- il gatto spunta dal bordo per la combo, dice una riga e se ne va -->
+  <img class="abs" src="../asset/gatto-spunta.webp" style="left:-4px;bottom:-6px;height:236px">
+  <div class="carta bolla"><p>Cinque di fila!</p></div>
+  <div class="grana"></div>
+</body></html>

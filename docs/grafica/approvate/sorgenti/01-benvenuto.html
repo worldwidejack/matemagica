@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>01 Benvenuto</title>
+<link rel="stylesheet" href="comune.css">
+<style>
+  .marchio { position: absolute; left: 0; right: 0; top: 52px; text-align: center; font-size: 30px; color: var(--panna-50); letter-spacing: .5px; }
+  .bolla { position: absolute; left: 20px; right: 20px; top: 112px; padding: 20px 22px 22px; }
+  .bolla::after { content: ''; position: absolute; left: 120px; bottom: -30px; width: 40px; height: 34px; background: var(--panna-50);
+    clip-path: polygon(0 0, 100% 0, 30% 100%); filter: drop-shadow(3px 4px 0 rgb(0 0 0 / .28)); }
+  .bolla h1 { font-size: 33px; line-height: 1.05; }
+  .bolla p { margin-top: 10px; font-size: 19px; line-height: 1.35; font-weight: 700; }
+  .bolla p b { font-weight: 900; }
+</style></head>
+<body>
+  <div class="cielo"></div>
+  <div class="scintilla" style="left:26px;top:40px;width:14px;height:14px"></div>
+  <div class="scintilla" style="left:332px;top:62px"></div>
+  <div class="scintilla" style="left:34px;top:420px"></div>
+  <img class="abs" src="../../../../public/isole/nuvola-sx.webp" style="right:0;top:372px;width:150px;opacity:.95">
+  <div class="titolo marchio">Matemagica</div>
+  <!-- l'isola 1: il palco, dietro -->
+  <img class="abs" src="../../../../public/isole/isola-1.webp" style="left:20px;top:420px;width:430px">
+  <!-- il bimbo mago sull'isola: saluta con la bacchetta -->
+  <img class="abs" src="../../../../public/personaggi/mago.webp" style="left:292px;top:500px;height:112px">
+  <!-- il gatto in primo piano, più vicino alla camera: parla. I piedi escono sotto. -->
+  <img class="abs" src="../asset/gatto-parla.webp" style="left:-26px;top:430px;height:420px">
+  <div class="carta bolla">
+    <h1 class="titolo">Ciao! Benvenuto sulle isole.</h1>
+    <p>Lui è il mago più piccolo del cielo. Io sono il suo gatto: <b>io parlo, lui fa le magie.</b></p>
+  </div>
+  <div class="bottone" style="bottom:34px">Ciao!
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  <div class="grana"></div>
+</body></html>

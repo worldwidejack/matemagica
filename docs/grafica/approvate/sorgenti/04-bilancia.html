@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>04 Bilancia</title>
+<link rel="stylesheet" href="comune.css">
+<style>
+  .testa { position: absolute; left: 16px; right: 16px; top: 46px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+  .esci { width: 36px; height: 36px; border-radius: 50%; background: rgb(255 243 223 / .12); display: flex; align-items: center; justify-content: center; }
+  .pallini { display: flex; gap: 8px; }
+  .pallini i { width: 12px; height: 12px; border-radius: 50%; background: rgb(255 243 223 / .2); }
+  .pallini i.fatto { background: var(--oro-400); }
+  .pallini i.ora { background: var(--oro-400); box-shadow: 0 0 0 4px rgb(254 211 71 / .3); }
+  .punti { font-family: Fraunces, serif; font-weight: 700; font-size: 24px; color: var(--oro-400); min-width: 60px; text-align: right; }
+  .nota { position: absolute; left: 22px; top: 92px; font-size: 13px; font-weight: 800; color: rgb(255 243 223 / .7); }
+  .bil { position: absolute; left: 37px; width: 300px; height: 158px; }
+  .bil > img.scala { position: absolute; left: 0; top: 0; width: 300px; }
+  .piatto { position: absolute; width: 96px; height: 70px; display: flex; align-items: flex-end; justify-content: center; flex-wrap: wrap-reverse; align-content: flex-start; gap: 0 1px; }
+  .piatto img { height: 30px; }
+  .peso { position: relative; width: 33px; height: 46px; margin-left: 2px; }
+  .peso img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .peso b { position: absolute; left: 0; right: 0; bottom: 7px; text-align: center; font-family: Nunito; font-weight: 900; font-size: 15px; color: var(--inchiostro); }
+  .domanda { position: absolute; left: 0; right: 0; top: 452px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: Fraunces, serif; font-weight: 700; font-size: 26px; color: var(--panna-50); }
+  .domanda img { height: 34px; margin: 0 -4px 0 2px; }
+  .display { width: 74px; height: 50px; border-radius: 14px; background: var(--panna-50); box-shadow: var(--ombra); display: flex; align-items: center; justify-content: center;
+    font-family: Fraunces, serif; font-size: 30px; color: var(--inchiostro); }
+  .tasti { position: absolute; left: 20px; right: 20px; top: 604px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .tasti div { height: 50px; border-radius: 14px; background: var(--panna-100); box-shadow: 0 4px 0 var(--panna-200), var(--ombra);
+    display: flex; align-items: center; justify-content: center; font-family: Fraunces, serif; font-weight: 700; font-size: 24px; color: var(--inchiostro); }
+  .tasti div.ok { background: var(--oro-400); box-shadow: 0 4px 0 var(--oro-600), var(--ombra); font-size: 20px; }
+  .biglietto { position: absolute; left: 112px; right: 16px; top: 516px; padding: 10px 14px; background: var(--panna-50); border-radius: 6px;
+    box-shadow: var(--ombra); transform: rotate(-1.5deg); font-size: 14.5px; line-height: 1.3; font-weight: 700; }
+  .biglietto::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: repeating-linear-gradient(90deg, var(--oro-400) 0 10px, transparent 10px 16px); border-radius: 6px 6px 0 0; }
+  .biglietto b { font-weight: 900; }
+  .salta { position: absolute; right: 22px; top: 92px; font-size: 15px; font-weight: 800; color: rgb(255 243 223 / .6); }
+</style></head>
+<body>
+  <div class="cielo"></div>
+  <div class="scintilla" style="left:30px;top:410px;width:12px;height:12px"></div>
+  <div class="scintilla" style="left:340px;top:260px;width:14px;height:14px"></div>
+  <div class="testa">
+    <div class="esci"><svg width="16" height="16" viewBox="0 0 24 24" stroke="#fde2bc" stroke-width="3" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></div>
+    <div class="pallini"><i class="fatto"></i><i class="ora"></i><i></i><i></i><i></i></div>
+    <div class="punti">120</div>
+  </div>
+  <div class="nota">Tutte le bilance sono in equilibrio.</div>
+  <!-- bilancia 1: tre triangoli = 12 -->
+  <div class="bil" style="top:118px"><img class="scala" src="../asset/bilancia.webp">
+    <div class="piatto" style="left:-1px;top:36px"><img src="../asset/forma-triangolo.webp"><img src="../asset/forma-triangolo.webp"><img src="../asset/forma-triangolo.webp"></div>
+    <div class="piatto" style="left:205px;top:36px"><div class="peso"><img src="../asset/peso.webp"><b>12</b></div></div>
+  </div>
+  <!-- bilancia 2: due quadrati = un triangolo + 10 -->
+  <div class="bil" style="top:286px"><img class="scala" src="../asset/bilancia.webp">
+    <div class="piatto" style="left:-1px;top:36px"><img src="../asset/forma-quadrato.webp"><img src="../asset/forma-quadrato.webp"></div>
+    <div class="piatto" style="left:205px;top:36px"><img src="../asset/forma-triangolo.webp"><div class="peso"><img src="../asset/peso.webp"><b>10</b></div></div>
+  </div>
+  <div class="domanda">Quanto pesa <img src="../asset/forma-quadrato.webp">? <div class="display">7</div></div>
+  <!-- l'aiuto: il gatto fa scivolare un biglietto -->
+  <div class="gatto-nuvola" style="left:16px;top:512px;height:86px;width:58px"><img class="g" src="../asset/gatto-pensa.webp"><img class="n" src="../../../../public/isole/nuvola-1.webp"></div>
+  <div class="biglietto"><b>Parti da sopra:</b> tre triangoli pesano 12. Quanto pesa un triangolo?</div>
+  <div class="tasti"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>0</div><div>⌫</div><div class="ok">OK</div></div>
+  <div class="salta">Salta</div>
+  <div class="grana"></div>
+</body></html>
