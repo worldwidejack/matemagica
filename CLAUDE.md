@@ -19,6 +19,11 @@ livelli in 8 tappe, Palestra, collezione di 8 storie, spiegazione al debutto di 
 XP/livello giocatore/streak, PWA installabile e offline. Mancano solo identità visiva e nome
 definitivo (B8: gusto di Jack e papà).
 
+**Grafica S5 (18-19/10, branch `claude/laughing-greider-f24cab`):** percorso UI col gatto che parla
+(`docs/grafica/percorso-ui.md`) e 6 schermate approvate (`docs/grafica/approvate/`, regole nel LEGGIMI). Prima
+animazione, la fine partita 1/2/3★: animazione disegnata (ChatGPT + After Effects), v2 da approvare; progetto e
+sorgenti fuori git in `_handoff/ae-fine-partita/`. Dopo l'ok: fotogrammi → sprite in `Risultato.tsx`.
+
 **Prossimo: il giro con papà.** Il documento è `docs/papa/01-per-papa.md` (+ PDF da stampare).
 Le sue risposte entrano in: `src/content/spiegazioni.ts`, `storie.ts`, `sequenze.ts`,
 `sentiero.ts` (ordine), e nei generatori se trova trucchi nuovi. Tutti i contenuti con
@@ -300,3 +305,6 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
 - *(2026-10-17)* **Coppie**: `verifica` prova tutti gli ordini di gioco con `formano`, perché in
   differenza e multiplo un numero ha più compagni (il vecchio controllo "compagno unico" non vale
   più). `verifica` misura il tempo solo della generazione, non dei suoi controlli.
+- *(2026-10-19, grafica)* Il gatto si anima con **disegni veri in sequenza** (fogli 2×2 di ChatGPT col gatto
+  definitivo allegato, ~1 disegno ogni 2 fotogrammi), non con pose scambiate a scatto né con un rig a pezzi in AE:
+  bocciati da Jack («not even close»). Kling (video AI da due fotogrammi) è fluido ma in aria esce dal modello.
