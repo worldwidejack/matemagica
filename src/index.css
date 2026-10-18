@@ -112,7 +112,8 @@
 }
 
 /* Il salto di bimbo e gatto: il gruppo va in linea retta dal sasso di prima
-   (--x0, --y0) al suo posto; dentro, l'arco su e giù. 12 pose in 1 s. */
+   (--x0, --y0) al suo posto; dentro, l'arco su e giù, alto --arco (cresce col
+   dislivello: da un'isola all'altra è un balzo che ricade dall'alto). 12 pose in 1 s. */
 .salto {
   animation: salto 1s steps(12, end) var(--ritardo, 0ms) both;
 }
@@ -124,24 +125,34 @@
 }
 @keyframes salto-arco {
   0% { translate: 0 0; animation-timing-function: steps(3, end); }
-  25% { translate: 0 -30px; animation-timing-function: steps(3, end); }
-  50% { translate: 0 -42px; animation-timing-function: steps(3, end); }
-  75% { translate: 0 -30px; animation-timing-function: steps(3, end); }
+  25% { translate: 0 calc(var(--arco, 42px) * -0.72); animation-timing-function: steps(3, end); }
+  50% { translate: 0 calc(var(--arco, 42px) * -1); animation-timing-function: steps(3, end); }
+  75% { translate: 0 calc(var(--arco, 42px) * -0.72); animation-timing-function: steps(3, end); }
   100% { translate: 0 0; }
 }
 
-/* La scoperta: le due metà della nuvola scorrono via, l'isola si colora, i sassi appaiono. */
+/* La scoperta: il banco di nuvole si squarcia (sbuffi al centro, poi le nuvole escono
+   piene ai lati), l'isola si colora, i sassi appaiono. */
 .via-sx {
-  animation: via-sx 0.9s steps(10, end) 0.7s both;
+  animation: via-sx 0.9s steps(9, end) 0.7s both;
 }
 .via-dx {
-  animation: via-dx 0.9s steps(10, end) 0.7s both;
+  animation: via-dx 0.9s steps(9, end) 0.7s both;
 }
 @keyframes via-sx {
-  to { translate: -105% 0; opacity: 0; }
+  to { translate: -140% var(--dy, 0%); }
 }
 @keyframes via-dx {
-  to { translate: 105% 0; opacity: 0; }
+  to { translate: 140% var(--dy, 0%); }
+}
+/* Gli sbuffi al centro: si gonfiano per un disegno e spariscono di colpo («puf»). */
+.sbuffo {
+  animation: sbuffo 0.17s 0.62s both;
+}
+@keyframes sbuffo {
+  0% { scale: 1; opacity: 1; animation-timing-function: steps(1, end); }
+  50% { scale: 1.25; opacity: 1; animation-timing-function: steps(1, end); }
+  100% { scale: 1.25; opacity: 0; }
 }
 .colora {
   animation: colora 0.6s steps(6, end) 1s both;

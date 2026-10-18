@@ -23,6 +23,12 @@ const SOTTO = 3;
 const CIELO_ALTO = 92;
 /** La prossima isola, lontana: più piccola. */
 const VELO_LARGO = 60;
+/**
+ * Di quanto la punta della sagoma velata scende nel cielo dell'isola sotto: le nuvole
+ * finiscono proprio sopra l'etichetta dell'isola attuale, e velo e isola attuale stanno
+ * nella stessa schermata (come nel mockup «2 · dopo»).
+ */
+const VELO_DENTRO = 6;
 const FONDO = 30;
 
 export type Riquadro = { x: number; y: number; w: number; h: number };
@@ -148,7 +154,7 @@ function pezzoVelo(n: number, y: number): PezzoVelo {
   }
   const w = VELO_LARGO;
   const riquadro = { x: (100 - w) / 2 + (n % 2 === 1 ? -6 : 6), y: y + 8, w, h: w * isola.rapporto };
-  const h = 8 + riquadro.h + 20;
+  const h = 8 + riquadro.h - VELO_DENTRO;
   const primo = isola.sassi[0] ?? { x: 0.5, y: 0.5 };
   return {
     tipo: 'velo',
@@ -231,14 +237,32 @@ export function tracciato(punti: Punto[], alto: number, inizio = 0): string {
   return d;
 }
 
+/**
+ * Le nuvole del velo, in unità del pezzo: il centro del banco (dove sta il «?») e dove
+ * cominciano e finiscono. Servono al velo, al bottone del test e all'inquadratura.
+ */
+export function misureVelo(p: PezzoVelo): { cx: number; cy: number; cima: number; fondo: number } {
+  if (!p.riquadro) return { cx: 50, cy: 30, cima: 0, fondo: 52 };
+  const cy = p.riquadro.y - p.y + p.riquadro.h * 0.45;
+  return { cx: p.riquadro.x + p.riquadro.w / 2, cy, cima: cy - 31, fondo: cy + 27 };
+}
+
+/** Il bottone «Sei già bravo?»: appeso al banco del «?», in unità del pezzo. */
+export function bottoneTest(p: PezzoVelo): { cx: number; y: number } {
+  const { cx, cy } = misureVelo(p);
+  return { cx: Math.min(72, Math.max(28, cx)), y: cy + 13 };
+}
+
 // ── Dove mettere bimbo, gatto e fumetto: dove non coprono gli altri sassi ──
 
 /** Misure in px dei pezzi intorno al sasso attuale. */
 export const MISURE = {
   mago: { w: 42, h: 70 },
   gatto: { w: 27, h: 34 },
-  /** Gruppo bimbo + gatto: larghezza, distanza dal centro del sasso, piedi sotto il centro. */
-  gruppo: { w: 64, distanza: 14, piedi: 13 },
+  /** Gruppo bimbo + gatto, largo quanto i due disegni (il gatto sta davanti al mantello). */
+  gruppo: { w: 64 },
+  /** Il sasso disegnato: mezzo largo, sopra e sotto il centro; le stelline sotto. */
+  sasso: { mezzo: 28, sopra: 16, sotto: 16, stelline: 22 },
   fumetto: { w: 160, h: 48 },
 } as const;
 
@@ -255,27 +279,36 @@ function fuori(a: Scatola, largo: number): number {
   return (Math.max(0, 4 - a[0]) + Math.max(0, a[2] - (largo - 4))) * h;
 }
 
+/** Dove stanno bimbo e gatto rispetto al centro del sasso attuale (px). */
+export type PostoPersonaggi = {
+  lato: 'sx' | 'dx';
+  /** Px tra il centro del sasso e il bordo del gatto (che sta dalla parte del sasso). */
+  distanza: number;
+  /** Px tra il centro del sasso e i piedi. */
+  piedi: number;
+};
+
 /** Bimbo e gatto da un lato del sasso (x, y in px): le due scatole. */
-function scatolePersonaggi(x: number, y: number, lato: 'sx' | 'dx'): Scatola[] {
+function scatolePersonaggi(x: number, y: number, { lato, distanza, piedi }: PostoPersonaggi): Scatola[] {
   const { mago, gatto, gruppo } = MISURE;
-  const piedi = y + gruppo.piedi;
+  const fondo = y + piedi;
   // A sinistra: [bimbo][gatto] sasso. A destra si specchiano: sasso [gatto][bimbo].
   if (lato === 'sx') {
-    const da = x - gruppo.distanza - gruppo.w;
+    const da = x - distanza - gruppo.w;
     return [
-      [da, piedi - mago.h, da + mago.w, piedi],
-      [x - gruppo.distanza - gatto.w, piedi - gatto.h, x - gruppo.distanza, piedi],
+      [da, fondo - mago.h, da + mago.w, fondo],
+      [x - distanza - gatto.w, fondo - gatto.h, x - distanza, fondo],
     ];
   }
-  const a = x + gruppo.distanza + gruppo.w;
+  const a = x + distanza + gruppo.w;
   return [
-    [a - mago.w, piedi - mago.h, a, piedi],
-    [x + gruppo.distanza, piedi - gatto.h, x + gruppo.distanza + gatto.w, piedi],
+    [a - mago.w, fondo - mago.h, a, fondo],
+    [x + distanza, fondo - gatto.h, x + distanza + gatto.w, fondo],
   ];
 }
 
 export type Disposizione = {
-  lato: 'sx' | 'dx';
+  personaggi: PostoPersonaggi;
   /** Spostamento in px del centro del fumetto rispetto al sasso. */
   spostamento: number;
   /** Px tra il centro del sasso e il fumetto (il suo fondo se sta sopra, la cima se sta sotto). */
@@ -284,40 +317,67 @@ export type Disposizione = {
   sotto: boolean;
 };
 
+/** Un sasso già disegnato sulla mappa (in unità), e se ha le stelline sotto. */
+export type SassoVicino = Punto & { fatto: boolean };
+
 /**
- * Sceglie da che parte stanno bimbo e gatto e dove va il fumetto «Gioca!»: prova
- * qualche posto e tiene quello che copre meno gli altri sassi (e il bimbo), dentro lo
- * schermo. `qui` e `altri` in unità della mappa, `largo` = larghezza della mappa in px,
- * `ostacoli` in px (le etichette delle isole e il bottone del test).
+ * Sceglie dove stanno bimbo e gatto e dove va il fumetto «Gioca!»: prova diversi posti
+ * e tiene quello che non copre gli altri sassi (né le loro stelline, né le etichette),
+ * dentro lo schermo e il più vicino possibile al sasso. `qui` e `altri` in unità della
+ * mappa, `largo` = larghezza della mappa in px, `ostacoli` in px (le etichette delle
+ * isole e il bottone del test).
  */
-export function disponi(qui: Punto, altri: Punto[], largo: number, ostacoli: Riquadro[] = []): Disposizione {
+export function disponi(
+  qui: Punto,
+  altri: SassoVicino[],
+  largo: number,
+  ostacoli: Riquadro[] = [],
+  /** Se c'è, bimbo e gatto stanno per forza da questo lato (la partenza di un salto). */
+  soloLato?: 'sx' | 'dx',
+): Disposizione {
   const k = largo / 100;
   const x = qui.x * k;
   const y = qui.y * k;
-  // Gli altri sassi vicini, con le stelline sotto, e gli ostacoli (etichette, bottoni).
+  const { sasso } = MISURE;
+  // Gli altri sassi vicini (con le stelline sotto, se fatti) e gli ostacoli.
   const sassi: Scatola[] = [
     ...altri
-      .map((p) => [p.x * k, p.y * k] as const)
-      .filter(([sx, sy]) => Math.abs(sx - x) < 260 && Math.abs(sy - y) < 220)
-      .map(([sx, sy]): Scatola => [sx - 28, sy - 18, sx + 28, sy + 32]),
+      .filter((p) => Math.abs(p.x * k - x) < 260 && Math.abs(p.y * k - y) < 220)
+      .map((p): Scatola => {
+        const sx = p.x * k;
+        const sy = p.y * k;
+        return [sx - sasso.mezzo, sy - sasso.sopra, sx + sasso.mezzo, sy + sasso.sotto + (p.fatto ? sasso.stelline : 0)];
+      }),
     ...ostacoli.map((o): Scatola => [o.x, o.y, o.x + o.w, o.y + o.h]),
   ];
   const copre = (b: Scatola) => sassi.reduce((s, a) => s + sovrapposto(a, b), 0);
 
-  const lati: ('sx' | 'dx')[] = x > largo / 2 ? ['sx', 'dx'] : ['dx', 'sx'];
-  let lato = lati[0] ?? 'sx';
+  // Bimbo e gatto: prima i posti vicini, poi più in là. Coprire un sasso costa molto più
+  // che allontanarsi di qualche pixel (nel 3/4 il bimbo che copre un sasso sembra dietro).
+  const preferito: 'sx' | 'dx' = soloLato ?? (x > largo / 2 ? 'sx' : 'dx');
+  let personaggi: PostoPersonaggi = { lato: preferito, distanza: 30, piedi: 10 };
   let meglio = Infinity;
-  for (const l of lati) {
-    const voto = scatolePersonaggi(x, y, l).reduce((s, b) => s + copre(b) + fuori(b, largo) * 2, 0);
-    if (voto < meglio - 1) {
-      meglio = voto;
-      lato = l;
+  for (const lato of soloLato ? [soloLato] : ([preferito, preferito === 'sx' ? 'dx' : 'sx'] as const)) {
+    for (const distanza of [30, 36, 44, 52, 60]) {
+      for (const piedi of [10, 16]) {
+        const posto = { lato, distanza, piedi };
+        const scatole = scatolePersonaggi(x, y, posto);
+        const voto =
+          scatole.reduce((s, b) => s + copre(b) * 4 + fuori(b, largo) * 8, 0) +
+          (distanza - 30) * 12 +
+          (piedi - 10) * 10 +
+          (lato === preferito ? 0 : 40);
+        if (voto < meglio) {
+          meglio = voto;
+          personaggi = posto;
+        }
+      }
     }
   }
-  const personaggi = scatolePersonaggi(x, y, lato);
+  const scatole = scatolePersonaggi(x, y, personaggi);
 
   const { w, h } = MISURE.fumetto;
-  let scelta: Disposizione = { lato, spostamento: 0, distanza: 30, sotto: false };
+  let scelta: Disposizione = { personaggi, spostamento: 0, distanza: 30, sotto: false };
   let voto = Infinity;
   // Sopra il sasso è meglio; sotto solo se sopra copre qualcosa.
   const posti = [
@@ -329,12 +389,31 @@ export function disponi(qui: Punto, altri: Punto[], largo: number, ostacoli: Riq
       // Dentro lo schermo, a 6 px dal bordo.
       const c = Math.min(largo - 6 - w / 2, Math.max(6 + w / 2, x + s));
       const b: Scatola = sotto ? [c - w / 2, y + d, c + w / 2, y + d + h] : [c - w / 2, y - d - h, c + w / 2, y - d];
-      const v = copre(b) + personaggi.reduce((t, p) => t + sovrapposto(p, b) * 2, 0) + costo + Math.abs(c - x) * 3;
+      const v = copre(b) + scatole.reduce((t, p) => t + sovrapposto(p, b) * 2, 0) + costo + Math.abs(c - x) * 3;
       if (v < voto) {
         voto = v;
-        scelta = { lato, spostamento: c - x, distanza: d, sotto };
+        scelta = { personaggi, spostamento: c - x, distanza: d, sotto };
       }
     }
   }
   return scelta;
+}
+
+/**
+ * Di quanti px spostare le stelline sotto un sasso fatto perché non finiscano sopra un
+ * sasso vicino (i sassi sono misurati sui disegni e a volte stanno stretti).
+ */
+export function spostaStelline(p: Punto, altri: Punto[], largo: number): number {
+  const k = largo / 100;
+  const x = p.x * k;
+  const y = p.y * k;
+  const { sasso } = MISURE;
+  const vicini = altri
+    .filter((q) => q !== p)
+    .map((q): Scatola => [q.x * k - sasso.mezzo, q.y * k - sasso.sopra, q.x * k + sasso.mezzo, q.y * k + sasso.sotto]);
+  for (const dx of [0, -14, 14, -26, 26]) {
+    const b: Scatola = [x + dx - 26, y + 18, x + dx + 26, y + 36];
+    if (vicini.every((v) => sovrapposto(v, b) === 0)) return dx;
+  }
+  return 0;
 }

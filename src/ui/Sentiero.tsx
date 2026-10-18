@@ -9,7 +9,19 @@ import { useProfilo } from '@/profilo/store';
 import { Bottone } from './kit';
 import { livelloAperto, livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
-import { cieloA, disegnaMappa, disponi, tracciato, type Mappa, type Pezzo, type PezzoTappa } from './sentiero/mappa';
+import {
+  bottoneTest,
+  cieloA,
+  disegnaMappa,
+  disponi,
+  misureVelo,
+  spostaStelline,
+  tracciato,
+  type Mappa,
+  type Pezzo,
+  type PezzoTappa,
+  type SassoVicino,
+} from './sentiero/mappa';
 import {
   Bandierina,
   Etichetta,
@@ -40,8 +52,12 @@ type Evento =
   /** Un sasso qualsiasi: bimbo e gatto saltano al sasso dopo. */
   | { tipo: 'salto'; da: Livello };
 
-/** I tempi della scoperta (ms), allineati alle classi .via-sx, .colora, .appari di index.css. */
-const SCOPERTA = { scoppio: 150, nuvole: 700, salto: 1400, sassi: 1500, scorri: 1500, fumetto: 2400, fine: 2900 };
+/**
+ * I tempi della scoperta (ms), allineati alle classi .via-sx, .colora, .appari di index.css.
+ * La prima inquadratura tiene sia il 5° sasso sia l'isola nuova: la camera sta ferma
+ * finché bimbo e gatto non sono atterrati, poi sale a mostrare il velo nuovo.
+ */
+const SCOPERTA = { scoppio: 150, nuvole: 700, salto: 1450, sassi: 1500, scorri: 2450, fumetto: 2900, fine: 3300 };
 const SALTO = { salto: 350, fumetto: 1350, velo: 900, fine: 1600 };
 
 function leggiEvento(id: string | undefined, stelle: Record<string, Stelle>, corrente: number): Evento | null {
@@ -108,6 +124,10 @@ export function Sentiero({
 
   const rifMappa = useRef<HTMLDivElement>(null);
   const rifCorrente = useRef<HTMLButtonElement>(null);
+  /** La cima delle nuvole del velo, e le due righe fisse: sotto l'intestazione e il bottone Continua. */
+  const rifCimaVelo = useRef<HTMLSpanElement>(null);
+  const rifAlto = useRef<HTMLDivElement>(null);
+  const rifBasso = useRef<HTMLDivElement>(null);
   const rifInizio = useRef<HTMLSpanElement>(null);
   const rifMonumenti = useRef(new Map<number, HTMLSpanElement>());
   const [largo, setLargo] = useState(() => Math.min(448, window.innerWidth));
@@ -128,6 +148,35 @@ export function Sentiero({
   useEffect(() => {
     const { evento, grado } = avvio;
     const centra = (el: Element | null, morbido = false) => el?.scrollIntoView({ block: 'center', behavior: morbido ? 'smooth' : 'auto' });
+    /**
+     * L'inquadratura della mappa: le nuvole del velo appena sotto l'intestazione, così il
+     * «?» e il velo che si dirada stanno nella stessa schermata del sasso attuale. Se così
+     * il sasso (col fumetto) finirebbe sotto il bottone Continua, comanda il sasso.
+     */
+    const inquadra = (morbido = false) => {
+      const sasso = rifCorrente.current?.getBoundingClientRect();
+      if (!sasso) return;
+      const alto = rifAlto.current?.getBoundingClientRect().top ?? 62;
+      const basso = rifBasso.current?.getBoundingClientRect().top ?? window.innerHeight - 150;
+      const ySasso = sasso.top + sasso.height / 2 + window.scrollY;
+      const cima = rifCimaVelo.current?.getBoundingClientRect();
+      let y = ySasso - (alto + basso) / 2;
+      if (cima) y = Math.max(cima.top + window.scrollY - alto - 4, ySasso - (basso - 100));
+      // Sugli schermi bassi il bottone del test può finire sotto la pillola della sfida:
+      // o lo si mostra intero sotto la pillola (se il sasso ci sta ancora), o lo si nasconde
+      // sopra l'intestazione. Mai mezzo coperto.
+      const test = rifMappa.current?.querySelector('[data-test-salto]')?.getBoundingClientRect();
+      const fondoAlto = rifAlto.current?.getBoundingClientRect().bottom ?? alto + 48;
+      if (test) {
+        const cimaTest = test.top + window.scrollY;
+        const fondoTest = test.bottom + window.scrollY;
+        if (cimaTest - y < fondoAlto + 6 && fondoTest - y > alto - 8) {
+          const sotto = cimaTest - fondoAlto - 8;
+          y = ySasso - sotto <= basso - 76 ? sotto : fondoTest - alto + 8;
+        }
+      }
+      window.scrollTo({ top: Math.max(0, y), behavior: morbido ? 'smooth' : 'auto' });
+    };
     const timer: number[] = [];
     const poi = (ms: number, f: () => void) => timer.push(window.setTimeout(f, ms));
     if (evento?.tipo === 'scoperta') {
@@ -138,10 +187,10 @@ export function Sentiero({
         suona('stella');
       });
       poi(SCOPERTA.nuvole, () => suona('livello'));
-      poi(SCOPERTA.scorri, () => centra(rifCorrente.current, true));
+      poi(SCOPERTA.scorri, () => inquadra(true));
       poi(SCOPERTA.fine, () => setFinito(true));
     } else {
-      centra(rifCorrente.current);
+      inquadra();
       if (evento) {
         poi(SALTO.velo, () => setGrado(grado));
         poi(SALTO.fine, () => setFinito(true));
@@ -157,7 +206,10 @@ export function Sentiero({
   return (
     <div className="pb-24">
       <StratoScoppi />
-      <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+3.9rem)] z-[27] mx-auto flex max-w-md justify-end px-3">
+      <div
+        ref={rifAlto}
+        className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+3.9rem)] z-[27] mx-auto flex max-w-md justify-end px-3"
+      >
         <div className="pointer-events-auto">
           <SfidaDelGiorno compatta onGioca={onSfida} />
         </div>
@@ -179,6 +231,7 @@ export function Sentiero({
             tappaCorrente={mappa.tappaCorrente}
             onSalto={onSalto}
             scoperta={tappaScoperta}
+            rifCimaVelo={rifCimaVelo}
           />
         ))}
 
@@ -197,7 +250,10 @@ export function Sentiero({
 
       {/* Il grande pulsante: riprende dal livello a cui sei arrivato. */}
       {livelloAttuale && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[26] flex justify-center px-6">
+        <div
+          ref={rifBasso}
+          className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[26] flex justify-center px-6"
+        >
           <Bottone freccia className="pointer-events-auto w-full max-w-xs" onClick={() => onLivello(livelloAttuale)}>
             Continua
           </Bottone>
@@ -215,6 +271,7 @@ function PezzoVista({
   tappaCorrente,
   onSalto,
   scoperta,
+  rifCimaVelo,
 }: {
   pezzo: Pezzo;
   stelle: Record<string, Stelle>;
@@ -222,6 +279,7 @@ function PezzoVista({
   tappaCorrente: number;
   onSalto: (tappa: number) => void;
   scoperta: number | null;
+  rifCimaVelo: React.RefObject<HTMLSpanElement | null>;
 }) {
   const pct = (u: number) => `${(u / p.h) * 100}%`;
   const stile: CSSProperties = {
@@ -232,6 +290,7 @@ function PezzoVista({
   if (p.tipo === 'velo') {
     return (
       <section className="relative" style={stile} aria-label="La prossima isola, nascosta dalle nuvole">
+        <span ref={rifCimaVelo} className="absolute h-0 w-0" style={{ top: pct(Math.max(0, misureVelo(p).cima)) }} />
         <Velo pezzo={p} grado={grado} tappaSotto={tappaCorrente} onSalto={onSalto} className={scoperta ? 'appari' : ''} />
       </section>
     );
@@ -296,29 +355,48 @@ function PezzoVista({
   );
 }
 
-/** La scoperta: le due metà della nuvola scorrono via a scatti, a sinistra e a destra. */
+/**
+ * La scoperta: un banco di nuvole tonde copre tutta l'isola nuova (anche monumento e
+ * punta), poi si squarcia a scatti: i due sbuffi al centro fanno «puf», le nuvole di
+ * sinistra escono a sinistra e quelle di destra a destra, piene, senza sbiadire.
+ */
 function NuvoleCheSiAprono({ pezzo: p }: { pezzo: PezzoTappa }) {
   const r = p.tipo === 'isola' ? p.riquadro : { x: 6, y: p.y + 15, w: 88, h: p.h - 18 };
-  const lato = 52;
-  const alto = lato * (455 / 506);
-  const cy = r.y - p.y + r.h * 0.45;
+  const cima = r.y - p.y;
   const pct = (u: number) => `${(u / p.h) * 100}%`;
-  const comune = { top: pct(cy - alto / 2), width: `${lato}%`, height: pct(alto) };
+  const N1 = { src: '/isole/nuvola-1.webp', rapporto: 290 / 785 };
+  const N2 = { src: '/isole/nuvola-2.webp', rapporto: 267 / 356 };
+  // x, w in unità; y in frazione dell'altezza dell'isola; verso: da che parte esce.
+  const nuvole: { file: typeof N1; x: number; y: number; w: number; verso: 'sx' | 'dx' | 'puf'; dy?: number }[] = [
+    { file: N1, x: r.x - 14, y: -0.02, w: 76, verso: 'sx', dy: -20 },
+    { file: N1, x: r.x + r.w - 62, y: 0.03, w: 76, verso: 'dx', dy: -20 },
+    { file: N1, x: r.x - 18, y: 0.26, w: 84, verso: 'sx' },
+    { file: N1, x: r.x + r.w - 66, y: 0.31, w: 84, verso: 'dx' },
+    { file: N1, x: r.x - 8, y: 0.55, w: 80, verso: 'sx', dy: 20 },
+    { file: N1, x: r.x + r.w - 72, y: 0.6, w: 80, verso: 'dx', dy: 20 },
+    { file: N1, x: r.x + r.w / 2 - 34, y: 0.74, w: 66, verso: 'sx', dy: 40 },
+    { file: N2, x: r.x + r.w / 2 - 20, y: -0.06, w: 40, verso: 'puf' },
+    { file: N2, x: r.x + r.w / 2 - 24, y: 0.36, w: 48, verso: 'puf' },
+  ];
   return (
     <div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
-      {/* Le due metà si toccano (anzi si sovrappongono di poco): all'inizio è una nuvola sola. */}
-      <Immagine
-        src="/isole/nuvola-sx.webp"
-        className="via-sx absolute"
-        style={{ ...comune, left: `${r.x + r.w / 2 - lato + 1}%` }}
-        segnaposto={<NuvolaFinta />}
-      />
-      <Immagine
-        src="/isole/nuvola-dx.webp"
-        className="via-dx absolute"
-        style={{ ...comune, left: `${r.x + r.w / 2 - 1}%` }}
-        segnaposto={<NuvolaFinta />}
-      />
+      {nuvole.map((n, i) => (
+        <Immagine
+          key={i}
+          src={n.file.src}
+          className={`absolute ${n.verso === 'puf' ? 'sbuffo' : n.verso === 'sx' ? 'via-sx' : 'via-dx'}`}
+          style={
+            {
+              left: `${n.x}%`,
+              top: pct(cima + n.y * r.h),
+              width: `${n.w}%`,
+              height: pct(n.w * n.file.rapporto),
+              '--dy': `${n.dy ?? 0}%`,
+            } as CSSProperties
+          }
+          segnaposto={<NuvolaFinta />}
+        />
+      ))}
     </div>
   );
 }
@@ -349,21 +427,31 @@ function Sovrapposto({
   const attuale = SENTIERO[corrente];
   const qui = attuale ? mappa.posti.get(attuale.id) : undefined;
   const da = evento ? mappa.posti.get(evento.da.id) : undefined;
-  const fumetto = useMemo(() => {
-    if (!qui) return null;
-    const k = largo / 100;
-    // Le etichette in cima a ogni isola e il bottone del test sotto le nuvole: il fumetto li evita.
-    const ostacoli = mappa.pezzi.flatMap((p) =>
-      p.tipo === 'isola' || p.tipo === 'cielo'
-        ? [{ x: 12, y: p.y * k - 10, w: 200, h: 66 }]
-        : p.tipo === 'velo'
-          ? [{ x: 12, y: (p.y + p.h) * k - 80, w: 170, h: 80 }]
-          : [],
-    );
-    return disponi(qui, percorso.filter((p) => p !== qui), largo, ostacoli);
-  }, [qui, percorso, largo, mappa.pezzi]);
-  const lato = fumetto?.lato ?? 'sx';
   const tappe = mappa.pezzi.filter((p): p is PezzoTappa => p.tipo === 'isola' || p.tipo === 'cielo');
+  const { fumetto, partenza } = useMemo(() => {
+    if (!qui) return { fumetto: null, partenza: null };
+    const k = largo / 100;
+    // Le etichette in cima a ogni isola e il bottone del test sotto le nuvole: bimbo, gatto e fumetto li evitano.
+    const ostacoli = mappa.pezzi.flatMap((p) => {
+      if (p.tipo === 'isola' || p.tipo === 'cielo') return [{ x: 12, y: p.y * k - 10, w: 200, h: 66 }];
+      if (p.tipo !== 'velo') return [];
+      const b = bottoneTest(p);
+      return [{ x: b.cx * k - 85, y: (p.y + b.y) * k, w: 170, h: 48 }];
+    });
+    const sassi: SassoVicino[] = mappa.pezzi.flatMap((p) =>
+      p.tipo === 'isola' || p.tipo === 'cielo'
+        ? p.livelli.flatMap((l, i) => {
+            const punto = p.sassi[i];
+            return punto ? [{ ...punto, fatto: (stelle[l.id] ?? 0) > 0 }] : [];
+          })
+        : [],
+    );
+    const fuoriDa = (p: Punto) => sassi.filter((s) => s.x !== p.x || s.y !== p.y);
+    const fumetto = disponi(qui, fuoriDa(qui), largo, ostacoli);
+    // Da dove partono nel salto: accanto al sasso di prima, dallo stesso lato, senza coprire nulla.
+    const partenza = da ? disponi(da, fuoriDa(da), largo, ostacoli, fumetto.personaggi.lato).personaggi : null;
+    return { fumetto, partenza };
+  }, [qui, da, largo, mappa.pezzi, stelle]);
 
   // Fatto: dal livello 1 a dove sei. Da fare: da lì in su, fino dentro le nuvole.
   const fatto = percorso.slice(0, corrente + 1);
@@ -412,18 +500,21 @@ function Sovrapposto({
       )}
       {inizio && <span ref={rifInizio} className="absolute h-0 w-0" style={posto(inizio, alto)} />}
 
-      {/* Bimbo e gatto: saltano dal sasso di prima al sasso attuale. */}
-      {qui && (
+      {/* Bimbo e gatto: davanti ai sassi; nel salto anche davanti alle etichette. L'arco
+          cresce col dislivello, così anche il salto da un'isola all'altra è un balzo. */}
+      {qui && fumetto && (
         <Personaggi
-          lato={lato}
-          className={`z-10 ${da ? 'salto' : ''}`}
+          posto={fumetto.personaggi}
+          className={da ? 'salto z-[26]' : 'z-[12]'}
           style={
             {
               ...posto(qui, alto),
               ...(da
                 ? {
-                    '--x0': `${da.x}%`,
-                    '--y0': `${(da.y / alto) * 100}%`,
+                    // Lo stesso lato, ma distanza e piedi della partenza: la differenza in px.
+                    '--x0': `calc(${da.x}% + ${partenza ? (partenza.distanza - fumetto.personaggi.distanza) * (partenza.lato === 'sx' ? -1 : 1) : 0}px)`,
+                    '--y0': `calc(${(da.y / alto) * 100}% + ${partenza ? partenza.piedi - fumetto.personaggi.piedi : 0}px)`,
+                    '--arco': `${Math.round(Math.max(42, Math.abs(da.y - qui.y) * (largo / 100) * 0.35))}px`,
                     '--ritardo': `${evento?.tipo === 'scoperta' ? SCOPERTA.salto : SALTO.salto}ms`,
                   }
                 : {}),
@@ -445,6 +536,7 @@ function Sovrapposto({
               gioco={l.gioco}
               stato={stato}
               stelle={stelle[l.id] ?? 0}
+              stelleDx={stato === 'fatto' ? spostaStelline(punto, percorso, largo) : 0}
               rif={stato === 'attuale' ? rifCorrente : undefined}
               className={`pointer-events-auto ${stato === 'attuale' ? 'z-[11]' : 'z-10'} ${nuovo ? 'appari' : ''}`}
               style={{ ...posto(punto, alto), ...(nuovo ? ({ '--ritardo': `${SCOPERTA.sassi + k * 80}ms` } as CSSProperties) : {}) }}

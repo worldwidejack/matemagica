@@ -1,13 +1,16 @@
 import { useState, type CSSProperties, type ReactNode, type Ref } from 'react';
 import type { GameId } from '@/engine/cartuccia';
 import { GIOCHI } from '@/games/registro';
-import { IconaGioco, Icona, Stelline } from '../kit';
-import { MISURE, type Stellina } from './mappa';
+import { IconaGioco, Icona } from '../kit';
+import { MISURE, type PostoPersonaggi, type Stellina } from './mappa';
 
 /**
  * I pezzi piatti del sentiero «Sassi e isole» (stile S5): forme piene, bordo scuro
  * sottile, ombre piatte spostate, niente aloni. Tutto si muove a scatti.
  */
+
+/** La stella piatta (viewBox 24): stelline dei sassi ed etichette. */
+const STELLA = 'm12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z';
 
 /** Un'immagine dipinta che, se manca, lascia il posto a un segnaposto piatto. */
 export function Immagine({
@@ -148,11 +151,14 @@ export function Sasso({
   style,
   onTocca,
   rif,
+  stelleDx = 0,
 }: {
   numero: number;
   gioco: GameId;
   stato: StatoSasso;
   stelle: number;
+  /** Px di cui spostare le stelline, se sotto c'è un altro sasso. */
+  stelleDx?: number;
   className?: string;
   style?: CSSProperties;
   onTocca: () => void;
@@ -196,11 +202,34 @@ export function Sasso({
           </span>
         )}
       </button>
-      {stato === 'fatto' && (
-        <div className="pointer-events-none absolute top-[42px] left-1/2 -translate-x-1/2 text-[12px] leading-none">
-          <Stelline n={stelle} />
-        </div>
-      )}
+      {stato === 'fatto' && <StellineSasso n={stelle} dx={stelleDx} />}
+    </div>
+  );
+}
+
+/**
+ * Le stelline sotto un sasso fatto: in una pillola scura piatta, così si staccano dai
+ * puntini d'oro del sentiero e dalla roccia. Le vuote sono solo un contorno crema.
+ */
+function StellineSasso({ n, dx }: { n: number; dx: number }) {
+  return (
+    <div
+      className="pointer-events-none absolute top-[42px] flex -translate-x-1/2 gap-px rounded-full bg-notte-950/85 px-1 py-0.5"
+      style={{ left: `calc(50% + ${dx}px)` }}
+      aria-label={`${n} stelle su 3`}
+    >
+      {[1, 2, 3].map((i) => (
+        <svg key={i} viewBox="0 0 24 24" className="h-3.5 w-3.5" aria-hidden>
+          <path
+            d={STELLA}
+            fill={i <= n ? 'var(--color-oro-400)' : 'none'}
+            stroke={i <= n ? 'var(--color-oro-600)' : 'var(--color-panna-100)'}
+            strokeWidth={i <= n ? 1.2 : 1.8}
+            strokeLinejoin="round"
+            opacity={i <= n ? 1 : 0.7}
+          />
+        </svg>
+      ))}
     </div>
   );
 }
@@ -257,22 +286,23 @@ export function Fumetto({
 const { mago: MAGO, gatto: GATTO, gruppo: GRUPPO } = MISURE;
 
 /**
- * Bimbo e gatto in piedi accanto al sasso attuale. `lato` = da che parte del sasso
- * stanno: a destra si girano (guardano sempre il sasso). Respirano a scatti.
+ * Bimbo e gatto in piedi accanto al sasso attuale, dove li mette `disponi` (lato,
+ * distanza dal sasso, piedi). A destra si girano: guardano sempre il sasso. Il gatto
+ * sta dalla parte del sasso. Respirano a scatti.
  */
 export function Personaggi({
-  lato,
+  posto: { lato, distanza, piedi },
   className,
   style,
 }: {
-  lato: 'sx' | 'dx';
+  posto: PostoPersonaggi;
   className?: string;
   style?: CSSProperties;
 }) {
   const sposta =
     lato === 'sx'
-      ? `translate(calc(-100% - ${GRUPPO.distanza}px), calc(-100% + ${GRUPPO.piedi}px))`
-      : `translate(${GRUPPO.distanza}px, calc(-100% + ${GRUPPO.piedi}px)) scaleX(-1)`;
+      ? `translate(calc(-100% - ${distanza}px), calc(-100% + ${piedi}px))`
+      : `translate(${distanza}px, calc(-100% + ${piedi}px)) scaleX(-1)`;
   return (
     <div className={`pointer-events-none absolute ${className ?? ''}`} style={{ transform: sposta, ...style }} aria-hidden>
       <div className="arco relative" style={{ width: GRUPPO.w, height: MAGO.h }}>
@@ -313,7 +343,6 @@ export function Bandierina({ style }: { style?: CSSProperties }) {
 
 // ── L'etichetta che resta ferma in alto ──────────────────────────────────
 
-const STELLA = 'm12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z';
 
 export function Etichetta({
   titolo,

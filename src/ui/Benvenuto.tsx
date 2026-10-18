@@ -20,7 +20,7 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
       <div className="cielo-stellato relative flex min-h-dvh flex-col overflow-hidden">
         <div className="relative px-6 pt-[calc(env(safe-area-inset-top)+3.5rem)] text-center">
           <h1 className="animate-pop text-6xl font-semibold text-panna-50 drop-shadow-lg">Matemagica</h1>
-          <p className="titolo mt-3 text-xl text-panna-100 italic">Piccole sfide, grandi viaggi nella mente</p>
+          <p className="titolo mt-3 text-xl text-balance text-panna-100 italic">Piccole sfide, grandi viaggi nella mente</p>
         </div>
         {/* L'isola 1 nella notte S5, col bimbo mago e il gatto che aspettano al primo sasso. */}
         {isola && (
