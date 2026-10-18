@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { suona } from '@/audio/sfx';
 import { isolaDellaTappa } from '@/content/isole';
-import { MOTIVI, OBIETTIVI } from '@/profilo/giornata';
+import { MOTIVI } from '@/profilo/giornata';
 import { Bottone } from './kit';
 
+/** L'obiettivo del giorno di partenza (3 partite): si cambia dal profilo. */
+const OBIETTIVO_INIZIALE = 3;
+
 /**
- * La prima apertura, come Duolingo: un saluto, due domande da un tocco,
- * e subito il primo livello. Niente account, niente moduli.
+ * La prima apertura: un saluto, una domanda da un tocco, e subito il primo livello.
+ * Niente account, niente moduli. (La domanda «quanto tempo al giorno» tolta il 18/10,
+ * su richiesta di Jack.)
  */
 export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: number) => void }) {
-  const [passo, setPasso] = useState<0 | 1 | 2>(0);
+  const [passo, setPasso] = useState<0 | 1>(0);
   const [motivo, setMotivo] = useState<string | null>(null);
   // L'isola della tappa 1 (segue la storia, come sulla mappa); bimbo e gatto al suo primo sasso.
   const isola = isolaDellaTappa(1);
@@ -57,50 +61,27 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
 
   return (
     <div className="cielo-stellato flex min-h-full flex-col px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
-      <div className="flex gap-2" aria-hidden>
-        {[1, 2].map((i) => (
-          <span key={i} className={`h-1.5 flex-1 rounded-full ${i <= passo ? 'bg-oro-400' : 'bg-panna-100/20'}`} />
+      <h1 className="mt-8 text-4xl font-semibold text-panna-50">Perché sei qui?</h1>
+      <p className="mt-2 text-panna-100/75">Nessuna risposta sbagliata.</p>
+      <div className="mt-6 flex flex-col gap-3">
+        {MOTIVI.map((m) => (
+          <Scelta key={m.id} attiva={motivo === m.id} onClick={() => setMotivo(m.id)}>
+            <span className="text-2xl">{m.icona}</span>
+            <span className="titolo text-xl font-semibold">{m.testo}</span>
+          </Scelta>
         ))}
       </div>
-
-      {passo === 1 ? (
-        <>
-          <h1 className="mt-8 text-4xl font-semibold text-panna-50">Perché sei qui?</h1>
-          <p className="mt-2 text-panna-100/75">Nessuna risposta sbagliata.</p>
-          <div className="mt-6 flex flex-col gap-3">
-            {MOTIVI.map((m) => (
-              <Scelta key={m.id} attiva={motivo === m.id} onClick={() => setMotivo(m.id)}>
-                <span className="text-2xl">{m.icona}</span>
-                <span className="titolo text-xl font-semibold">{m.testo}</span>
-              </Scelta>
-            ))}
-          </div>
-          <Bottone freccia className="mt-auto" disabled={!motivo} onClick={() => setPasso(2)}>
-            Avanti
-          </Bottone>
-        </>
-      ) : (
-        <>
-          <h1 className="mt-8 text-4xl font-semibold text-panna-50">Quanto tempo al giorno?</h1>
-          <p className="mt-2 text-panna-100/75">Diventa il tuo obiettivo del giorno. Lo cambi quando vuoi.</p>
-          <div className="mt-6 flex flex-col gap-3">
-            {OBIETTIVI.map((o) => (
-              <Scelta
-                key={o.partite}
-                onClick={() => {
-                  suona('stella');
-                  onFine(motivo ?? 'mente', o.partite);
-                }}
-              >
-                <span className="titolo text-xl font-semibold">{o.durata}</span>
-                <span className="ml-auto text-sm text-inchiostro-chiaro">
-                  {o.nome} · {o.partite} {o.partite === 1 ? 'partita' : 'partite'}
-                </span>
-              </Scelta>
-            ))}
-          </div>
-        </>
-      )}
+      <Bottone
+        freccia
+        className="mt-auto"
+        disabled={!motivo}
+        onClick={() => {
+          suona('stella');
+          onFine(motivo ?? 'mente', OBIETTIVO_INIZIALE);
+        }}
+      >
+        Si parte
+      </Bottone>
     </div>
   );
 }
