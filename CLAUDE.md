@@ -61,6 +61,19 @@ nuvole che si dirada a ogni livello e si apre al 5°; dopo l'8ª isola le costel
 `main` con #4 + #5, `src/content/isole.ts`, `Sentiero.tsx` riscritto (Isola, Sasso, Velo, Etichetta, gatto con
 `<Scatto>`), isole 1-4 dipinte per il 21, le altre come costellazioni finché papà non conferma le storie.
 
+**Sassi e isole fatto (17-18 ottobre 2026): PR #6** (`claude/sassi-e-isole`, unisce e sostituisce #3, #4, #5).
+Isole 1-4 dipinte, bimbo mago e gatto nero che saltano di sasso in sasso, velo che si dirada, scoperta con le
+nuvole che si squarciano, risposte di papà nei giochi (`docs/papa/01-risposte.md`, ritorno in `02-per-papa.md`).
+Verde, provato a 375×812. Per rivedere le scene in sviluppo: `?scoperta=L10` (scoperta) o `?scoperta=L7` (salto)
+con un profilo che ha le stelle fino a quel livello. **Aspetta la prova di Jack dal telefono**, poi merge.
+
+**Identità animata (18 ottobre 2026).** Jack vuole che il lato creativo sia l'USP, come per Duolingo: il gatto
+nero reagisce agli eventi del motore (giusto, sbagliato, combo, fine partita 1/2/3 stelle, sblocchi, streak) e
+fa da regia (cambi d'inquadratura e di schermata). Si copia la grammatica di Duolingo (tempi, anticipo, camera,
+suono), mai i disegni. Una sessione a parte ne fa il «libretto dei momenti» (`docs/grafica/duolingo/`, branch
+suo). Poi: rig del gatto in After Effects animato da Jack, frame a scatti in sprite, camera fatta dal codice;
+primo momento la fine partita.
+
 ---
 
 ## Visione

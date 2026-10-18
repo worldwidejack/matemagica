@@ -1,13 +1,13 @@
 ---
 progetto: Matemagica
 stato: attivo
-aggiornato: 2026-10-16
+aggiornato: 2026-10-18
 dettaglio: CLAUDE.md
-rimasti: branch claude/sassi-e-isole a metà (codice interrotto, isole 1-3 e nuvole pronte)
-primo_passo: Claude: riprende il codice del sentiero, scarica arco/obelisco/gatto, link a Jack
+rimasti: Sassi e isole pronto (PR #6): Jack lo prova dal telefono; libretto Duolingo in corso
+primo_passo: Jack: apre il link di anteprima della PR #6 dal telefono e dice ok o cosa cambiare
 ---
 ## Siamo arrivati a
-16/10: dalla tavola e da un giro di 7 stili Jack ha scelto lo stile S5 (anni '50 grafico) e la struttura «Sassi e isole» (livello = sasso, isola = tappa di 5 livelli, nuvole che si diradano). Mockup della struttura mandati (`docs/grafica/giro-16-10/foglio-struttura.jpg`, branch claude/animazioni-a-scatti).
+18/10: Sassi e isole finito e verde (PR #6): isole 1-4, bimbo e gatto che saltano, velo e scoperta con le nuvole che si squarciano, risposte di papà nei giochi. Jack ha deciso che il lato creativo è l'USP (modello Duolingo): una sessione a parte fa il «libretto dei momenti» di Duolingo per il gatto.
 
 ## Prossimo passo
-16/10 pomeriggio, limite di utilizzo: worktree `.claude/worktrees/sassi` (branch claude/sassi-e-isole = main + #3 + #4 + #5, verde) con il codice di Sassi e isole a metà e NON committato; in public/ isole 1 e 3, nuvole, mago. Da scaricare dalle chat (`_handoff/chat-chatgpt.md`, ultima sezione): isola 2, isola 4, mago bimbo, gatto. Poi rilanciare il workflow (resume wf_019ba0af-ce4), verificare, PR e link a Jack. Risposte di papà trascritte in `_handoff/papa/01-risposte.md`.
+Jack: prova dal telefono https://matemagica-git-claude-sassi-e-isole-worldwidejacks-projects.vercel.app (serve il login Vercel), poi ok al merge. Claude: quando arriva il libretto Duolingo, propone i momenti del gatto, primo la fine partita (1/2/3 stelle).
