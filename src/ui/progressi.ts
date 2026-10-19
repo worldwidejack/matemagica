@@ -1,6 +1,7 @@
 import type { GameId } from '@/engine/cartuccia';
 import type { Stelle } from '@/engine/regole';
 import { SENTIERO, type Livello } from '@/content/sentiero';
+import { tuttoAperto } from './tuttoAperto';
 
 /**
  * Regole di sblocco, calcolate dal profilo (niente stato in più da salvare):
@@ -24,6 +25,7 @@ export function primoLivelloDi(g: GameId): Livello | undefined {
 }
 
 export function giocoSbloccato(g: GameId, stelle: Record<string, Stelle>): boolean {
+  if (tuttoAperto) return true;
   const l = primoLivelloDi(g);
   return l !== undefined && livelloAperto(l.numero - 1, stelle);
 }

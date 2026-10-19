@@ -23,3 +23,19 @@ export function scegli<T>(rng: Rng, lista: readonly T[]): T {
   if (x === undefined) throw new Error('scegli: lista vuota');
   return x;
 }
+
+/**
+ * Un quesito che in questa partita non è ancora uscito: se `genera` ne ridà uno già visto,
+ * riprova qualche volta, poi si accontenta (meglio un doppione che un blocco). Serve soprattutto
+ * alle sequenze scritte di papà: hanno la risposta fissa, e la seconda volta basterebbe ricordarla.
+ */
+export function quesitoNuovo<R>(genera: () => R, visti: Set<string>, tentativi = 20): R {
+  let r = genera();
+  let chiave = JSON.stringify(r);
+  for (let i = 1; i < tentativi && visti.has(chiave); i++) {
+    r = genera();
+    chiave = JSON.stringify(r);
+  }
+  visti.add(chiave);
+  return r;
+}
