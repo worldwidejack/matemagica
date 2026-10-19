@@ -24,7 +24,7 @@ Le sue risposte entrano in: `src/content/spiegazioni.ts`, `storie.ts`, `sequenze
 `sentiero.ts` (ordine), e nei generatori se trova trucchi nuovi. Tutti i contenuti con
 `autore: 'bozza'` sono di Claude e aspettano lui.
 
-**PR aperte, nessuna su `main`:** #3 grafica «ora blu» (stile scelto da Jack l'8/10 dopo 20
+**PR #3, #4, #5 (ora tutte su `main` dentro la #6):** #3 grafica «ora blu» (stile scelto da Jack l'8/10 dopo 20
 proposte: ligne claire + paesino mediterraneo al tramonto, riferimento in
 `docs/grafica/RIFERIMENTO-…` su quel branch), #4 notte dell'8/10 (profilo, medaglie, sfida del
 giorno, Quadrato magico…), **#5 animazioni a scatti** (15/10, questo branch). Su `main` i colori
@@ -65,7 +65,9 @@ nuvole che si dirada a ogni livello e si apre al 5°; dopo l'8ª isola le costel
 Isole 1-4 dipinte, bimbo mago e gatto nero che saltano di sasso in sasso, velo che si dirada, scoperta con le
 nuvole che si squarciano, risposte di papà nei giochi (`docs/papa/01-risposte.md`, ritorno in `02-per-papa.md`).
 Verde, provato a 375×812. Per rivedere le scene in sviluppo: `?scoperta=L10` (scoperta) o `?scoperta=L7` (salto)
-con un profilo che ha le stelle fino a quel livello. **Aspetta la prova di Jack dal telefono**, poi merge.
+con un profilo che ha le stelle fino a quel livello. **Su `main` dal 19 ottobre** (link pubblico aggiornato per il
+pranzo con papà), insieme alla PR #7: nessun quesito torna due volte nella stessa partita (nel motore) e il link
+`…/?papa` apre tutti i giochi in Palestra (`src/ui/tuttoAperto.ts`), così chi prova il gioco non deve fare 16 livelli.
 
 **Identità animata (18 ottobre 2026).** Jack vuole che il lato creativo sia l'USP, come per Duolingo: il gatto
 nero reagisce agli eventi del motore (giusto, sbagliato, combo, fine partita 1/2/3 stelle, sblocchi, streak) e
