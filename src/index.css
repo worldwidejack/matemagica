@@ -1,25 +1,61 @@
 @import "tailwindcss";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/nunito";
 
-/* ── Palette segnaposto: notte, oro, turchese. ────────────────────────────
-   Ogni colore del gioco passa da qui. L'identità vera arriva in B8:
-   basterà cambiare questi token.                                         */
+/* ── Palette S5 (16/10): modernismo grafico anni '50 alla «Paperino nel mondo della
+   Matemagica». Pochi colori decisi, piatti, misurati dai mockup approvati
+   (docs/grafica/giro-16-10/originali/mm-s5a.png, mm-s5c2.png). Ogni colore del gioco
+   passa da qui. I nomi vecchi (notte, oro, panna, turchese…) restano, rimappati. */
 @theme {
-  --color-notte-900: #070a1f;
-  --color-notte-800: #0b0f2a;
-  --color-notte-700: #141a3d;
-  --color-notte-600: #1e2757;
+  /* notte blu oltremare, dalla più scura alla più chiara */
+  --color-notte-nero: #050a2e; /* il cielo tra le costellazioni, oltre l'8ª isola */
+  --color-notte-950: #0a134d;
+  --color-notte-900: #021756;
+  --color-notte-800: #01227e;
+  --color-notte-700: #012882;
+  --color-notte-600: #2a46a8;
 
-  --color-oro-400: #ffd76e;
-  --color-oro-500: #f5b731;
+  /* viola delle rocce sotto le isole */
+  --color-viola-700: #2e2586;
+  --color-viola-500: #654da8;
 
-  --color-turchese-300: #7ef0e0;
-  --color-turchese-400: #35d6c2;
-  --color-turchese-500: #17b5a3;
+  /* verde delle isole */
+  --color-verde: #3d7a5c;
+  --color-verde-scuro: #24523d;
 
-  --color-magenta-400: #ff7ac6;
-  --color-pericolo-400: #ff6b6b;
+  /* crema: schede, pulsanti chiari, barra in basso, nuvole */
+  --color-panna-50: #fff3df;
+  --color-panna-100: #fde2bc;
+  --color-panna-200: #f5d292;
+  --color-pesca: #f8c7a0;
+  --color-lilla: #c6a8ba;
+  --color-azzurro: #dccbe0;
 
-  --font-display: ui-rounded, "SF Pro Rounded", "Trebuchet MS", system-ui, sans-serif;
+  /* inchiostro: il testo sopra la crema */
+  --color-inchiostro: #17163f;
+  --color-inchiostro-chiaro: #4b4673;
+
+  /* oro / giallo */
+  --color-oro-300: #fcd174;
+  --color-oro-400: #fed347;
+  --color-oro-500: #e6b658;
+  --color-oro-600: #b0832f; /* solo ombre e bordi dei bottoni d'oro: come testo non regge */
+  --color-oro-700: #7d5c16; /* l'oro per il TESTO sulla crema: 4,9:1 su panna-100 */
+
+  /* arancio dei coriandoli e la tunica blu del bimbo mago */
+  --color-tramonto: #f08a4b;
+  --color-mantello: #2b3c9e;
+
+  /* nomi storici, rimappati sulla palette S5 */
+  --color-turchese-300: #a9d3bc;
+  --color-turchese-400: #5fae8f;
+  --color-turchese-500: #3d7a5c;
+  --color-magenta-400: #e8564a;
+  --color-pericolo-400: #e2634a;
+  --color-pericolo-600: #c0432c; /* fondo dei bottoni rossi con testo crema: 4,7:1 */
+
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-corpo: "Nunito Variable", ui-rounded, system-ui, sans-serif;
 
   --ease-rimbalzo: cubic-bezier(0.2, 1.4, 0.4, 1);
 
@@ -34,6 +70,114 @@
   --animate-lampo: lampo linear forwards;
   --animate-accendi: accendi 0.2s ease-out forwards;
   --animate-carta: carta 0.7s var(--ease-rimbalzo) backwards;
+  --animate-sale: sale 0.35s var(--ease-rimbalzo);
+  /* a scatti, come un cartone: niente passaggi morbidi */
+  --animate-respiro-scatti: respiro-scatti 1.6s steps(1, end) infinite;
+  --animate-ammicca: ammicca 2.4s steps(1, end) infinite;
+  --animate-trema: trema 0.5s steps(1, end);
+  --animate-galleggia-scatti: galleggia-scatti 1.2s steps(1, end) infinite;
+}
+
+/* ── Il sentiero «Sassi e isole»: tutto a scatti (12 disegni al secondo) ── */
+
+/* Il respiro di bimbo e gatto: 4 pose tenute, niente scorrimento morbido. */
+@keyframes respiro-scatti {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.01, 1.025); }
+  50% { transform: scale(1.02, 1.04); }
+  75% { transform: scale(1.01, 1.025); }
+}
+
+/* Il fumetto «Gioca!» sale e scende di due pixel, a scatti. */
+@keyframes galleggia-scatti {
+  0% { translate: 0 0; }
+  50% { translate: 0 -3px; }
+}
+
+@keyframes ammicca {
+  0% { opacity: 1; }
+  70% { opacity: 0.35; }
+  85% { opacity: 1; }
+}
+
+/* La nuvola toccata trema: 6 pose. */
+@keyframes trema {
+  0% { translate: 0 0; }
+  16% { translate: -6px 0; }
+  33% { translate: 5px 0; }
+  50% { translate: -4px 0; }
+  66% { translate: 3px 0; }
+  83% { translate: -1px 0; }
+  100% { translate: 0 0; }
+}
+
+/* Il salto di bimbo e gatto: il gruppo va in linea retta dal sasso di prima
+   (--x0, --y0) al suo posto; dentro, l'arco su e giù, alto --arco (cresce col
+   dislivello: da un'isola all'altra è un balzo che ricade dall'alto). 12 pose in 1 s. */
+.salto {
+  animation: salto 1s steps(12, end) var(--ritardo, 0ms) both;
+}
+.salto .arco {
+  animation: salto-arco 1s linear var(--ritardo, 0ms) both;
+}
+@keyframes salto {
+  from { left: var(--x0); top: var(--y0); }
+}
+@keyframes salto-arco {
+  0% { translate: 0 0; animation-timing-function: steps(3, end); }
+  25% { translate: 0 calc(var(--arco, 42px) * -0.72); animation-timing-function: steps(3, end); }
+  50% { translate: 0 calc(var(--arco, 42px) * -1); animation-timing-function: steps(3, end); }
+  75% { translate: 0 calc(var(--arco, 42px) * -0.72); animation-timing-function: steps(3, end); }
+  100% { translate: 0 0; }
+}
+
+/* La scoperta: il banco di nuvole si squarcia (sbuffi al centro, poi le nuvole escono
+   piene ai lati), l'isola si colora, i sassi appaiono. */
+.via-sx {
+  animation: via-sx 0.9s steps(9, end) 0.7s both;
+}
+.via-dx {
+  animation: via-dx 0.9s steps(9, end) 0.7s both;
+}
+@keyframes via-sx {
+  to { translate: -140% var(--dy, 0%); }
+}
+@keyframes via-dx {
+  to { translate: 140% var(--dy, 0%); }
+}
+/* Gli sbuffi al centro: si gonfiano per un disegno e spariscono di colpo («puf»). */
+.sbuffo {
+  animation: sbuffo 0.17s 0.62s both;
+}
+@keyframes sbuffo {
+  0% { scale: 1; opacity: 1; animation-timing-function: steps(1, end); }
+  50% { scale: 1.25; opacity: 1; animation-timing-function: steps(1, end); }
+  100% { scale: 1.25; opacity: 0; }
+}
+.colora {
+  animation: colora 0.6s steps(6, end) 1s both;
+}
+@keyframes colora {
+  from { filter: brightness(0); opacity: 0.55; }
+  to { filter: brightness(1); opacity: 1; }
+}
+.appari {
+  animation: appari 0.3s steps(3, end) var(--ritardo, 1.5s) both;
+}
+@keyframes appari {
+  from { opacity: 0; }
+}
+
+/* Il velo che si dirada: tra un grado e l'altro le nuvole si spostano a scatti. */
+.velo-passo {
+  transition-property: translate, scale, opacity, filter;
+  transition-duration: 0.6s;
+  transition-timing-function: steps(6, end);
+}
+
+@keyframes sale {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Catena: ogni voce appare, resta, sparisce (durata e ritardo dalla vista). */
@@ -95,6 +239,9 @@
   100% { width: 0%; background-color: var(--color-pericolo-400); }
 }
 
+/* Stili di base dentro @layer base: così le classi di Tailwind (colori dei
+   pulsanti, testi) vincono sempre su questi. */
+@layer base {
 /* ── Reset per un gioco a schermo intero su telefono ── */
 html,
 body,
@@ -104,9 +251,11 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-notte-900);
-  color: white;
-  font-family: var(--font-display);
+  /* la notte blu oltremare di S5: più scura in alto */
+  background: linear-gradient(180deg, var(--color-notte-950) 0%, var(--color-notte-900) 50%, var(--color-notte-800) 100%) fixed;
+  background-color: var(--color-notte-900);
+  color: var(--color-panna-50);
+  font-family: var(--font-corpo);
   -webkit-font-smoothing: antialiased;
   /* niente selezione o menu del long-press mentre si tocca a raffica */
   -webkit-user-select: none;
@@ -128,6 +277,8 @@ button:disabled {
   cursor: default;
 }
 
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -136,4 +287,49 @@ button:disabled {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+@layer base {
+/* Titoli: Fraunces con un po' di morbidezza, come "Matemagica" nel riferimento. */
+h1, h2, h3, .titolo {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  letter-spacing: -0.01em;
+}
+}
+
+/* Grana di carta sopra tutto: il filo di grana della P. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Le stelle del cielo: punti fissi, alcuni respirano. */
+.cielo-stellato {
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 32% 8%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 22%, var(--color-oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 76% 12%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 88% 30%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 38%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 46% 44%, var(--color-oro-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 52%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 8% 60%, var(--color-panna-50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 70%, var(--color-panna-50) 50%, transparent 51%);
+}
+
+/* ── Tremolio del disegno a mano (src/anim/Tremolio.tsx monta i filtri SVG) ── */
+.tremolio {
+  filter: url(#tremolio);
+}
+
+.tremolio-forte {
+  filter: url(#tremolio-forte);
 }

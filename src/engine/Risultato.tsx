@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
 import { suona } from '@/audio/sfx';
+import { ISOLE, isolaDellaTappa, nomeDellaTappa, titoloTappa } from '@/content/isole';
+import { TAPPE } from '@/content/sentiero';
+import { NOMI_GRADO } from '@/profilo/medaglie';
+import { Bottone, Icona, Medaglione, Scheda } from '@/ui/kit';
+import { Coriandoli } from '@/ui/Coriandoli';
+import { condividiTesto, indirizzo, stelleTesto } from '@/ui/condividi';
 import type { RiepilogoPartita } from '@/profilo/store';
 import type { FinePartita } from './partita';
 
@@ -9,6 +15,8 @@ type Props = {
   fine: FinePartita;
   riepilogo: RiepilogoPartita;
   inPalestra?: boolean;
+  /** Testo da condividere; se manca se ne compone uno dal risultato. */
+  condividi?: string;
   onAncora: () => void;
   onEsci: () => void;
 };
@@ -21,7 +29,7 @@ const FRASI = [
 ] as const;
 
 /** Schermata di fine partita, uguale per tutti i giochi. */
-export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAncora, onEsci }: Props) {
+export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, condividi, onAncora, onEsci }: Props) {
   const { stelle, punteggio } = fine;
   const [visibili, setVisibili] = useState(0);
 
@@ -39,66 +47,124 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAn
     if (riepilogo.livelloDopo > riepilogo.livelloPrima) {
       ids.push(window.setTimeout(() => suona('livello'), 500 + stelle * 380 + 300));
     }
+    if (riepilogo.medaglieNuove.length > 0) {
+      ids.push(window.setTimeout(() => suona('festa'), 900 + stelle * 380 + 500));
+    }
     return () => ids.forEach((id) => window.clearTimeout(id));
-  }, [stelle, riepilogo.livelloDopo, riepilogo.livelloPrima]);
+  }, [stelle, riepilogo.livelloDopo, riepilogo.livelloPrima, riepilogo.medaglieNuove.length]);
 
   const nuovoRecord = punteggio > riepilogo.recordPrima && punteggio > 0;
   const delta = riepilogo.bravuraDopo - riepilogo.bravuraPrima;
 
+  const salito = riepilogo.livelloDopo > riepilogo.livelloPrima;
+  const festa = stelle === 3 || salito || riepilogo.medaglieNuove.length > 0;
+
+  /**
+   * Prima di uscire, le feste a tutto schermo, una dopo l'altra:
+   * la tappa completata, poi la fiamma della prima partita del giorno (come Duolingo).
+   */
+  const [schermo, setSchermo] = useState<'risultato' | 'tappa' | 'fiamma'>('risultato');
+  const vaiA = (x: 'tappa' | 'fiamma') => {
+    window.scrollTo(0, 0);
+    setSchermo(x);
+  };
+  const continua = () => {
+    if (schermo === 'risultato' && riepilogo.tappaCompletata) return vaiA('tappa');
+    if (schermo !== 'fiamma' && riepilogo.fiammaAccesa) return vaiA('fiamma');
+    onEsci();
+  };
+
+  if (schermo === 'tappa' && riepilogo.tappaCompletata)
+    return <TappaSchermo tappa={riepilogo.tappaCompletata} onAvanti={continua} />;
+  if (schermo === 'fiamma')
+    return <FiammaSchermo giorni={riepilogo.streak} salvaUsati={riepilogo.salvaUsati} salvaVinto={riepilogo.salvaVinto} onAvanti={onEsci} />;
+
+  const testo =
+    condividi ??
+    `Matemagica · ${etichetta ? `${etichetta} · ` : ''}${titolo}\n${stelleTesto(stelle)}  ${punteggio} punti\n${indirizzo()}`;
+
   return (
-    <div className="flex min-h-full flex-col items-center justify-center gap-5 px-6 text-center">
-      <p className="text-sm tracking-widest text-white/50 uppercase">
+    <div className="cielo-stellato flex min-h-full flex-col items-center justify-center gap-5 px-6 py-8 text-center">
+      {festa && <Coriandoli />}
+      <p className="text-sm font-bold tracking-[0.2em] text-oro-300 uppercase">
         {etichetta ? `${etichetta} · ` : ''}
         {titolo}
       </p>
 
-      <div className="flex gap-3 text-6xl">
+      <div className="flex gap-2">
         {[1, 2, 3].map((i) => (
-          <span
+          <svg
             key={i}
-            className={i <= visibili ? 'animate-stella text-oro-400 drop-shadow-[0_0_14px_var(--color-oro-500)]' : 'text-white/10'}
+            viewBox="0 0 24 24"
+            className={`h-16 w-16 ${i === 2 ? '-translate-y-3' : ''} ${i <= visibili ? 'animate-stella drop-shadow-[0_0_14px_var(--color-oro-500)]' : ''}`}
+            aria-hidden
           >
-            ★
-          </span>
+            <path
+              d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"
+              fill={i <= visibili ? 'var(--color-oro-400)' : 'rgb(255 255 255 / 0.15)'}
+              stroke={i <= visibili ? 'var(--color-oro-600)' : 'none'}
+              strokeWidth={1}
+            />
+          </svg>
         ))}
       </div>
-      <p className="text-xl">{FRASI[stelle]}</p>
+      <h1 className="text-3xl font-semibold text-panna-50">{FRASI[stelle]}</h1>
 
       <div>
-        <p className="text-6xl font-black tabular-nums text-oro-400">{punteggio}</p>
-        {nuovoRecord && <p className="animate-pop mt-1 font-bold text-turchese-300">Nuovo record!</p>}
+        <p className="titolo text-6xl font-semibold tabular-nums text-oro-400">{punteggio}</p>
+        {nuovoRecord && <p className="animate-pop mt-1 font-bold text-oro-300">Nuovo record!</p>}
       </div>
 
-      <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-sm">
-        {fine.dati.map((d) => (
-          <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
-        ))}
-        <Dato etichetta="XP" valore={`+${riepilogo.xpGuadagnati}`} />
-      </div>
+      <Scheda className="w-full max-w-xs">
+        <div className="grid grid-cols-3 divide-x divide-panna-200 text-center">
+          {fine.dati.map((d) => (
+            <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
+          ))}
+          <Dato etichetta="XP" valore={`+${riepilogo.xpGuadagnati}`} />
+        </div>
+        <p className="mt-3 border-t border-panna-200 pt-3 text-sm text-inchiostro-chiaro">
+          Bravura {riepilogo.bravuraPrima.toFixed(1)} → <span className="font-bold text-inchiostro">{riepilogo.bravuraDopo.toFixed(1)}</span>
+          {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
+        </p>
+      </Scheda>
 
-      <p className="text-sm text-white/70">
-        Bravura {riepilogo.bravuraPrima.toFixed(1)} →{' '}
-        <span className="font-bold text-turchese-300">{riepilogo.bravuraDopo.toFixed(1)}</span>
-        {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
-      </p>
-
-      {riepilogo.livelloDopo > riepilogo.livelloPrima && (
-        <p className="animate-pop rounded-xl bg-turchese-500/20 px-4 py-2 font-bold text-turchese-300">
-          Sei salito al livello {riepilogo.livelloDopo}!
+      {riepilogo.missioniNuove.map((m) => (
+        <p key={m.id} className="animate-pop w-full max-w-xs rounded-2xl bg-oro-400 px-4 py-2.5 text-left text-inchiostro shadow">
+          <span className="font-bold">Missione completata</span> · {m.testo} <span className="font-bold">+{m.premioXp} XP</span>
+        </p>
+      ))}
+      {riepilogo.obiettivoRaggiunto && (
+        <p className="animate-pop w-full max-w-xs rounded-2xl bg-panna-100 px-4 py-2.5 text-inchiostro shadow">
+          Obiettivo del giorno raggiunto: {riepilogo.obiettivo} {riepilogo.obiettivo === 1 ? 'partita' : 'partite'}!
         </p>
       )}
-      {riepilogo.streak > 1 && <p className="text-white/80">🔥 {riepilogo.streak} giorni di fila</p>}
+      {salito && (
+        <p className="animate-pop rounded-2xl bg-azzurro px-4 py-2 font-bold text-inchiostro">Sei salito al livello {riepilogo.livelloDopo}!</p>
+      )}
+      {riepilogo.medaglieNuove.map(({ medaglia, grado }) => (
+        <div key={medaglia.id} className="animate-pop flex w-full max-w-xs items-center gap-3 rounded-2xl bg-panna-100 px-4 py-2.5 text-left text-inchiostro shadow">
+          <Medaglione icona={medaglia.icona} grado={grado} />
+          <span>
+            <span className="block text-xs font-bold tracking-wider text-oro-700 uppercase">Medaglia {NOMI_GRADO[grado]}</span>
+            <span className="titolo text-lg font-semibold">{medaglia.nome}</span>
+          </span>
+        </div>
+      ))}
+      {riepilogo.salvaVinto && (
+        <p className="animate-pop w-full max-w-xs rounded-2xl bg-azzurro px-4 py-2.5 text-inchiostro shadow">
+          <span className="font-bold">🧊 Salva-fiamma vinto!</span> Se salti un giorno, la fiamma resta accesa.
+        </p>
+      )}
 
-      <div className="mt-2 flex w-full max-w-xs flex-col gap-3">
-        <button
-          onClick={inPalestra ? onAncora : onEsci}
-          className="rounded-2xl bg-oro-500 py-4 text-xl font-bold text-notte-900 shadow-[0_0_30px_var(--color-oro-500)] active:scale-95"
-        >
+      {/* I pulsanti restano a portata di pollice anche quando le novità allungano la pagina. */}
+      <div className="sticky bottom-0 -mx-6 mt-2 flex w-[calc(100%+3rem)] flex-col items-center gap-2 bg-gradient-to-t from-notte-900 from-75% to-transparent px-6 pt-8 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+        <Bottone freccia={!inPalestra} className="w-full max-w-xs" onClick={inPalestra ? onAncora : continua}>
           {inPalestra ? 'Ancora una!' : 'Continua'}
-        </button>
-        <button onClick={inPalestra ? onEsci : onAncora} className="py-2 text-white/60">
+        </Bottone>
+        <Bottone variante="vuoto" onClick={inPalestra ? continua : onAncora}>
           {inPalestra ? 'Torna alla Palestra' : 'Rigioca'}
-        </button>
+        </Bottone>
+        <Condividi testo={testo} />
       </div>
     </div>
   );
@@ -106,9 +172,132 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, onAn
 
 function Dato({ etichetta, valore }: { etichetta: string; valore: string }) {
   return (
-    <div className="rounded-xl bg-notte-700 px-2 py-3">
-      <p className="text-lg font-bold">{valore}</p>
-      <p className="text-white/50">{etichetta}</p>
+    <div className="px-1">
+      <p className="titolo text-xl font-semibold">{valore}</p>
+      <p className="text-xs text-inchiostro-chiaro">{etichetta}</p>
+    </div>
+  );
+}
+
+function Condividi({ testo }: { testo: string }) {
+  const [esito, setEsito] = useState<string | null>(null);
+  return (
+    <button
+      onClick={() => {
+        suona('tap');
+        void condividiTesto(testo).then((e) => {
+          if (e === 'copiato') setEsito('Copiato!');
+          else if (e === 'errore') setEsito('Non riesco');
+        });
+      }}
+      className="mt-1 flex items-center gap-2 rounded-full bg-panna-100/15 px-4 py-2 text-panna-50 active:scale-95"
+    >
+      <Icona nome="condividi" className="h-5 w-5" />
+      {esito ?? 'Condividi'}
+    </button>
+  );
+}
+
+/** Isola (o tappa) completata: l'isola col suo monumento, i coriandoli, il nome. */
+function TappaSchermo({ tappa, onAvanti }: { tappa: number; onAvanti: () => void }) {
+  const isola = isolaDellaTappa(tappa);
+  const prossima = isolaDellaTappa(tappa + 1);
+  // «Tutte le isole» solo quando saranno dipinte tutte e 8.
+  const tutte = tappa === TAPPE.length && ISOLE.length >= TAPPE.length;
+  useEffect(() => suona('festa'), []);
+  return (
+    <div className="cielo-stellato relative flex min-h-dvh flex-col items-center gap-4 overflow-hidden px-6 pb-[calc(env(safe-area-inset-bottom)+2.5rem)] text-center">
+      <Coriandoli quanti={200} durata={4500} />
+      <div className="relative mt-[calc(env(safe-area-inset-top)+3rem)]">
+        <p className="animate-pop text-sm font-bold tracking-[0.25em] text-oro-300 uppercase">{titoloTappa(tappa)} completata</p>
+        <h1 className="animate-pop mt-2 text-5xl font-semibold text-panna-50 drop-shadow-lg">{nomeDellaTappa(tappa)}</h1>
+      </div>
+      {/* L'isola col suo monumento, appena conquistata; senza disegno, una costellazione piatta. */}
+      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+        {isola ? (
+          <img src={isola.file} alt="" className="animate-pop w-[min(82%,calc((100dvh-24rem)*0.85))]" />
+        ) : (
+          <div className="animate-pop aspect-square w-[min(70%,calc(100dvh-24rem))]">
+            <Costellazione seme={tappa} />
+          </div>
+        )}
+      </div>
+      <p className="relative max-w-xs text-lg text-panna-50 drop-shadow">
+        {tutte
+          ? 'Hai visitato tutte le isole. Ma il cielo non finisce: il sentiero continua tra le costellazioni.'
+          : prossima
+            ? 'Le nuvole si aprono: la prossima isola ti aspetta.'
+            : 'Il sentiero continua tra le stelle: la prossima tappa è aperta.'}
+      </p>
+      <Bottone freccia className="relative w-full max-w-xs" onClick={onAvanti}>
+        Avanti
+      </Bottone>
+    </div>
+  );
+}
+
+/** Cinque stelle d'oro piatte unite da puntini: la tappa senza isola dipinta. */
+function Costellazione({ seme }: { seme: number }) {
+  const punti = Array.from({ length: 5 }, (_, k) => {
+    const a = (seme * 2.39 + k * 1.31) % (Math.PI * 2);
+    return { x: 50 + Math.cos(a) * (14 + k * 6), y: 86 - k * 17 + Math.sin(a) * 6 };
+  });
+  const d = punti.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  return (
+    <svg viewBox="0 0 100 100" className="h-full w-full" aria-hidden>
+      <path d={d} fill="none" stroke="var(--color-oro-300)" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="0 3.4" />
+      {punti.map((p, i) => (
+        <path
+          key={i}
+          d={`M${p.x} ${p.y - 7}L${p.x + 1.6} ${p.y - 1.6}L${p.x + 7} ${p.y}L${p.x + 1.6} ${p.y + 1.6}L${p.x} ${p.y + 7}L${p.x - 1.6} ${p.y + 1.6}L${p.x - 7} ${p.y}L${p.x - 1.6} ${p.y - 1.6}Z`}
+          fill="var(--color-oro-400)"
+          stroke="var(--color-inchiostro)"
+          strokeWidth="0.8"
+          strokeLinejoin="round"
+        />
+      ))}
+    </svg>
+  );
+}
+
+/** La fiamma a tutto schermo: il numero dei giorni di fila sale di uno. */
+function FiammaSchermo({
+  giorni,
+  salvaUsati,
+  salvaVinto,
+  onAvanti,
+}: {
+  giorni: number;
+  salvaUsati: number;
+  salvaVinto: boolean;
+  onAvanti: () => void;
+}) {
+  const [mostrato, setMostrato] = useState(Math.max(0, giorni - 1));
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setMostrato(giorni);
+      suona('livello');
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [giorni]);
+  return (
+    <div className="cielo-stellato flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center">
+      <div className="animate-pop text-[7rem] leading-none drop-shadow-[0_0_40px_var(--color-tramonto)]">🔥</div>
+      <p key={mostrato} className="titolo animate-pop text-8xl font-semibold text-oro-400 tabular-nums">
+        {mostrato}
+      </p>
+      <h1 className="text-3xl font-semibold text-panna-50">{giorni === 1 ? 'giorno di fila!' : 'giorni di fila!'}</h1>
+      <p className="max-w-xs text-lg text-panna-100/80">
+        {salvaUsati > 0
+          ? `Il salva-fiamma 🧊 l'ha protetta ${salvaUsati === 1 ? 'nel giorno che hai saltato' : `nei ${salvaUsati} giorni che hai saltato`}.`
+          : giorni === 1
+            ? 'La fiamma è accesa. Torna domani per tenerla viva.'
+            : 'Non spegnerla: basta una partita al giorno.'}
+      </p>
+      {salvaVinto && <p className="animate-pop rounded-2xl bg-azzurro px-4 py-2 text-inchiostro">🧊 Hai vinto un salva-fiamma!</p>}
+      <Bottone freccia className="w-full max-w-xs" onClick={onAvanti}>
+        Continua
+      </Bottone>
     </div>
   );
 }

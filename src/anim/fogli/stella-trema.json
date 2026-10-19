@@ -1,0 +1,11 @@
+{
+ "nome": "stella-trema",
+ "fps": 12,
+ "fotogrammi": 3,
+ "colonne": 2,
+ "righe": 2,
+ "w": 200,
+ "h": 185,
+ "loop": true,
+ "kb": 19.6
+}

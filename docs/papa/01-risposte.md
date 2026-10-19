@@ -1,0 +1,11 @@
+# Risposte di papà al primo giro (foto: 01-risposte-foto.jpg), trascritte il 16/10
+- p2 Chi è più grande? Si può fare con la divisione (6:4 vs 25:14)? Misto (9+4 vs 4×3)? (n+1)² vs n²+2n: 4×4 vs 9+6, oppure 8+8 vs 9+6.
+- p2 Coppie magiche: come introdurre i numeri primi? Anche differenze. Coppie la cui somma è multiplo di 3.
+- p2 Catena: «trucco smontato? cosa vuol dire?» (da spiegargli). Precedenza: dipende da come è presentato (un'operazione alla volta → in ordine va bene; tutte insieme → precedenza).
+- p3 Stima lampo: il resto in un acquisto, miglia-km, Celsius-Fahrenheit.
+- p3 Bersaglio: sì (sommare tutto all'inizio), sì (divisioni esatte).
+- p3 Bilancia: equazioni di primo grado, difficile all'inizio. Pesi negativi OK; frazioni più avanti.
+- p3 Trova la regola: 3→6→7→14→15→30 (×2 e poi +1); 2→3→5→9→17→33 (n→2n−1).
+- p4 Bersaglio (spiegazione «parti dal bersaglio, è vicino a un prodotto?»): è sempre così? o si svia dando quel trucco? [lettura incerta: «si svia»]
+- p6 Giochi nuovi: piccoli sudoku, trovare l'area di una figura, trovare 2 divisori.
+- Non risposte: ordine del sentiero, storie, spiegazioni (restano bozze).

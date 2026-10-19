@@ -1,14 +1,16 @@
 import type { ArcadeGame, ArcadeViewProps } from '@/engine/cartuccia';
-import { formatta, genera, tempo, type RoundStima } from './logica';
+import { formatta, genera, rivela, tempo, type RoundStima } from './logica';
 
 function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<RoundStima, number>) {
   const feedback = correct !== null;
   return (
     <div className="flex flex-col gap-8">
       <div className="text-center">
-        <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none font-black tabular-nums">{round.testo}</p>
-        <p className={`mt-3 text-xl ${feedback ? 'text-white/80' : 'text-white/50'}`}>
-          {feedback ? `= ${formatta(Math.round(round.valore * 10) / 10)}` : '≈ quanto, più o meno?'}
+        {round.sopra && <p className="mb-2 text-xl text-panna-100/75">{round.sopra}</p>}
+        <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none titolo font-semibold tabular-nums">{round.testo}</p>
+        {round.formula && <p className="mt-3 text-base text-panna-100/70 tabular-nums">{round.formula}</p>}
+        <p className={`mt-3 text-xl ${feedback ? 'text-panna-100/80' : 'text-panna-100/70'}`}>
+          {feedback ? rivela(round) : (round.domanda ?? '≈ quanto, più o meno?')}
         </p>
       </div>
       <div className="flex flex-col gap-3">
@@ -21,15 +23,16 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
               disabled={locked}
               onClick={() => onAnswer(i)}
               className={[
-                'rounded-3xl border-2 py-5 text-3xl font-bold tabular-nums active:scale-95',
+                'rounded-3xl border-2 py-5 text-3xl titolo font-semibold tabular-nums active:scale-95',
                 giusta
-                  ? 'animate-pop border-oro-400 bg-oro-500/20'
+                  ? 'animate-pop border-oro-600 bg-oro-400 text-inchiostro'
                   : sbagliata
-                    ? 'border-pericolo-400 bg-pericolo-400/15'
-                    : 'border-notte-600 bg-notte-700',
+                    ? 'border-pericolo-400 bg-pericolo-400 text-panna-50'
+                    : 'border-panna-200 bg-panna-100 text-inchiostro',
               ].join(' ')}
             >
               ≈ {formatta(o)}
+              {round.unita && <span className="ml-1.5 text-2xl">{round.unita}</span>}
             </button>
           );
         })}
@@ -46,6 +49,6 @@ export const stimaLampo: ArcadeGame<RoundStima, number> = {
   generate: genera,
   View: Vista,
   check: (r, i) => i === r.giusta,
-  timeFor: (_r, d) => tempo(d),
+  timeFor: (r, d) => tempo(d, r),
   roundPerPartita: 15,
 };

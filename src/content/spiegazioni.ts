@@ -34,8 +34,11 @@ export const SPIEGAZIONI: Record<GameId, Spiegazione> = {
   },
   bersaglio: {
     come: 'Hai alcuni numeri e un bersaglio. Combinali due alla volta con + − × ÷ fino ad arrivarci.',
-    trucco: 'Parti dal bersaglio: è vicino a un prodotto dei tuoi numeri? Poi aggiusta con + e −.',
-    esempio: 'Numeri 3, 4, 6 · bersaglio 18  →  3 × 4 = 12, 12 + 6 = 18',
+    // Papà (16/10): «è sempre così? o si svia dando quel trucco?». No, non sempre: il
+    // prodotto porta alla soluzione circa 1 volta su 2 a metà gioco, quasi mai all'inizio.
+    trucco: 'Un punto di partenza, non una regola: quanto manca al bersaglio? C’è un prodotto vicino? Se non torna, cambia strada.',
+    // L'esempio vecchio (3, 4, 6 → 18) si faceva in un passo solo: 3 × 6.
+    esempio: 'Numeri 4, 5, 3 · bersaglio 23  →  4 × 5 = 20, 20 + 3 = 23',
   },
   bilancia: {
     come: 'Bilance in equilibrio con forme misteriose. Scopri quanto pesa la forma chiesta.',
@@ -46,5 +49,15 @@ export const SPIEGAZIONI: Record<GameId, Spiegazione> = {
     come: 'Una fila di numeri nasconde una regola. Scrivi il numero che viene dopo.',
     trucco: 'Guarda i salti tra un numero e l’altro. Se i salti non sono uguali, guarda come cambiano i salti.',
     esempio: '2, 5, 8, 11, ?  →  si aggiunge sempre 3  →  14',
+  },
+  quadrato: {
+    come: 'Una griglia di numeri (3 × 3, più avanti 4 × 4): ogni riga, colonna e diagonale fa la stessa somma. Riempi le caselle vuote.',
+    trucco: 'Cerca la riga (o colonna, o diagonale) a cui manca un numero solo. Poi chiediti: quanto vale il centro?',
+    esempio: '8 · 1 · 6  →  somma 15: in ogni riga, colonna e diagonale.',
+  },
+  misto: {
+    come: 'Un quesito per gioco, sempre diverso: confronti, catene, stime e coppie mescolati.',
+    trucco: 'Leggi il nome del gioco sopra al quesito prima di tutto: cambia il modo di pensare.',
+    esempio: '17 × 3 o 49 + 4?  →  poi una catena  →  poi una stima…',
   },
 };

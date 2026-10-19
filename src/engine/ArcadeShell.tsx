@@ -16,6 +16,7 @@ import {
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
+import { rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 type Stato<R, A> = {
@@ -96,6 +97,7 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
   if (dopo > prima) {
     st.annuncioCombo = dopo;
     suona('combo');
+    vibra(25);
   } else {
     suona('giusto', st.combo / 12);
   }
@@ -129,9 +131,13 @@ export function ArcadeShell<R, A>({
   limiti,
   etichetta,
   inPalestra,
+  seme,
+  condividi,
   onFine,
   onEsci,
 }: PlayProps & { game: ArcadeGame<R, A> }) {
+  // Con un seme (sfida del giorno) i quesiti sono gli stessi per tutti.
+  const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
   const totale = game.roundPerPartita ?? PARTITA.round;
   const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura, limiti));
   // I timer leggono e scrivono il ref; lo schermo si disegna da questa copia.
@@ -165,6 +171,8 @@ export function ArcadeShell<R, A>({
         { etichetta: 'Giuste', valore: `${st.giuste}/${st.roundGiocati}` },
         { etichetta: 'Combo max', valore: String(st.comboMax) },
       ],
+      comboMax: st.comboMax,
+      giuste: st.giuste,
     };
     st.fase = 'fine';
     st.locked = true;
@@ -191,7 +199,7 @@ export function ArcadeShell<R, A>({
   const nuovoRound = useCallback(() => {
     const st = s.current;
     if (st.roundGiocati >= totale || st.vite <= 0) return chiudi();
-    st.round = game.generate(st.d, Math.random);
+    st.round = game.generate(st.d, rng.current);
     st.nRound++;
     st.given = null;
     st.correct = null;
@@ -261,9 +269,10 @@ export function ArcadeShell<R, A>({
     setFine(null);
     s.current = statoIniziale<R, A>(bravura, limiti);
     s.current.fase = 'gioco';
+    if (seme !== undefined) rng.current = rngConSeme(seme);
     suona('tap');
     nuovoRound();
-  }, [bravura, limiti, nuovoRound, pulisci]);
+  }, [bravura, limiti, nuovoRound, pulisci, seme]);
 
   if (st.fase === 'fine' && fine) {
     return (
@@ -273,6 +282,7 @@ export function ArcadeShell<R, A>({
         fine={fine.fine}
         riepilogo={fine.riepilogo}
         inPalestra={inPalestra}
+        condividi={condividi?.(fine.fine)}
         onAncora={via}
         onEsci={() => onEsci(true)}
       />
@@ -314,12 +324,12 @@ export function ArcadeShell<R, A>({
       )}
 
       <header className="relative flex items-center justify-between text-lg">
-        <button onClick={() => onEsci(false)} className="text-2xl text-white/50" aria-label="Esci">
+        <button onClick={() => onEsci(false)} className="text-2xl text-panna-100/50" aria-label="Esci">
           ✕
         </button>
         <div className="flex gap-1.5 text-2xl" aria-label={`${st.vite} vite`}>
           {Array.from({ length: PARTITA.vite }, (_, i) => (
-            <span key={i} className={i < st.vite ? 'text-magenta-400' : 'text-white/15'}>
+            <span key={i} className={i < st.vite ? 'text-magenta-400' : 'text-panna-100/15'}>
               ◆
             </span>
           ))}
@@ -327,25 +337,25 @@ export function ArcadeShell<R, A>({
         <div className="relative min-w-16 text-right font-bold tabular-nums text-oro-400">
           {st.punteggio}
           {st.colpoPunti === st.colpo ? (
-            <span key={`pti-${st.colpo}`} className="animate-sali absolute top-6 right-0 text-base text-turchese-300">
+            <span key={`pti-${st.colpo}`} className="animate-sali absolute top-6 right-0 text-base text-oro-300">
               +{st.guadagno}
             </span>
           ) : null}
         </div>
       </header>
 
-      <div className="relative mt-2 flex items-center justify-between text-sm text-white/50">
+      <div className="relative mt-2 flex items-center justify-between text-sm text-panna-100/70">
         <span className="tabular-nums">
           {Math.min(st.roundGiocati + (feedback ? 0 : 1), totale)} / {totale}
         </span>
         {molt > 1 && (
-          <span key={`molt-${molt}`} className="animate-pop rounded-full bg-oro-500 px-3 py-0.5 font-bold text-notte-900">
+          <span key={`molt-${molt}`} className="animate-pop rounded-full bg-oro-400 px-3 py-0.5 font-bold text-inchiostro">
             ×{molt}
           </span>
         )}
       </div>
 
-      <div className="relative mt-3 h-2 overflow-hidden rounded-full bg-notte-600">
+      <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-notte-950/50">
         {!st.revealing && !feedback && st.fase === 'gioco' && (
           <div
             key={`timer-${st.roundGiocati}-${st.inizio}`}

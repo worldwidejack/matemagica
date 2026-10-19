@@ -8,6 +8,12 @@ export type FinePartita = {
   bravuraDopo: number;
   /** Due o tre numeri da mostrare nel risultato (es. "Giuste 18/20"). */
   dati: { etichetta: string; valore: string }[];
+  /** Per le missioni del giorno. */
+  comboMax?: number;
+  puliti?: number;
+  /** Per statistiche e medaglie. */
+  giuste?: number;
+  risolti?: number;
 };
 
 export type PlayProps = {
@@ -21,6 +27,13 @@ export type PlayProps = {
   inPalestra?: boolean;
   /** Chi monta il motore salva la partita e restituisce il riepilogo da mostrare. */
   onFine: (f: FinePartita) => RiepilogoPartita;
+  /**
+   * Seme fisso dei quesiti (sfida del giorno): stessi quesiti per tutti.
+   * Assente = quesiti a caso.
+   */
+  seme?: number;
+  /** Testo da condividere a fine partita (es. la sfida del giorno). */
+  condividi?: (f: FinePartita) => string;
   /** `dopo` è true se si esce dalla schermata di risultato (partita finita). */
   onEsci: (dopo: boolean) => void;
 };

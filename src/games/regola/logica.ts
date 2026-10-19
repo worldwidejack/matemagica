@@ -111,11 +111,19 @@ function daScritta(s: SequenzaScritta): RoundRegola {
   return { termini: s.termini, risposta: s.risposta, regola: s.regola };
 }
 
+/**
+ * Quanto spesso esce ogni sequenza scritta: al massimo un quesito su 8 a testa,
+ * e tutte insieme al massimo metà. Una sequenza scritta ha la risposta fissa:
+ * se uscisse troppo spesso (prima "guarda e racconta" era metà dei quesiti da
+ * d 9) basterebbe ricordarsi la risposta, che è un trucco anche quello.
+ */
+export const QUOTA_SCRITTA = 0.12;
+
 export function genera(d: number, rng: Rng): RoundRegola {
   const fascia = Math.min(4, Math.floor(d / 2));
-  // Le sequenze di papà hanno la precedenza quando ce ne sono per questa fascia.
+  // Le sequenze scritte (quelle di papà per prime) escono quando la difficoltà è la loro.
   const scritte = SEQUENZE_PAPA.filter((s) => Math.abs(s.difficolta - d) <= 1.5);
-  if (scritte.length > 0 && rng() < 0.5) return daScritta(scegli(rng, scritte));
+  if (scritte.length > 0 && rng() < Math.min(0.5, QUOTA_SCRITTA * scritte.length)) return daScritta(scegli(rng, scritte));
   return scegli(rng, FASCE[fascia] ?? FASCE[0]!)(rng);
 }
 
