@@ -14,7 +14,7 @@ import {
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
-import { rngConSeme, type Rng } from './caso';
+import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 type Esito = 'risolto' | 'saltato';
@@ -55,6 +55,8 @@ export function PuzzleShell<R, A>({
 }: PlayProps & { game: PuzzleGame<R, A> }) {
   // Con un seme (sfida del giorno) i rompicapo sono gli stessi per tutti.
   const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
+  /** I rompicapo già usciti in questa partita: nessuno torna due volte. */
+  const visti = useRef(new Set<string>());
   const totale = game.roundPerPartita ?? ROMPICAPO.roundPredefiniti;
   const [fase, setFase] = useState<'pronto' | 'gioco' | 'fine'>('pronto');
   const [st, setSt] = useState<Stato<R> | null>(null);
@@ -65,7 +67,7 @@ export function PuzzleShell<R, A>({
 
   const nuovoStato = useCallback(
     (d: number, indice: number, prima?: Stato<R>): Stato<R> => ({
-      round: game.generate(d, rng.current),
+      round: quesitoNuovo(() => game.generate(d, rng.current), visti.current),
       d,
       indice,
       esiti: prima?.esiti ?? [],
@@ -87,6 +89,7 @@ export function PuzzleShell<R, A>({
     setFine(null);
     setNPartita((n) => n + 1);
     if (seme !== undefined) rng.current = rngConSeme(seme);
+    visti.current = new Set();
     setSt(nuovoStato(dentroLimiti(diffIniziale(bravura), limiti), 0));
     setFase('gioco');
   }, [bravura, limiti, nuovoStato, seme]);

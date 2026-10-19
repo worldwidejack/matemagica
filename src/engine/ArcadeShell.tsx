@@ -16,7 +16,7 @@ import {
 } from './regole';
 import { Risultato } from './Risultato';
 import { suona, vibra } from '@/audio/sfx';
-import { rngConSeme, type Rng } from './caso';
+import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 type Stato<R, A> = {
@@ -138,6 +138,8 @@ export function ArcadeShell<R, A>({
 }: PlayProps & { game: ArcadeGame<R, A> }) {
   // Con un seme (sfida del giorno) i quesiti sono gli stessi per tutti.
   const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
+  /** I quesiti già usciti in questa partita: nessuno torna due volte. */
+  const visti = useRef(new Set<string>());
   const totale = game.roundPerPartita ?? PARTITA.round;
   const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura, limiti));
   // I timer leggono e scrivono il ref; lo schermo si disegna da questa copia.
@@ -199,7 +201,7 @@ export function ArcadeShell<R, A>({
   const nuovoRound = useCallback(() => {
     const st = s.current;
     if (st.roundGiocati >= totale || st.vite <= 0) return chiudi();
-    st.round = game.generate(st.d, rng.current);
+    st.round = quesitoNuovo(() => game.generate(st.d, rng.current), visti.current);
     st.nRound++;
     st.given = null;
     st.correct = null;
@@ -270,6 +272,7 @@ export function ArcadeShell<R, A>({
     s.current = statoIniziale<R, A>(bravura, limiti);
     s.current.fase = 'gioco';
     if (seme !== undefined) rng.current = rngConSeme(seme);
+    visti.current = new Set();
     suona('tap');
     nuovoRound();
   }, [bravura, limiti, nuovoRound, pulisci, seme]);

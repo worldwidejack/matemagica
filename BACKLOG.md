@@ -37,7 +37,7 @@ Ogni idea nuova finisce qui, non nell'MVP. Si riapre dopo B8 e il giro con papà
 - [x] Bersaglio: al primissimo livello "sommare tutto" è permesso → papà (16/10): sì. E le divisioni sempre esatte: sì
 - [x] Bersaglio: il consiglio «parti da un prodotto vicino» non vale sempre (papà, 16/10): riscritto come punto di partenza (17/10)
 - [x] Trova la regola: le sequenze scritte tornavano spesso nella stessa partita (da d 9 «guarda e racconta» era metà dei quesiti). Fatto (17/10): tetto del 12% a sequenza, al massimo metà in tutto
-- [ ] Trova la regola: niente sequenza scritta due volte nella stessa partita (serve memoria fra un quesito e l'altro: oggi il generatore non ce l'ha)
+- [x] Trova la regola: niente sequenza scritta due volte nella stessa partita. Fatto (19/10) nel motore, per tutti i giochi: a d 9 le partite con un doppione erano il 46%, ora 0
 - [x] Bersaglio: il quesito di riserva di `genera` (3, 4, 6 → 18) si faceva in un passo solo (3 × 6). Fatto (17/10): ora è 4, 5, 3 → 23, come l'esempio
 - [x] Catena: l'esca «risultato prima dell'ultimo passo» apriva un trucco nuovo (cerco due risposte legate dall'ultima operazione: 85-97%). Fatto (17/10): due coppie legate dall'ultima operazione, la giusta a caso «prima» o «dopo» (25%, come a caso)
 - [x] Se vinci una storia e poi rigiochi e esci con ✕, la schermata "Nuova carta!" si perde (8/10)
