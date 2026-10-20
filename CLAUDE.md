@@ -72,9 +72,15 @@ pranzo con papà), insieme alla PR #7: nessun quesito torna due volte nella stes
 **Identità animata (18 ottobre 2026).** Jack vuole che il lato creativo sia l'USP, come per Duolingo: il gatto
 nero reagisce agli eventi del motore (giusto, sbagliato, combo, fine partita 1/2/3 stelle, sblocchi, streak) e
 fa da regia (cambi d'inquadratura e di schermata). Si copia la grammatica di Duolingo (tempi, anticipo, camera,
-suono), mai i disegni. Una sessione a parte ne fa il «libretto dei momenti» (`docs/grafica/duolingo/`, branch
-suo). Poi: rig del gatto in After Effects animato da Jack, frame a scatti in sprite, camera fatta dal codice;
-primo momento la fine partita.
+suono), mai i disegni.
+
+**Prima di disegnare o animare qualsiasi cosa, leggi `docs/grafica/duolingo/LIBRETTO.md`** (18/10): Duolingo
+smontato fotogramma per fotogramma. Dentro: 21 momenti con i tempi a 24 fps, le regole che si ripetono, la lista
+«da non copiare», la tabella evento del motore → momento Duolingo → idea per il gatto, lo storyboard della fine
+partita 1/2/3★ e il dizionario delle pose. Apri la sezione che ti serve, non tutto. Provini e video sono materiale
+di Duolingo e restano solo sul Mac in `~/Desktop/JACK/_GITHUB/matemagica/_handoff/duolingo/` (mai nel repo, che è
+pubblico). Il gatto oggi si anima a disegni veri in sequenza, rifiniti in Fenaki (skill `animare-disegnato`):
+rig a pezzi in After Effects bocciato il 19/10.
 
 ---
 
