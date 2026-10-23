@@ -7,6 +7,11 @@
 
 ## Stato
 
+**Mondo 1959 (23/10/2026):** dal film d'origine (regola del 1959 qui sotto) un libretto, l'art style
+(`docs/grafica/stile-1959/`), la mappa dei regni con cast e viaggio (`docs/grafica/mondo/`) e le domande a papà
+(`docs/papa/03-il-viaggio.md`). Sono proposte: il gusto passa dalla Lanterna, l'ordine da papà; il codice non cambia
+finché non arrivano i due sì.
+
 **Ripartiti da zero il 7 ottobre 2026**, dopo l'intervista a Jack e papà. Il lavoro
 precedente (M0/M1, gioco dei segni) è stato accantonato: resta solo nella storia di git.
 
