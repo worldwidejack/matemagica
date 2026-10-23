@@ -7,6 +7,11 @@
 
 ## Stato
 
+**Mondo 1959 (23/10/2026):** dal film d'origine (regola del 1959 qui sotto) un libretto, l'art style
+(`docs/grafica/stile-1959/`), la mappa dei regni con cast e viaggio (`docs/grafica/mondo/`) e le domande a papà
+(`docs/papa/03-il-viaggio.md`). Sono proposte: il gusto passa dalla Lanterna, l'ordine da papà; il codice non cambia
+finché non arrivano i due sì.
+
 **Ripartiti da zero il 7 ottobre 2026**, dopo l'intervista a Jack e papà. Il lavoro
 precedente (M0/M1, gioco dei segni) è stato accantonato: resta solo nella storia di git.
 
@@ -124,6 +129,26 @@ smonta i trucchi ovvi e `npm run verifica` li misura su 46.000 quesiti:
 Le famiglie nuove dalle risposte di papà (16/10) restano minoritarie: in Chi è più grande? mista
 23%, divisione 11% (da d 4), quadrato 6% (da d 2); in Coppie differenza 15%, multiplo 9%, primi
 10%; in Stima resto, distanze e temperature ~10% l'una.
+
+## La regola del 1959 (vale per ogni disegno e ogni prompt)
+
+> **Lo spirito sì, la cosa no.** L'ispirazione d'origine è «Paperino nel mondo della Matemagica»
+> (Disney, 1959), ancora protetto (USA fino al 2054 circa, UE oltre il 2070).
+
+- **Si prende:** le idee (un mondo fatto di matematica; la matematica è in musica, arte, natura,
+  giochi), i fatti e la storia (Pitagora, sezione aurea, spirali, biliardo, scacchi), Galileo nell'originale
+  del *Saggiatore* (pubblico dominio), lo stile in generale (modernismo grafico anni '50), l'arco
+  «dal concreto all'astratto». Il meccanismo chiave: **il paesaggio è fatto della matematica che insegna**,
+  con forme e motivi, mai cifre.
+- **Non si prende:** Paperino, le creature del film come sono disegnate, musica, dialoghi, inquadrature,
+  gag, l'ordine delle scene rifatto uno a uno. Mai Disney, Paperino o «Mathmagic Land» nell'app, nello
+  store, nelle parole chiave, nella pubblicità.
+- **Con l'AI:** nei prompt mai nomi di film, studi o personaggi altrui (lo stile si descrive coi tratti);
+  mai fotogrammi del film allegati ai generatori. Il film e i fotogrammi stanno solo in
+  `_handoff/mathmagic-1959/` (privato); nel repo solo il nostro testo (`docs/grafica/stile-1959/`).
+- **Il nome «Matemagica»** è la parola del titolo italiano del film: prima di sceglierlo come nome
+  definitivo, ricerca su TMview/UIBM e un parere di un avvocato di marchi.
+- Stessa regola per ogni altra reference (Kiki, Duolingo…): test «stesso spirito» sì, «è la stessa cosa» no.
 
 ## Principi
 
