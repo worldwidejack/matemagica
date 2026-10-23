@@ -27,6 +27,14 @@ Ogni idea nuova finisce qui, non nell'MVP. Si riapre dopo B8 e il giro con papà
 - [ ] **Trovare l'area di una figura** (su quadretti? figure composte da tagliare e ricomporre?)
 - [ ] **Trovare 2 divisori** di un numero (es. 91 = 7 × 13): rompicapo o arcade?
 
+### Dal film d'origine (23/10) — idee, ognuna deve passare la regola di papà (domande in `docs/papa/03-il-viaggio.md`)
+- [ ] **La lira**: accordare una corda scegliendo la frazione (1/2, 2/3, 3/4…); casa: isola dell'Armonia
+- [ ] **Il biliardo**: dove arriva la palla dopo 2-3 sponde? traiettoria disegnata con la linea di luce; casa: isola dei Giochi
+- [ ] **Caccia all'oro**: quale rettangolo è aureo, a occhio; casa: isola d'Oro
+- [ ] **Scacchiera**: rompicapi di logica su griglia (mosse del cavallo, regine che non si mangiano)
+- [ ] **Porta dell'infinito**: sentiero generato senza fine dopo l'ultimo regno
+- [ ] **Soffitta della mente**: la Palestra diventa un luogo del mondo (`docs/grafica/mondo/VIAGGIO.md`)
+
 ## Grafica
 - [ ] Mascotte (giro a parte, regole: niente arti complessi, animabile in AE con J'n'S e da codice nel gioco)
 - [ ] Icone dei 7 giochi disegnate nello stile ora blu (oggi emoji)
