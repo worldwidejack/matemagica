@@ -83,12 +83,12 @@ forma che resta** mentre intorno cambia tutto, oppure **una domanda della voce**
 | 6 | **Pentagramma → sezione aurea → rettangolo d'oro → spirale** | I095-I098 | Su un cielo di nuvole scure i segmenti si accendono uno alla volta; la stella genera il pentagono, il pentagono il rettangolo, il rettangolo si annida in sé stesso e nasce la spirale. | **Il rettangolo resta fermo** e sotto arriva il mondo (I099). |
 | 7 | **Il rettangolo d'oro nell'arte** | I099-I114 | Il rettangolo si posa, si riempie, si divide su un tempio, statue, una cattedrale, un ritratto, un grattacielo, un quadro moderno: in ordine di tempo, da 2.400 anni fa a ieri. | Dal quadro al corpo vivo (I115). |
 | 8 | **Il corpo** | I115-I116 | Il rettangolo misura una ballerina vera; il protagonista prova a entrarci e non ci sta. | **La cornice resta** (un pentagono) e dentro, al suo posto, arrivano i fiori (I116). |
-| 9 | **La natura** | I117-I137 | Dal vero: fiori e stelle marine a cinque punte, conchiglie e nautilo con la spirale disegnata sopra, pigne e girasoli, favi e occhi di mosca, ragnatele, cristalli; in dissolvenze sempre più strette, poi una raffica. | La simmetria dei cristalli diventa un caleidoscopio fatto del protagonista, che ne esce stordito: «una giostra» → i giochi. |
-| 10 | **Gli scacchi** | I141-I177 | Il set si costruisce intorno a lui (riflettore, scacchiera, pezzi giganti); diventa grande e vede la partita dall'alto, come diagramma. | Annoiato dalla strategia: «anche gli altri giochi…». |
-| 11 | **I campi da gioco** | I178-I189 | Ogni sport è una forma disegnata nel buio (rombo, rettangolo a strisce, cerchi, griglia); cambio d'abito a giravolta per ognuno. | Un gioco «da grandi»: due quadrati e tre sfere. |
-| 12 | **Il biliardo** | I190-I226 | Un campione vero dall'alto; il calcolo **sulla sua fronte** in sovrimpressione; il sistema a diamanti come sottrazione, spiegato due volte con numeri diversi; il protagonista sbaglia i conti (groviglio) e poi riesce. | Il calcolo avviene nella testa: «il gioco più straordinario si fa nella mente». |
+| 9 | **La natura** | I117-I137 | Dal vero: fiori e stelle marine a cinque punte, conchiglie e nautilo con la spirale disegnata sopra, pigne e girasoli, favi e occhi di mosca, ragnatele, cristalli; in dissolvenze sempre più strette, poi una raffica. | La simmetria dei cristalli diventa un caleidoscopio fatto del protagonista, che ne esce stordito: la voce la chiama una giostra, e si passa ai giochi. |
+| 10 | **Gli scacchi** | I141-I177 | Il set si costruisce intorno a lui (riflettore, scacchiera, pezzi giganti); diventa grande e vede la partita dall'alto, come diagramma. | Annoiato dalla strategia, la voce lo porta agli altri giochi. |
+| 11 | **I campi da gioco** | I178-I189 | Ogni sport è una forma disegnata nel buio (rombo, rettangolo a strisce, cerchi, griglia); cambio d'abito a giravolta per ognuno. | Un gioco per adulti: due quadrati e tre sfere. |
+| 12 | **Il biliardo** | I190-I226 | Un campione vero dall'alto; il calcolo **sulla sua fronte** in sovrimpressione; il sistema a diamanti come sottrazione, spiegato due volte con numeri diversi; il protagonista sbaglia i conti (groviglio) e poi riesce. | Il calcolo avviene nella testa: il gioco più grande è quello che si fa nella mente. |
 | 13 | **La mente in ordine** | I227-I233 | Si entra dagli occhi: la mente è una soffitta piena di cassetti etichettati (idee vecchie, approssimazioni, preconcetti, superstizioni, confusione); una scopa fa pulizia. | Una mente pulita è un foglio buio su cui pensare un cerchio perfetto. |
-| 14 | **Forme pure → solidi → invenzioni** | I234-I252 | Il cerchio storto si raddrizza; ruotando diventa sfera, tagliato lente, poi strumenti ottici; rotolando ruota e macchine; il triangolo che gira è un cono, le sue sezioni orbite, fari, telescopi; una linea sul cono è molla e orologio. | «Pensa alla stella pitagorica»: si torna al simbolo del passo 5. |
+| 14 | **Forme pure → solidi → invenzioni** | I234-I252 | Il cerchio storto si raddrizza; ruotando diventa sfera, tagliato lente, poi strumenti ottici; rotolando ruota e macchine; il triangolo che gira è un cono, le sue sezioni orbite, fari, telescopi; una linea sul cono è molla e orologio. | La voce chiede di ripensare alla stella: si torna al simbolo del passo 5. |
 | 15 | **L'infinito** | I253-I259 | Stelle dentro stelle; le linee si allungano in un corridoio di porte senza fine; sono chiuse, la chiave la dice il protagonista; le porte volano via nello spazio; una frase di Galileo. | — (il film non chiude: le porte restano da aprire) |
 
 **Le tre regole del percorso.**
@@ -138,7 +138,7 @@ noi (i nomi dei regni sono le proposte di `../mondo/MAPPA.md`, non decisioni).
 - **Da noi:** l'Approdo delle forme, il primo avvio col gatto.
 
 ### 2 · La corda e la musica (2:59-6:54, I037-I092)
-- **Costruzione.** «Per prima cosa ci vuole una corda»: una scia di luce trascina via il protagonista, poi **37
+- **Costruzione.** La voce chiede una corda: una scia di luce trascina via il protagonista, poi **37
   secondi di una sola linea bianca sul nero** (I038). Ogni divisione arriva con una frase della voce, circa ogni 3
   s, e si sente una nota. Le corde diventano una lira, la lira sparisce (I039). Il tempio notturno, i pitagorici
   incappucciati, gli occhi nel buio, il simbolo sul palmo, la stretta di mano segreta (I042-I048): tagli da 1-4 s,
@@ -225,7 +225,7 @@ noi (i nomi dei regni sono le proposte di `../mondo/MAPPA.md`, non decisioni).
 - **Da noi:** la Soffitta della mente (= la Palestra).
 
 ### 7 · Cerchio e triangolo, le invenzioni (21:59-25:01, I234-I252)
-- **Costruzione.** «Pensa a un cerchio perfetto»: la camera entra negli occhi (I234-I236); il cerchio nasce **storto
+- **Costruzione.** La voce chiede di pensare un cerchio perfetto: la camera entra negli occhi (I234-I236); il cerchio nasce **storto
   e si corregge** (I237); col diametro dentro gira e diventa sfera, una fetta è una lente; strumenti ottici a linea
   dorata (I238); un lampo giallo a tutto schermo (I239). Il cerchio rotola: ruota, automobile, locomotiva,
   ingranaggi, aereo (I240, 18 s); il triangolo gira e fa un cono, le sue fette diventano orbite, faro, telescopio
@@ -313,8 +313,8 @@ Misure dal catalogo (secondi; f24 = fotogrammi a 24, arrotondati).
    da 1-3 s, spesso in serie. È l'alternanza che tiene il ritmo: respiro lungo, battuta corta.
 3. **L'immagine aspetta la voce.** Nelle lezioni un elemento nuovo arriva con ogni frase, e fra due frasi l'immagine
    resta ferma (tenute di 2-16 s: il diagramma del biliardo I211 sta fermo 16 s mentre la voce fa il conto).
-4. **L'anticipo è nella voce e nel suono.** Prima che la cosa compaia, la voce la annuncia («attento», «pensa a…»,
-   «sezioniamolo») o il fondale si svuota (I036, I037). L'anticipo fisico è riservato alle gag: la mira lunghissima
+4. **L'anticipo è nella voce e nel suono.** Prima che la cosa compaia, la voce la annuncia (un avvertimento, un invito a pensare
+   una forma, un taglio da fare) o il fondale si svuota (I036, I037). L'anticipo fisico è riservato alle gag: la mira lunghissima
    prima del tiro sbagliato (I192, 9,6 s), la preparazione acrobatica (I221, I224), il dolcetto prima della crescita.
 5. **Più è grande il salto, più forte la transizione.** Taglio per le reazioni; dissolvenza corta per i passi di
    una stessa idea; passaggio al nero per i salti di secoli o per entrare nella mente; lampo fra due catene di
@@ -339,7 +339,7 @@ a 12 disegni/s, `src/anim/`).
 - **Una voce senza corpo.** La guida è una voce calda e ironica che si presenta come lo spirito dell'avventura e non
   si vede mai. Parla nel 69% del film. Parla di più dove l'immagine è astratta (la mente 99%, l'infinito 92%, le
   invenzioni 89%) e meno dove c'è musica (il capitolo della musica 38%): **musica e spiegazione si danno il cambio**.
-- **Domanda, risposta sbagliata, prova.** La voce chiede o propone («pensa a…»), il protagonista risponde a modo suo
+- **Domanda, risposta sbagliata, prova.** La voce chiede o propone (pensa a una forma, prova un colpo), il protagonista risponde a modo suo
   (spesso sbagliando o protestando), la voce mostra. Il protagonista sbaglia **per fretta**, non per stupidità.
 - **L'arco dello scettico.** Scettico (I027) → agganciato dalla musica (I030) → conquistato dal ritmo (I056) →
   iniziato (I092) → misurato e «imperfetto» (I116) → giocatore (I141) → sbaglia i conti (I218-I223) → mente in
@@ -365,8 +365,8 @@ gatto torna per reagire. **Non prendiamo:** la voce, i dialoghi, le battute, le 
 
 1. **Il paesaggio è fatto della materia che si insegna.** Lì numeri e forme; da noi solo forme e motivi, mai cifre
    (regola del 1959).
-2. **Il mondo obbedisce alla voce.** Se la guida dice «dividiamola», la corda si divide; se dice «pensa a un
-   cerchio», il cerchio c'è.
+2. **Il mondo obbedisce alla voce.** Se la guida chiede di dividere la corda, la corda si divide; se chiede di pensare un
+   cerchio, il cerchio c'è.
 3. **La magia ha un segno solo** (le scintille, una volta il fumo): cambia abiti, luoghi ed epoche.
 4. **La geometria vive nel buio e si traccia da sola**; sul mondo vero si posa trasparente.
 5. **Il vero entra quando serve una prova**, e il disegno può entrare nel vero.
