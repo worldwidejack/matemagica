@@ -12,6 +12,13 @@
 (`docs/papa/03-il-viaggio.md`). Sono proposte: il gusto passa dalla Lanterna, l'ordine da papà; il codice non cambia
 finché non arrivano i due sì.
 
+**Il film smontato (23/10/2026, PR su `claude/decompilazione-1959`).** 261 inquadrature catalogate una per una
+(tempi, fotogrammi chiave, camera, transizioni, colori, concetto, gag, parlato, ritmo dei disegni) in
+`_handoff/mathmagic-1959/catalogo.json` (privato), schede in Diorama nel mondo «Riferimenti · film 1959» (entità di
+tipo *riferimento*: `prepara_generazione` non le allega mai). **Prima di progettare una spiegazione, una transizione
+o un'animazione di sblocco leggi `docs/grafica/stile-1959/LIBRETTO.md`**: percorso didattico coi ponti, dispositivi
+visivi, grammatica dei tempi, narrazione, regole del mondo, e per ognuno cosa si prende e cosa no.
+
 **Ripartiti da zero il 7 ottobre 2026**, dopo l'intervista a Jack e papà. Il lavoro
 precedente (M0/M1, gioco dei segni) è stato accantonato: resta solo nella storia di git.
 
