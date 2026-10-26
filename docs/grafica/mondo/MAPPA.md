@@ -6,7 +6,7 @@
 >
 > **23/10, Jack: «No»** (Lanterna wb532r). Lettura del 26/10: i regni erano ancora isole low-poly che galleggiano
 > fra le nuvole, cioè niente del film, dove il paese è una terra continua da attraversare a piedi. La prova che
-> segue il film davvero è «il paese» (branch `claude/paese-1959`, link `?paese=lato` e `?paese=orizzonte`).
+> segue il film davvero è «il paese»: un esercizio di grafica a parte, fuori dall'app (`_handoff/paese-1959/`).
 
 ## L'idea
 
