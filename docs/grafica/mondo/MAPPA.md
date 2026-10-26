@@ -3,6 +3,10 @@
 > Proposta del 23/10/2026, dal libretto del film d'origine (`../stile-1959/LIBRETTO.md`). **Non è ancora
 > decisa**: il gusto lo decide Jack (Lanterna), l'ordine e la matematica papà (`docs/papa/03-il-viaggio.md`).
 > Il codice (`src/content/isole.ts`, `sentiero.ts`, `storie.ts`) non cambia finché non arrivano i due sì.
+>
+> **23/10, Jack: «No»** (Lanterna wb532r). Lettura del 26/10: i regni erano ancora isole low-poly che galleggiano
+> fra le nuvole, cioè niente del film, dove il paese è una terra continua da attraversare a piedi. La prova che
+> segue il film davvero è «il paese» (branch `claude/paese-1959`, link `?paese=lato` e `?paese=orizzonte`).
 
 ## L'idea
 
