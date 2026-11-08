@@ -10,4 +10,4 @@ primo_passo: Jack apre il link del paese con ?cammino=L4 e dice se il passo del 
 8/11: nel branch `claude/paese-nell-app` la sequenza di livello completato (fiore → gatto che cammina al sasso dopo → camera che lo segue → nebbia che si ritira), pubblicata su https://worldwidejack.github.io/jack-tools/matemagica-app/ (prova: `?cammino=L4`). Dettaglio in `_GITHUB/matemagica/_STATO.md`.
 
 ## Prossimo passo
-Jack: prova dal telefono https://matemagica-git-claude-sassi-e-isole-worldwidejacks-projects.vercel.app (serve il login Vercel), poi ok al merge. Claude: quando arriva il libretto Duolingo, propone i momenti del gatto, primo la fine partita (1/2/3 stelle).
+Jack: guarda il passo del gatto sul telefono (i 6 disegni sono quasi un passo ripetuto: si rigenera se non convince). Claude: altri segnalini per gli altri giochi, poi font e UI.
