@@ -79,7 +79,7 @@ export function Segnalino({
       <span
         className="absolute inset-0"
         style={{
-          backgroundImage: `url(/paese/seg/${famiglia}.webp)`,
+          backgroundImage: `url(${import.meta.env.BASE_URL}paese/seg/${famiglia}.webp)`,
           backgroundSize: `${info.n * 100}% 100%`,
           backgroundPosition: `${info.n > 1 ? (frame / (info.n - 1)) * 100 : 0}% 0`,
           backgroundRepeat: 'no-repeat',
