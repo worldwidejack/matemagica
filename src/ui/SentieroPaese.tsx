@@ -32,11 +32,26 @@ function postoDi(i: number, n: number): { x: number; y: number } {
   return { x, y: linea.y[k] ?? 62 };
 }
 
-export function SentieroPaese({ onLivello, onSfida }: { onLivello: (l: Livello) => void; onSfida: () => void }) {
+export function SentieroPaese({
+  onLivello,
+  onSfida,
+  appenaFatto,
+  onVisto,
+}: {
+  onLivello: (l: Livello) => void;
+  onSfida: () => void;
+  /** Il livello che ha appena preso la prima stella: il suo segnalino sboccia. */
+  appenaFatto?: string;
+  onVisto?: () => void;
+}) {
   const stelle = useProfilo((p) => p.stelleLivelli);
   const corrente = livelloCorrente(stelle);
   const livelli = SENTIERO.slice(0, 40);
   const rifScorri = useRef<HTMLDivElement>(null);
+  const [daSbocciare] = useState(appenaFatto);
+  useEffect(() => {
+    if (appenaFatto) onVisto?.();
+  }, [appenaFatto, onVisto]);
   const [alto, setAlto] = useState(() => Math.min(560, Math.round(window.innerHeight * 0.62)));
 
   useEffect(() => {
@@ -105,6 +120,7 @@ export function SentieroPaese({ onLivello, onSfida }: { onLivello: (l: Livello) 
                   numero={l.numero}
                   stelle={stelle[l.id] ?? 0}
                   etichetta={`Livello ${l.numero}${stato === 'chiuso' ? ', chiuso' : ''}`}
+                  sboccia={daSbocciare === l.id}
                   onTocca={() => onLivello(l)}
                 />
                 {stato === 'attuale' && (

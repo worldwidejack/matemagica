@@ -149,7 +149,12 @@ export default function App() {
     <div className="mx-auto min-h-full max-w-md">
       <Intestazione onSfida={giocaSfida} />
       {cima.scheda === 'sentiero' && !new URLSearchParams(window.location.search).has('isole') && (
-        <SentieroPaese onLivello={(l) => gioca(l.gioco, l.id)} onSfida={giocaSfida} />
+        <SentieroPaese
+          onLivello={(l) => gioca(l.gioco, l.id)}
+          onSfida={giocaSfida}
+          appenaFatto={appenaFatto}
+          onVisto={() => setAppenaFatto(undefined)}
+        />
       )}
       {cima.scheda === 'sentiero' && new URLSearchParams(window.location.search).has('isole') && (
         <Sentiero

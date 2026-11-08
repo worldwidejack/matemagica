@@ -26,10 +26,10 @@ export const FAMIGLIA_DI: Record<GameId, Famiglia> = {
 
 /** Altezza a schermo (px) e dove sta il punto di appoggio sulla strada. */
 const MISURE: Record<Famiglia, { alto: number; base: 'piedi' | 'centro' }> = {
-  'fiore-a': { alto: 76, base: 'piedi' },
-  'fiore-b': { alto: 84, base: 'piedi' },
-  cristallo: { alto: 58, base: 'piedi' },
-  cerchio: { alto: 30, base: 'centro' },
+  'fiore-a': { alto: 46, base: 'piedi' },
+  'fiore-b': { alto: 54, base: 'piedi' },
+  cristallo: { alto: 42, base: 'piedi' },
+  cerchio: { alto: 24, base: 'centro' },
 };
 
 export function Segnalino({
@@ -39,6 +39,7 @@ export function Segnalino({
   stelle,
   onTocca,
   etichetta,
+  sboccia,
 }: {
   famiglia: Famiglia;
   stato: StatoSasso;
@@ -46,28 +47,32 @@ export function Segnalino({
   stelle: number;
   onTocca: () => void;
   etichetta: string;
+  /** Il livello è appena stato completato: il segnalino anima dal primo all'ultimo fotogramma. */
+  sboccia?: boolean;
 }) {
   const info = seg[famiglia];
   const ultimo = info.n - 1;
   const m = MISURE[famiglia];
   const larghezza = Math.round((info.w / info.h) * m.alto);
-  const fermo = stato === 'chiuso' ? 0 : stato === 'aperto' ? 1 : ultimo;
-  const [frame, setFrame] = useState(stato === 'attuale' && !menoMovimento() ? 0 : fermo);
+  // Futuro = appassito; da fare (aperto o attuale) = bocciolo; completato = sbocciato.
+  const fermo = stato === 'chiuso' ? 0 : stato === 'fatto' ? ultimo : 1;
+  const anima = !!sboccia && stato === 'fatto' && !menoMovimento();
+  const [frame, setFrame] = useState(anima ? 1 : fermo);
 
-  // L'attuale sboccia davanti agli occhi, un fotogramma ogni 150 ms.
+  // Solo a livello completato sboccia davanti agli occhi, un fotogramma ogni 150 ms.
   useEffect(() => {
-    if (stato !== 'attuale' || menoMovimento()) {
+    if (!anima) {
       setFrame(fermo);
       return;
     }
-    setFrame(0);
+    setFrame(1);
     const t: number[] = [];
-    for (let k = 1; k <= ultimo; k++) t.push(window.setTimeout(() => setFrame(k), 350 + k * 150));
+    for (let k = 2; k <= ultimo; k++) t.push(window.setTimeout(() => setFrame(k), 500 + k * 150));
     return () => t.forEach((x) => window.clearTimeout(x));
-  }, [stato, fermo, ultimo]);
+  }, [anima, fermo, ultimo]);
 
   const chiuso = stato === 'chiuso';
-  const luce = stato === 'attuale' && frame === ultimo;
+  const luce = stato === 'attuale' || (anima && frame === ultimo);
   return (
     <button
       onClick={onTocca}
@@ -83,7 +88,7 @@ export function Segnalino({
           backgroundSize: `${info.n * 100}% 100%`,
           backgroundPosition: `${info.n > 1 ? (frame / (info.n - 1)) * 100 : 0}% 0`,
           backgroundRepeat: 'no-repeat',
-          opacity: chiuso ? 0.8 : 1,
+          opacity: 1,
           filter: luce ? 'drop-shadow(0 0 10px rgb(255 196 64 / 0.95)) drop-shadow(0 0 22px rgb(255 170 40 / 0.6))' : undefined,
           transition: 'filter 400ms',
         }}
