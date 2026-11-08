@@ -88,5 +88,5 @@ export const lampoMisto: ArcadeGame<Pezzo, unknown> = {
   check: (r, a) => r.check(a),
   timeFor: (r) => r.tempo,
   revealFor: (r) => r.rivelazione,
-  roundPerPartita: 15,
+  roundPerPartita: 10,
 };

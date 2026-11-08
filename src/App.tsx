@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { setMutoAudio, setVibrazioneAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
+import { PARTITA } from '@/engine/regole';
 import { versoTappa } from '@/content/isole';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
@@ -269,6 +270,7 @@ function Partita({
       bravura={bravura}
       record={record}
       limiti={fasciaSalto ?? livello?.limiti}
+      quesiti={livello?.debutto && !salto && !sfida ? PARTITA.lunghezzaDebutto : undefined}
       etichetta={
         salto ? `Salta ${versoTappa(salto)} · servono 2 stelle` : sfida ? 'Sfida del giorno' : livello ? `Livello ${livello.numero}` : 'Palestra'
       }

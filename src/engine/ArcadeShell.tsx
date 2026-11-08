@@ -129,6 +129,7 @@ export function ArcadeShell<R, A>({
   bravura,
   record,
   limiti,
+  quesiti,
   etichetta,
   inPalestra,
   seme,
@@ -140,7 +141,7 @@ export function ArcadeShell<R, A>({
   const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
   /** I quesiti già usciti in questa partita: nessuno torna due volte. */
   const visti = useRef(new Set<string>());
-  const totale = game.roundPerPartita ?? PARTITA.round;
+  const totale = Math.min(quesiti ?? PARTITA.lunghezza, game.roundPerPartita ?? PARTITA.lunghezza, PARTITA.lunghezza);
   const s = useRef<Stato<R, A>>(statoIniziale<R, A>(bravura, limiti));
   // I timer leggono e scrivono il ref; lo schermo si disegna da questa copia.
   const [st, setVista] = useState<Stato<R, A>>(() => statoIniziale<R, A>(bravura, limiti));

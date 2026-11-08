@@ -46,6 +46,7 @@ export function PuzzleShell<R, A>({
   bravura,
   record,
   limiti,
+  quesiti,
   etichetta,
   inPalestra,
   seme,
@@ -57,7 +58,7 @@ export function PuzzleShell<R, A>({
   const rng = useRef<Rng>(seme !== undefined ? rngConSeme(seme) : Math.random);
   /** I rompicapo già usciti in questa partita: nessuno torna due volte. */
   const visti = useRef(new Set<string>());
-  const totale = game.roundPerPartita ?? ROMPICAPO.roundPredefiniti;
+  const totale = Math.min(quesiti ?? ROMPICAPO.roundPredefiniti, game.roundPerPartita ?? ROMPICAPO.roundPredefiniti);
   const [fase, setFase] = useState<'pronto' | 'gioco' | 'fine'>('pronto');
   const [st, setSt] = useState<Stato<R> | null>(null);
   const [fine, setFine] = useState<{ fine: FinePartita; riepilogo: RiepilogoPartita } | null>(null);

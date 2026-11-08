@@ -17,6 +17,8 @@ export type FinePartita = {
 };
 
 export type PlayProps = {
+  /** Quesiti di questa partita, se il livello li vuole più corti (debutto di un gioco). */
+  quesiti?: number;
   bravura: number;
   record: number;
   /** Fascia di difficoltà del livello del sentiero; assente in Palestra. */
