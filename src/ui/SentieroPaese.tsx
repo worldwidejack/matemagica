@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ascolta, menoMovimento } from '@/anim/orologio';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import type { Stelle } from '@/engine/regole';
 import { useProfilo } from '@/profilo/store';
@@ -6,8 +7,9 @@ import { Bottone } from './kit';
 import { livelloAperto, livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
 import type { StatoSasso } from './sentiero/pezzi';
-import { FAMIGLIA_DI, Segnalino, appoggioDi } from './Segnalino';
+import { FAMIGLIA_DI, Segnalino, altezzaDi, appoggioDi, larghezzaDi } from './Segnalino';
 import linea from '../../public/paese/sentiero.json';
+import camm from '../../public/paese/gatto-cammina.json';
 
 /**
  * Il paese della matemagica (mondo 1959): il sentiero è una striscia orizzontale
@@ -17,6 +19,15 @@ import linea from '../../public/paese/sentiero.json';
 const PEZZI = 8;
 const RAPPORTO = linea.w / linea.h; // larghezza / altezza della striscia
 const MARGINE = 0.035;
+/** Il gatto fermo (sentiero) e quello che cammina: misure a schermo. */
+const GATTO_FERMO = { h: 64, w: 51 };
+const CAMM_H = 58;
+const CAMM_W = Math.round((camm.w / camm.h) * CAMM_H);
+/** Metri di strada per ogni disegno della camminata (6 disegni = un passo doppio). */
+const PASSO = 13;
+/** Quanto paese si vede davanti al gatto, in livelli, e quanto è morbido il bordo della nebbia. */
+const VISTA = 0.55;
+const NEBBIA = '6, 10, 34';
 
 function statoDi(l: Livello, corrente: number, stelle: Record<string, Stelle>): StatoSasso {
   const i = l.numero - 1;
@@ -48,7 +59,16 @@ export function SentieroPaese({
   const corrente = livelloCorrente(stelle);
   const livelli = SENTIERO.slice(0, 40);
   const rifScorri = useRef<HTMLDivElement>(null);
-  const [daSbocciare] = useState(appenaFatto);
+  const [daSbocciare] = useState(() => appenaFatto ?? new URLSearchParams(location.search).get('cammino') ?? undefined);
+  // Completato un livello: fiore → il gatto cammina fino al sasso dopo (la camera lo segue) → la nebbia si ritira.
+  const [cammino] = useState<{ da: number; a: number } | null>(() => {
+    const da = daSbocciare ? SENTIERO.slice(0, 40).findIndex((l) => l.id === daSbocciare) : -1;
+    const a = livelloCorrente(stelle);
+    return da >= 0 && a > da && a < 40 && !menoMovimento() ? { da, a } : null;
+  });
+  const [fase, setFase] = useState<'fiore' | 'cammina' | 'fine'>(cammino ? 'fiore' : 'fine');
+  const rifGatto = useRef<HTMLSpanElement>(null);
+  const rifNebbia = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (appenaFatto) onVisto?.();
   }, [appenaFatto, onVisto]);
@@ -60,15 +80,90 @@ export function SentieroPaese({
     return () => window.removeEventListener('resize', f);
   }, []);
 
-  // All'apertura la strada si porta sul sasso a cui sei arrivato.
-  useEffect(() => {
+  const largo = alto * RAPPORTO;
+  const n = livelli.length;
+  const distanza = ((1 - 2 * MARGINE) * largo) / (n - 1); // px fra un sasso e il prossimo
+
+  /** Dove sta il gatto fermo accanto al sasso i: centro in x e piedi in y (px della striscia). */
+  const gattoDi = (i: number) => {
+    const p = postoDi(i, n);
+    const l = livelli[i];
+    const fam = l ? FAMIGLIA_DI[l.gioco] : 'fiore-a';
+    const mh = altezzaDi(fam);
+    const y0 = (p.y * alto) / 100;
+    return {
+      x: p.x * largo - larghezzaDi(fam) / 2 + 6 - GATTO_FERMO.w / 2,
+      y: y0 + (appoggioDi(fam) === 'centro' ? mh / 2 : 0.12 * mh),
+    };
+  };
+  /** Dove finisce la nebbia quando sei arrivato al livello c. */
+  const bordoNebbia = (c: number) => postoDi(Math.min(c, n - 1), n).x * largo + VISTA * distanza;
+  const SFUMA = Math.max(120, distanza * 0.4);
+
+  // All'apertura la strada si porta sul sasso a cui sei arrivato (o, se c'è la sequenza, dove parte il gatto).
+  useLayoutEffect(() => {
     const el = rifScorri.current;
     if (!el) return;
-    const { x } = postoDi(Math.min(corrente, livelli.length - 1), livelli.length);
-    el.scrollLeft = x * alto * RAPPORTO - el.clientWidth / 2;
-  }, [corrente, alto, livelli.length]);
+    if (cammino) {
+      el.scrollLeft = Math.max(0, gattoDi(cammino.da).x - el.clientWidth * 0.45);
+      return;
+    }
+    const { x } = postoDi(Math.min(corrente, n - 1), n);
+    el.scrollLeft = x * largo - el.clientWidth / 2;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [corrente, alto, n]);
 
-  const largo = alto * RAPPORTO;
+  // Il fiore sboccia (circa 1,7 s), poi parte il gatto.
+  useEffect(() => {
+    if (!cammino) return;
+    const t = window.setTimeout(() => setFase('cammina'), 1700);
+    return () => window.clearTimeout(t);
+  }, [cammino]);
+
+  // Il cammino: il gatto, la camera e la nebbia vanno insieme, tutto da un solo orologio.
+  useEffect(() => {
+    if (!cammino || fase !== 'cammina') return;
+    const el = rifScorri.current;
+    const gatto = rifGatto.current;
+    const nebbia = rifNebbia.current;
+    if (!el || !gatto || !nebbia) return;
+    const A = gattoDi(cammino.da);
+    const B = gattoDi(cammino.a);
+    const dist = B.x - A.x;
+    const durata = Math.max(1800, dist / 0.11); // ~110 px al secondo
+    const e0 = bordoNebbia(cammino.da);
+    const e1 = bordoNebbia(cammino.a);
+    const yStrada = (x: number) => {
+      const k = Math.min(linea.y.length - 1, Math.max(0, Math.round(((x + GATTO_FERMO.w / 2) / largo) * linea.w / linea.step)));
+      return ((linea.y[k] ?? 62) * alto) / 100;
+    };
+    const dA = A.y - yStrada(A.x);
+    const dB = B.y - yStrada(B.x);
+    const max = Math.max(0, largo - el.clientWidth);
+    let t0 = 0;
+    const stop = ascolta((ora) => {
+      if (!t0) t0 = ora;
+      const p = Math.min(1, (ora - t0) / durata);
+      const e = p * p * (3 - 2 * p);
+      const x = A.x + dist * e;
+      const y = yStrada(x) + dA + (dB - dA) * e;
+      const f = Math.floor(((x - A.x) / PASSO)) % camm.n;
+      gatto.style.transform = `translate(${x - CAMM_W / 2}px, ${y - CAMM_H}px)`;
+      gatto.style.backgroundPosition = `${(f / (camm.n - 1)) * 100}% 0`;
+      // La camera sta un po' davanti al gatto e, camminando, si sposta ancora più avanti.
+      el.scrollLeft = Math.min(max, Math.max(0, x - el.clientWidth * (0.45 - 0.15 * e)));
+      nebbia.style.transform = `translateX(${e0 + (e1 - e0) * e - SFUMA}px)`;
+      if (p >= 1) {
+        stop();
+        setFase('fine');
+      }
+    });
+    return stop;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cammino, fase]);
+
+  const inSequenza = !!cammino && fase !== 'fine';
+  const partenza = cammino ? gattoDi(cammino.da) : null;
   const attuale = SENTIERO[corrente];
 
   return (
@@ -84,7 +179,11 @@ export function SentieroPaese({
         <p className="titolo mt-2 text-lg text-panna-100/80 italic">Il paese dei numeri</p>
       </div>
 
-      <div ref={rifScorri} className="overflow-x-auto overflow-y-hidden" style={{ height: alto, scrollbarWidth: 'none' }}>
+      <div
+        ref={rifScorri}
+        className="overflow-y-hidden"
+        style={{ height: alto, scrollbarWidth: 'none', overflowX: inSequenza ? 'hidden' : 'auto' }}
+      >
         <div className="relative" style={{ width: largo, height: alto }}>
           <div className="absolute inset-0 flex">
             {Array.from({ length: PEZZI }, (_, i) => (
@@ -123,18 +222,55 @@ export function SentieroPaese({
                   sboccia={daSbocciare === l.id}
                   onTocca={() => onLivello(l)}
                 />
-                {stato === 'attuale' && (
+                {stato === 'attuale' && !inSequenza && (
                   <img
                     src="/personaggi/gatto.webp"
                     alt=""
                     draggable={false}
                     className="pointer-events-none absolute"
-                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6 }}
+                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6, animation: cammino ? 'comparsa 300ms' : undefined }}
                   />
                 )}
               </div>
             );
           })}
+          {/* Il gatto fermo accanto al sasso da cui parte, poi quello che cammina. */}
+          {inSequenza && partenza && fase === 'fiore' && (
+            <img
+              src="/personaggi/gatto.webp"
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute left-0 top-0"
+              style={{ height: GATTO_FERMO.h, zIndex: 5, transform: `translate(${partenza.x - GATTO_FERMO.w / 2}px, ${partenza.y - GATTO_FERMO.h}px)` }}
+            />
+          )}
+          {inSequenza && partenza && fase === 'cammina' && (
+            <span
+              ref={rifGatto}
+              className="pointer-events-none absolute left-0 top-0"
+              style={{
+                width: CAMM_W,
+                height: CAMM_H,
+                zIndex: 5,
+                transform: `translate(${partenza.x - CAMM_W / 2}px, ${partenza.y - CAMM_H}px)`,
+                backgroundImage: `url(${import.meta.env.BASE_URL}paese/gatto-cammina.webp)`,
+                backgroundSize: `${camm.n * 100}% 100%`,
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
+          )}
+          {/* La nebbia: copre il paese che non hai ancora raggiunto e si ritira a ogni livello. */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" style={{ zIndex: 4 }}>
+            <div
+              ref={rifNebbia}
+              className="absolute top-0 bottom-0 left-0"
+              style={{
+                width: largo + SFUMA,
+                transform: `translateX(${bordoNebbia(cammino && fase !== 'fine' ? cammino.da : corrente) - SFUMA}px)`,
+                background: `linear-gradient(90deg, rgba(${NEBBIA},0) 0, rgba(${NEBBIA},0.55) ${SFUMA * 0.45}px, rgba(${NEBBIA},0.94) ${SFUMA}px, rgb(${NEBBIA}) 100%)`,
+              }}
+            />
+          </div>
         </div>
       </div>
 

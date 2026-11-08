@@ -333,3 +333,8 @@ body::after {
 .tremolio-forte {
   filter: url(#tremolio-forte);
 }
+
+@keyframes comparsa {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

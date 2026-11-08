@@ -114,3 +114,7 @@ export function altezzaDi(f: Famiglia): number {
 export function appoggioDi(f: Famiglia): 'piedi' | 'centro' {
   return MISURE[f].base;
 }
+export function larghezzaDi(f: Famiglia): number {
+  const info = seg[f];
+  return Math.round((info.w / info.h) * MISURE[f].alto);
+}
