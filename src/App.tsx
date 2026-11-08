@@ -14,6 +14,7 @@ import { SpiegazioneSchermo, StoriaSchermo } from '@/ui/Schede';
 import { Benvenuto } from '@/ui/Benvenuto';
 import { Profilo } from '@/ui/Profilo';
 import { Sentiero } from '@/ui/Sentiero';
+import { SentieroPaese } from '@/ui/SentieroPaese';
 import { testoSfida } from '@/ui/SfidaDelGiorno';
 import { giornoLocale } from '@/profilo/progressione';
 import { sfidaDel } from '@/profilo/sfida';
@@ -146,7 +147,10 @@ export default function App() {
   return (
     <div className="mx-auto min-h-full max-w-md">
       <Intestazione onSfida={giocaSfida} />
-      {cima.scheda === 'sentiero' && (
+      {cima.scheda === 'sentiero' && !new URLSearchParams(window.location.search).has('isole') && (
+        <SentieroPaese onLivello={(l) => gioca(l.gioco, l.id)} onSfida={giocaSfida} />
+      )}
+      {cima.scheda === 'sentiero' && new URLSearchParams(window.location.search).has('isole') && (
         <Sentiero
           onLivello={(l) => gioca(l.gioco, l.id)}
           onSfida={giocaSfida}
