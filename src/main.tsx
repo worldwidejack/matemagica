@@ -4,10 +4,20 @@ import './index.css';
 import App from './App.tsx';
 import { StratoScoppi } from './anim/scoppi.tsx';
 import { Prove } from './dev/Prove.tsx';
+import { useProfilo } from './profilo/store';
 
 const root = document.getElementById('root');
 // Solo in sviluppo: ?prova=risultato apre le schermate di prova (src/dev).
 const prova = import.meta.env.DEV ? new URLSearchParams(location.search).get('prova') : null;
+// ?cammino=L4 (per provare la sequenza del paese): segna fatti i livelli fino al 4 e rivede fiore, gatto e nebbia.
+const cammino = new URLSearchParams(location.search).get('cammino');
+const nLiv = Number(cammino?.replace(/\D/g, ''));
+if (cammino && nLiv > 0) {
+  const st = useProfilo.getState();
+  const stelleLivelli = { ...st.stelleLivelli };
+  for (let k = 1; k <= nLiv; k++) stelleLivelli[`L${k}`] = stelleLivelli[`L${k}`] || 2;
+  useProfilo.setState({ stelleLivelli, benvenuto: { ...st.benvenuto, fatto: true } });
+}
 if (!root) throw new Error('#root non trovato');
 
 createRoot(root).render(
