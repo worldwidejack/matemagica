@@ -10,6 +10,7 @@ import type { StatoSasso } from './sentiero/pezzi';
 import { FAMIGLIA_DI, Segnalino, altezzaDi, appoggioDi, larghezzaDi } from './Segnalino';
 import linea from '../../public/paese/sentiero.json';
 import camm from '../../public/paese/gatto-cammina.json';
+import ripo from '../../public/paese/gatto-riposo.json';
 
 /**
  * Il paese della matemagica (mondo 1959): il sentiero è una striscia orizzontale
@@ -25,6 +26,9 @@ const CAMM_H = 58;
 const CAMM_W = Math.round((camm.w / camm.h) * CAMM_H);
 /** Metri di strada per ogni disegno della camminata (6 disegni = un passo doppio). */
 const PASSO = 13;
+/** Dal passo alla posa di riposo: ms per disegno. */
+const MS_RIPOSO = 110;
+const SCALA = CAMM_H / camm.h; // px a schermo per ogni px del foglio
 /** Quanto paese si vede davanti al gatto, in livelli, e quanto è morbido il bordo della nebbia. */
 const VISTA = 0.55;
 const NEBBIA = '6, 10, 34';
@@ -66,8 +70,9 @@ export function SentieroPaese({
     const a = livelloCorrente(stelle);
     return da >= 0 && a > da && a < 40 && !menoMovimento() ? { da, a } : null;
   });
-  const [fase, setFase] = useState<'fiore' | 'cammina' | 'fine'>(cammino ? 'fiore' : 'fine');
+  const [fase, setFase] = useState<'fiore' | 'cammina' | 'riposo' | 'fine'>(cammino ? 'fiore' : 'fine');
   const rifGatto = useRef<HTMLSpanElement>(null);
+  const rifRiposo = useRef<HTMLSpanElement>(null);
   const rifNebbia = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (appenaFatto) onVisto?.();
@@ -134,8 +139,11 @@ export function SentieroPaese({
     const e0 = bordoNebbia(cammino.da);
     const e1 = bordoNebbia(cammino.a);
     const yStrada = (x: number) => {
-      const k = Math.min(linea.y.length - 1, Math.max(0, Math.round(((x + GATTO_FERMO.w / 2) / largo) * linea.w / linea.step)));
-      return ((linea.y[k] ?? 62) * alto) / 100;
+      const t = Math.min(linea.y.length - 1, Math.max(0, (x / largo) * (linea.w / linea.step)));
+      const k = Math.floor(t);
+      const a = linea.y[k] ?? 62;
+      const b = linea.y[Math.min(linea.y.length - 1, k + 1)] ?? a;
+      return ((a + (b - a) * (t - k)) * alto) / 100;
     };
     const dA = A.y - yStrada(A.x);
     const dB = B.y - yStrada(B.x);
@@ -148,18 +156,38 @@ export function SentieroPaese({
       const x = A.x + dist * e;
       const y = yStrada(x) + dA + (dB - dA) * e;
       const f = Math.floor(((x - A.x) / PASSO)) % camm.n;
-      gatto.style.transform = `translate(${x - CAMM_W / 2}px, ${y - CAMM_H}px)`;
+      // Il gatto sale e scende con l'ondulazione della strada e si inclina un poco con lei.
+      const pend = Math.atan2(yStrada(x + 30) - yStrada(x - 30), 60);
+      const grado = Math.max(-10, Math.min(10, ((pend * 180) / Math.PI) * 1.2));
+      gatto.style.transform = `translate(${x - CAMM_W / 2}px, ${y - CAMM_H}px) rotate(${grado}deg)`;
       gatto.style.backgroundPosition = `${(f / (camm.n - 1)) * 100}% 0`;
       // La camera sta un po' davanti al gatto e, camminando, si sposta ancora più avanti.
       el.scrollLeft = Math.min(max, Math.max(0, x - el.clientWidth * (0.45 - 0.15 * e)));
       nebbia.style.transform = `translateX(${e0 + (e1 - e0) * e - SFUMA}px)`;
       if (p >= 1) {
         stop();
-        setFase('fine');
+        setFase('riposo');
       }
     });
     return stop;
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cammino, fase]);
+
+  // Arrivato, il gatto si ferma e si siede: qualche disegno dal passo alla posa di riposo.
+  useEffect(() => {
+    if (!cammino || fase !== 'riposo') return;
+    const el = rifRiposo.current;
+    let t0 = 0;
+    const stop = ascolta((ora) => {
+      if (!t0) t0 = ora;
+      const f = Math.min(ripo.n - 1, Math.floor((ora - t0) / MS_RIPOSO));
+      if (el) el.style.backgroundPosition = `${(f / (ripo.n - 1)) * 100}% 0`;
+      if (ora - t0 >= ripo.n * MS_RIPOSO + 120) {
+        stop();
+        setFase('fine');
+      }
+    });
+    return stop;
   }, [cammino, fase]);
 
   const inSequenza = !!cammino && fase !== 'fine';
@@ -228,7 +256,7 @@ export function SentieroPaese({
                     alt=""
                     draggable={false}
                     className="pointer-events-none absolute"
-                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6, animation: cammino ? 'comparsa 300ms' : undefined }}
+                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6 }}
                   />
                 )}
               </div>
@@ -253,9 +281,26 @@ export function SentieroPaese({
                 height: CAMM_H,
                 zIndex: 5,
                 transform: `translate(${partenza.x - CAMM_W / 2}px, ${partenza.y - CAMM_H}px)`,
+                transformOrigin: '50% 100%',
                 backgroundImage: `url(${import.meta.env.BASE_URL}paese/gatto-cammina.webp)`,
                 backgroundSize: `${camm.n * 100}% 100%`,
                 backgroundRepeat: 'no-repeat',
+              }}
+            />
+          )}
+          {inSequenza && fase === 'riposo' && cammino && (
+            <span
+              ref={rifRiposo}
+              className="pointer-events-none absolute left-0 top-0"
+              style={{
+                width: ripo.w * SCALA,
+                height: ripo.h * SCALA,
+                zIndex: 5,
+                transform: `translate(${gattoDi(cammino.a).x - (ripo.w * SCALA) / 2}px, ${gattoDi(cammino.a).y - ripo.h * SCALA}px)`,
+                backgroundImage: `url(${import.meta.env.BASE_URL}paese/gatto-riposo.webp)`,
+                backgroundSize: `${ripo.n * 100}% 100%`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: '0% 0',
               }}
             />
           )}
@@ -266,7 +311,7 @@ export function SentieroPaese({
               className="absolute top-0 bottom-0 left-0"
               style={{
                 width: largo + SFUMA,
-                transform: `translateX(${bordoNebbia(cammino && fase !== 'fine' ? cammino.da : corrente) - SFUMA}px)`,
+                transform: `translateX(${bordoNebbia(cammino && (fase === 'fiore' || fase === 'cammina') ? cammino.da : corrente) - SFUMA}px)`,
                 background: `linear-gradient(90deg, rgba(${NEBBIA},0) 0, rgba(${NEBBIA},0.55) ${SFUMA * 0.45}px, rgba(${NEBBIA},0.94) ${SFUMA}px, rgb(${NEBBIA}) 100%)`,
               }}
             />
