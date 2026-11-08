@@ -5,7 +5,8 @@ import { useProfilo } from '@/profilo/store';
 import { Bottone } from './kit';
 import { livelloAperto, livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
-import { Sasso, type StatoSasso } from './sentiero/pezzi';
+import type { StatoSasso } from './sentiero/pezzi';
+import { FAMIGLIA_DI, Segnalino, appoggioDi } from './Segnalino';
 import linea from '../../public/paese/sentiero.json';
 
 /**
@@ -56,7 +57,7 @@ export function SentieroPaese({ onLivello, onSfida }: { onLivello: (l: Livello) 
   const attuale = SENTIERO[corrente];
 
   return (
-    <div className="pb-24" style={{ background: '#060b24' }}>
+    <div className="min-h-dvh pb-24" style={{ background: '#060b24' }}>
       <div className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+3.9rem)] z-[27] mx-auto flex max-w-md justify-end px-3">
         <div className="pointer-events-auto">
           <SfidaDelGiorno compatta onGioca={onSfida} />
@@ -85,16 +86,37 @@ export function SentieroPaese({ onLivello, onSfida }: { onLivello: (l: Livello) 
           </div>
           {livelli.map((l, i) => {
             const p = postoDi(i, livelli.length);
+            const fam = FAMIGLIA_DI[l.gioco];
+            const stato = statoDi(l, corrente, stelle);
             return (
-              <Sasso
+              <div
                 key={l.id}
-                numero={l.numero}
-                gioco={l.gioco}
-                stato={statoDi(l, corrente, stelle)}
-                stelle={stelle[l.id] ?? 0}
-                style={{ left: `${p.x * 100}%`, top: `${p.y}%` }}
-                onTocca={() => onLivello(l)}
-              />
+                className="absolute"
+                style={{
+                  left: `${p.x * 100}%`,
+                  top: `${p.y}%`,
+                  transform: appoggioDi(fam) === 'centro' ? 'translate(-50%, -50%)' : 'translate(-50%, -88%)',
+                  zIndex: stato === 'attuale' ? 3 : 2,
+                }}
+              >
+                <Segnalino
+                  famiglia={fam}
+                  stato={stato}
+                  numero={l.numero}
+                  stelle={stelle[l.id] ?? 0}
+                  etichetta={`Livello ${l.numero}${stato === 'chiuso' ? ', chiuso' : ''}`}
+                  onTocca={() => onLivello(l)}
+                />
+                {stato === 'attuale' && (
+                  <img
+                    src="/personaggi/gatto.webp"
+                    alt=""
+                    draggable={false}
+                    className="pointer-events-none absolute"
+                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6 }}
+                  />
+                )}
+              </div>
             );
           })}
         </div>
