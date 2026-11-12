@@ -11,3 +11,6 @@ primo_passo: Jack apre il link del paese con ?cammino=L4 e dice se il passo del 
 
 ## Prossimo passo
 Jack: guarda il passo del gatto sul telefono (i 6 disegni sono quasi un passo ripetuto: si rigenera se non convince). Claude: altri segnalini per gli altri giochi, poi font e UI.
+
+## Traccia automatica
+- 2026-11-11 19:23 · claude-code · 5 file toccati: `public/paese/gatto-riposo.json`, `scripts/strisce-gatto-riposo.py`, `src/index.css`, `public/paese/gatto-cammina.json`, `scripts/strisce-gatto-cammina.py`
