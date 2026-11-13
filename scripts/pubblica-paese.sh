@@ -12,5 +12,5 @@ git pull -q --rebase origin main
 rm -rf matemagica-app; cp -R ../matemagica-paese-app/dist matemagica-app
 git add matemagica-app; git commit -q -m "$1
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"; git push -q origin HEAD
+Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>"; git push -q origin HEAD
 git log --oneline -1

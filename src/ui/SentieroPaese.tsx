@@ -7,7 +7,7 @@ import { Bottone } from './kit';
 import { livelloAperto, livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
 import type { StatoSasso } from './sentiero/pezzi';
-import { FAMIGLIA_DI, Segnalino, altezzaDi, appoggioDi, larghezzaDi } from './Segnalino';
+import { FAMIGLIA_DI, Segnalino, altezzaDi, appoggioDi, larghezzaDi, type Famiglia } from './Segnalino';
 import linea from '../../public/paese/sentiero.json';
 import camm from '../../public/paese/gatto-cammina.json';
 import ripo from '../../public/paese/gatto-riposo.json';
@@ -32,6 +32,16 @@ const SCALA = CAMM_H / camm.h; // px a schermo per ogni px del foglio
 /** Quanto paese si vede davanti al gatto, in livelli, e quanto è morbido il bordo della nebbia. */
 const VISTA = 0.55;
 const NEBBIA = '6, 10, 34';
+/**
+ * Prova B (`?sentiero=b`, Jack 13/11 «fammi vedere prima»): stesso paese, ma un pulsante
+ * solo per tutti i giochi e il gatto fermo accanto al livello attuale. Completato un livello
+ * il pulsante si accende, la camera scorre e il gatto è già al prossimo: meno di un secondo.
+ * Senza parametro resta la versione A (segnalini animati, gatto che cammina).
+ */
+const SEMPLICE = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sentiero') === 'b';
+const MS_ACCENDI = 350;
+const MS_SCORRI = 600;
+const famigliaDi = (l: Livello | undefined): Famiglia => (SEMPLICE ? 'pulsante' : l ? FAMIGLIA_DI[l.gioco] : 'fiore-a');
 
 function statoDi(l: Livello, corrente: number, stelle: Record<string, Stelle>): StatoSasso {
   const i = l.numero - 1;
@@ -93,7 +103,7 @@ export function SentieroPaese({
   const gattoDi = (i: number) => {
     const p = postoDi(i, n);
     const l = livelli[i];
-    const fam = l ? FAMIGLIA_DI[l.gioco] : 'fiore-a';
+    const fam = famigliaDi(l);
     const mh = altezzaDi(fam);
     const y0 = (p.y * alto) / 100;
     return {
@@ -121,13 +131,13 @@ export function SentieroPaese({
   // Il fiore sboccia (circa 1,7 s), poi parte il gatto.
   useEffect(() => {
     if (!cammino) return;
-    const t = window.setTimeout(() => setFase('cammina'), 1700);
+    const t = window.setTimeout(() => setFase('cammina'), SEMPLICE ? MS_ACCENDI : 1700);
     return () => window.clearTimeout(t);
   }, [cammino]);
 
   // Il cammino: il gatto, la camera e la nebbia vanno insieme, tutto da un solo orologio.
   useEffect(() => {
-    if (!cammino || fase !== 'cammina') return;
+    if (!cammino || fase !== 'cammina' || SEMPLICE) return;
     const el = rifScorri.current;
     const gatto = rifGatto.current;
     const nebbia = rifNebbia.current;
@@ -167,6 +177,34 @@ export function SentieroPaese({
       if (p >= 1) {
         stop();
         setFase('riposo');
+      }
+    });
+    return stop;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cammino, fase]);
+
+  // Prova B: niente camminata. La camera e la nebbia scorrono al livello dopo, dove il gatto compare.
+  useEffect(() => {
+    if (!cammino || fase !== 'cammina' || !SEMPLICE) return;
+    const el = rifScorri.current;
+    const nebbia = rifNebbia.current;
+    if (!el || !nebbia) return;
+    const B = gattoDi(cammino.a);
+    const e0 = bordoNebbia(cammino.da);
+    const e1 = bordoNebbia(cammino.a);
+    const max = Math.max(0, largo - el.clientWidth);
+    const s0 = el.scrollLeft;
+    const s1 = Math.min(max, Math.max(0, B.x - el.clientWidth * 0.3));
+    let t0 = 0;
+    const stop = ascolta((ora) => {
+      if (!t0) t0 = ora;
+      const p = Math.min(1, (ora - t0) / MS_SCORRI);
+      const e = p * p * (3 - 2 * p);
+      el.scrollLeft = s0 + (s1 - s0) * e;
+      nebbia.style.transform = `translateX(${e0 + (e1 - e0) * e - SFUMA}px)`;
+      if (p >= 1) {
+        stop();
+        setFase('fine');
       }
     });
     return stop;
@@ -228,7 +266,7 @@ export function SentieroPaese({
           </div>
           {livelli.map((l, i) => {
             const p = postoDi(i, livelli.length);
-            const fam = FAMIGLIA_DI[l.gioco];
+            const fam = famigliaDi(l);
             const stato = statoDi(l, corrente, stelle);
             return (
               <div
@@ -272,7 +310,7 @@ export function SentieroPaese({
               style={{ height: GATTO_FERMO.h, zIndex: 5, transform: `translate(${partenza.x - GATTO_FERMO.w / 2}px, ${partenza.y - GATTO_FERMO.h}px)` }}
             />
           )}
-          {inSequenza && partenza && fase === 'cammina' && (
+          {inSequenza && partenza && fase === 'cammina' && !SEMPLICE && (
             <span
               ref={rifGatto}
               className="pointer-events-none absolute left-0 top-0"
@@ -285,6 +323,20 @@ export function SentieroPaese({
                 backgroundImage: `url(${import.meta.env.BASE_URL}paese/gatto-cammina.webp)`,
                 backgroundSize: `${camm.n * 100}% 100%`,
                 backgroundRepeat: 'no-repeat',
+              }}
+            />
+          )}
+          {inSequenza && cammino && fase === 'cammina' && SEMPLICE && (
+            <img
+              src="/personaggi/gatto.webp"
+              alt=""
+              draggable={false}
+              className="pointer-events-none absolute left-0 top-0"
+              style={{
+                height: GATTO_FERMO.h,
+                zIndex: 5,
+                transform: `translate(${gattoDi(cammino.a).x - GATTO_FERMO.w / 2}px, ${gattoDi(cammino.a).y - GATTO_FERMO.h}px)`,
+                animation: `comparsa ${MS_SCORRI * 0.6}ms ${MS_SCORRI * 0.4}ms both`,
               }}
             />
           )}

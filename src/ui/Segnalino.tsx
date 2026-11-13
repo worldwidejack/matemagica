@@ -10,7 +10,7 @@ import seg from '../../public/paese/seg/seg.json';
  * di fotogrammi dipinti: chiuso = il primo, aperto = il secondo, fatto = l'ultimo.
  * Il livello attuale parte dal primo e arriva all'ultimo, poi brilla.
  */
-export type Famiglia = 'fiore-a' | 'fiore-b' | 'cristallo' | 'cerchio';
+export type Famiglia = 'fiore-a' | 'fiore-b' | 'cristallo' | 'cerchio' | 'pulsante';
 
 export const FAMIGLIA_DI: Record<GameId, Famiglia> = {
   'piu-grande': 'fiore-a',
@@ -30,6 +30,8 @@ const MISURE: Record<Famiglia, { alto: number; base: 'piedi' | 'centro' }> = {
   'fiore-b': { alto: 54, base: 'piedi' },
   cristallo: { alto: 42, base: 'piedi' },
   cerchio: { alto: 24, base: 'centro' },
+  // Prova B (?sentiero=b): un pulsante solo per tutti i giochi, col numero sulla faccia.
+  pulsante: { alto: 58, base: 'piedi' },
 };
 
 export function Segnalino({
@@ -57,6 +59,7 @@ export function Segnalino({
   // Futuro = appassito; da fare (aperto o attuale) = bocciolo; completato = sbocciato.
   const fermo = stato === 'chiuso' ? 0 : stato === 'fatto' ? ultimo : 1;
   const anima = !!sboccia && stato === 'fatto' && !menoMovimento();
+  const pulsante = famiglia === 'pulsante';
   const [frame, setFrame] = useState(anima ? 1 : fermo);
 
   // Solo a livello completato sboccia davanti agli occhi, un fotogramma ogni 150 ms.
@@ -67,9 +70,10 @@ export function Segnalino({
     }
     setFrame(1);
     const t: number[] = [];
-    for (let k = 2; k <= ultimo; k++) t.push(window.setTimeout(() => setFrame(k), 500 + k * 150));
+    // Il pulsante si accende subito; i fiori sbocciano un disegno alla volta.
+    for (let k = 2; k <= ultimo; k++) t.push(window.setTimeout(() => setFrame(k), pulsante ? 220 : 500 + k * 150));
     return () => t.forEach((x) => window.clearTimeout(x));
-  }, [anima, fermo, ultimo]);
+  }, [anima, fermo, ultimo, pulsante]);
 
   const chiuso = stato === 'chiuso';
   const luce = stato === 'attuale' || (anima && frame === ultimo);
@@ -93,20 +97,35 @@ export function Segnalino({
           transition: 'filter 400ms',
         }}
       />
-      <span
-        className="absolute left-1/2 -translate-x-1/2 rounded-full bg-panna-50 px-1.5 text-[13px] leading-[18px] font-black text-inchiostro"
-        style={{ top: m.base === 'centro' ? '50%' : '100%', marginTop: m.base === 'centro' ? -9 : 2, opacity: chiuso ? 0.65 : 1 }}
-      >
-        {numero}
-      </span>
+      {pulsante ? (
+        <span
+          className="absolute inset-x-0 text-center text-[19px] leading-none font-black"
+          style={{ top: FACCIA_Y, transform: 'translateY(-50%)', color: chiuso ? 'rgb(255 255 255 / 0.55)' : 'var(--color-inchiostro)' }}
+        >
+          {numero}
+        </span>
+      ) : (
+        <span
+          className="absolute left-1/2 -translate-x-1/2 rounded-full bg-panna-50 px-1.5 text-[13px] leading-[18px] font-black text-inchiostro"
+          style={{ top: m.base === 'centro' ? '50%' : '100%', marginTop: m.base === 'centro' ? -9 : 2, opacity: chiuso ? 0.65 : 1 }}
+        >
+          {numero}
+        </span>
+      )}
       {stato === 'fatto' && stelle > 0 && (
-        <span className="absolute left-1/2 -translate-x-1/2 text-[11px] leading-none text-oro" style={{ top: m.base === 'centro' ? '100%' : 'calc(100% + 22px)' }}>
+        <span
+          className="absolute left-1/2 -translate-x-1/2 text-[11px] leading-none whitespace-nowrap text-oro"
+          style={{ top: pulsante ? 'calc(100% + 3px)' : m.base === 'centro' ? '100%' : 'calc(100% + 22px)' }}
+        >
           {'★'.repeat(stelle)}
         </span>
       )}
     </button>
   );
 }
+
+/** Dove sta il centro della faccia del pulsante, dall'alto (il ciuffo d'erba sta sotto). */
+const FACCIA_Y = '44%';
 
 export function altezzaDi(f: Famiglia): number {
   return MISURE[f].alto;
