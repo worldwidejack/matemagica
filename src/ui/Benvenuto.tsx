@@ -13,8 +13,11 @@ const OBIETTIVO_INIZIALE = 3;
  * su richiesta di Jack.)
  */
 export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: number) => void }) {
-  const [passo, setPasso] = useState<0 | 1>(0);
-  const [motivo, setMotivo] = useState<string | null>(null);
+  // Si apre subito sulla domanda (Jack, 13/11); il passo 0 diventerà il volo nel mondo, dopo la domanda.
+  const [passo, setPasso] = useState<0 | 1>(1);
+  // Più risposte insieme (Jack, 13/11): nel profilo finiscono unite da una virgola.
+  const [motivi, setMotivi] = useState<string[]>([]);
+  const cambia = (id: string) => setMotivi((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
 
   if (passo === 0) {
     return (
@@ -59,12 +62,12 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
   }
 
   return (
-    <div className="cielo-stellato flex min-h-full flex-col px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
+    <div className="cielo-stellato flex min-h-dvh flex-col px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
       <h1 className="mt-8 text-4xl font-semibold text-panna-50">Perché sei qui?</h1>
-      <p className="mt-2 text-panna-100/75">Nessuna risposta sbagliata.</p>
-      <div className="mt-6 flex flex-col gap-3">
+      <p className="mt-2 text-panna-100/75">Scegli tutte quelle che vuoi.</p>
+      <div className="mt-6 mb-6 flex flex-col gap-3">
         {MOTIVI.map((m) => (
-          <Scelta key={m.id} attiva={motivo === m.id} onClick={() => setMotivo(m.id)}>
+          <Scelta key={m.id} attiva={motivi.includes(m.id)} onClick={() => cambia(m.id)}>
             <span className="text-2xl">{m.icona}</span>
             <span className="titolo text-xl font-semibold">{m.testo}</span>
           </Scelta>
@@ -73,10 +76,10 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
       <Bottone
         freccia
         className="mt-auto"
-        disabled={!motivo}
+        disabled={motivi.length === 0}
         onClick={() => {
           suona('stella');
-          onFine(motivo ?? 'mente', OBIETTIVO_INIZIALE);
+          onFine(motivi.join(','), OBIETTIVO_INIZIALE);
         }}
       >
         Si parte
@@ -88,6 +91,8 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
 function Scelta({ children, attiva, onClick }: { children: React.ReactNode; attiva?: boolean; onClick: () => void }) {
   return (
     <button
+      role="checkbox"
+      aria-checked={!!attiva}
       onClick={() => {
         suona('tap');
         onClick();
