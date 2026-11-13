@@ -62,20 +62,39 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
   }
 
   return (
-    <div className="cielo-stellato flex min-h-dvh flex-col px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
-      <h1 className="mt-8 text-4xl font-semibold text-panna-50">Perché sei qui?</h1>
-      <p className="mt-2 text-panna-100/75">Scegli tutte quelle che vuoi.</p>
-      <div className="mt-6 mb-6 flex flex-col gap-3">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-notte-900 px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
+      {/* La soglia (Jack, 13/11): il gatto in basso a sinistra, la porta di luce, il pavimento scuro. */}
+      <img
+        src="/schermate/soglia.webp"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[left_bottom]"
+      />
+      <div className="velo-soglia pointer-events-none absolute inset-0" aria-hidden />
+      <h1 className="relative mt-8 text-[2.6rem] leading-none font-extrabold text-panna-50 [text-shadow:0_3px_0_rgb(10_17_80)]">
+        Perché sei qui?
+      </h1>
+      <p className="relative mt-2 text-[1.05rem] font-bold text-panna-100/85">Scegli tutte quelle che vuoi.</p>
+      <div className="relative mt-5 mb-6 flex flex-col gap-3">
         {MOTIVI.map((m) => (
           <Scelta key={m.id} attiva={motivi.includes(m.id)} onClick={() => cambia(m.id)}>
-            <span className="text-2xl">{m.icona}</span>
-            <span className="titolo text-xl font-semibold">{m.testo}</span>
+            <span className="w-8 text-center text-2xl">{m.icona}</span>
+            <span className="flex-1 text-[1.2rem] leading-tight font-extrabold">{m.testo}</span>
+            <span
+              aria-hidden
+              className={[
+                'grid h-7 w-7 shrink-0 place-items-center rounded-[9px] border-[3px] border-inchiostro text-lg leading-none font-black',
+                motivi.includes(m.id) ? 'bg-inchiostro text-oro-400' : '',
+              ].join(' ')}
+            >
+              {motivi.includes(m.id) ? '✓' : ''}
+            </span>
           </Scelta>
         ))}
       </div>
       <Bottone
         freccia
-        className="mt-auto"
+        className="relative mt-auto py-4 text-2xl font-extrabold disabled:!opacity-100 disabled:brightness-90 disabled:grayscale-[0.7]"
         disabled={motivi.length === 0}
         onClick={() => {
           suona('stella');
@@ -98,7 +117,7 @@ function Scelta({ children, attiva, onClick }: { children: React.ReactNode; atti
         onClick();
       }}
       className={[
-        'flex items-center gap-3 rounded-3xl px-5 py-4 text-left text-inchiostro transition-transform active:translate-y-1',
+        'flex min-h-[3.9rem] items-center gap-3 rounded-3xl px-4 py-2.5 text-left text-inchiostro transition-transform active:translate-y-1',
         attiva
           ? 'bg-oro-400 shadow-[0_5px_0_var(--color-oro-600)]'
           : 'bg-panna-100 shadow-[0_5px_0_var(--color-panna-200)]',

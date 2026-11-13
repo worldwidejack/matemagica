@@ -5,7 +5,7 @@ import type { GameId } from '@/engine/cartuccia';
 /**
  * I mattoni dell'interfaccia nello stile approvato (riferimento: stile della P,
  * ambientazione della T). Carta panna e inchiostro sopra il cielo dell'ora blu,
- * pulsanti oro a pillola, titoli in Fraunces.
+ * pulsanti oro a pillola, titoli in Grandstander.
  */
 
 type BottoneProps = {
