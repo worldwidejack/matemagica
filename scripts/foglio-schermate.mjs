@@ -5,6 +5,8 @@
 //   node scripts/foglio-schermate.mjs [http://localhost:5182] [cartella] [breve]
 //
 // Serve il server di sviluppo acceso (le prove `?prova=` esistono solo lì).
+// Mentre gira sul server di sviluppo non si tocca niente nel worktree, nemmeno un `.md`:
+// la pagina si ricarica e il giro si ferma a metà («premi is not defined»).
 // «breve» = solo prima apertura, una partita e il viaggio: è il controllo del link pubblicato.
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
