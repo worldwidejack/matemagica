@@ -7,7 +7,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
     <div className="flex flex-col gap-8">
       <div className="text-center">
         {round.sopra && <p className="mb-2 text-xl text-panna-100/75">{round.sopra}</p>}
-        <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none titolo font-semibold tabular-nums">{round.testo}</p>
+        <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none titolo font-bold tabular-nums">{round.testo}</p>
         {round.formula && <p className="mt-3 text-base text-panna-100/70 tabular-nums">{round.formula}</p>}
         <p className={`mt-3 text-xl ${feedback ? 'text-panna-100/80' : 'text-panna-100/70'}`}>
           {feedback ? rivela(round) : (round.domanda ?? '≈ quanto, più o meno?')}
@@ -23,12 +23,12 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
               disabled={locked}
               onClick={() => onAnswer(i)}
               className={[
-                'rounded-3xl border-2 py-5 text-3xl titolo font-semibold tabular-nums active:scale-95',
+                'rounded-[1.75rem] py-5 text-3xl titolo font-bold tabular-nums active:scale-95',
                 giusta
-                  ? 'animate-pop border-oro-600 bg-oro-400 text-inchiostro'
+                  ? 'animate-pop bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
                   : sbagliata
-                    ? 'border-pericolo-400 bg-pericolo-400 text-panna-50'
-                    : 'border-panna-200 bg-panna-100 text-inchiostro',
+                    ? 'animate-trema bg-pericolo-400 text-panna-50'
+                    : 'ombra-dura bg-panna-50 text-inchiostro',
               ].join(' ')}
             >
               ≈ {formatta(o)}

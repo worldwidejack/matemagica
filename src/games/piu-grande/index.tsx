@@ -16,17 +16,17 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
         disabled={locked}
         onClick={() => onAnswer(lato)}
         className={[
-          'flex min-h-36 flex-col items-center justify-center rounded-3xl border-2 px-4 py-6 transition-transform duration-100',
+          'flex min-h-36 flex-col items-center justify-center relative rounded-[1.75rem] px-4 py-6 transition-transform duration-100',
           'active:scale-95',
           giustaQui
-            ? 'animate-pop border-oro-600 bg-oro-400 text-inchiostro shadow-[0_0_30px_var(--color-oro-500)]'
+            ? 'animate-pop bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
             : sbagliataQui
-              ? 'border-pericolo-400 bg-pericolo-400 text-panna-50'
-              : 'border-panna-200 bg-panna-100 text-inchiostro',
+              ? 'animate-trema bg-pericolo-400 text-panna-50'
+              : 'ombra-dura bg-panna-50 text-inchiostro',
         ].join(' ')}
       >
-        <span className="text-[clamp(2.2rem,11vw,3.5rem)] leading-none titolo font-semibold tabular-nums">{e.testo}</span>
-        <span className={`mt-2 h-7 text-xl tabular-nums ${feedback ? 'opacity-80' : 'text-transparent'}`}>
+        <span className="text-[clamp(2.2rem,11vw,3.5rem)] leading-none titolo font-bold tabular-nums">{e.testo}</span>
+        <span className={`absolute inset-x-0 bottom-3 text-xl font-bold tabular-nums ${feedback ? 'opacity-80' : 'text-transparent'}`}>
           {risultato(e.valore)}
         </span>
       </button>
@@ -35,7 +35,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-center text-panna-100/60">Quale è più grande?</p>
+      <p className="text-center font-bold text-panna-50/80">Quale è più grande?</p>
       {carta('a')}
       {carta('b')}
     </div>

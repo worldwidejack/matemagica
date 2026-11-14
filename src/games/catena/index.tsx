@@ -14,7 +14,7 @@ function Vista({ round, onAnswer, locked, revealing, given, correct }: ArcadeVie
           {voci.map((v, i) => (
             <span
               key={i}
-              className="animate-lampo absolute inset-0 flex items-center justify-center text-7xl titolo font-semibold tabular-nums opacity-0"
+              className="animate-lampo absolute inset-0 flex items-center justify-center text-7xl titolo font-bold tabular-nums opacity-0"
               style={{ animationDelay: `${i * round.msPasso}ms`, animationDuration: `${round.msPasso}ms` }}
             >
               <span className={i === 0 ? 'text-panna-50' : 'text-oro-400'}>{v}</span>
@@ -56,12 +56,12 @@ function Vista({ round, onAnswer, locked, revealing, given, correct }: ArcadeVie
               disabled={locked}
               onClick={() => onAnswer(o)}
               className={[
-                'rounded-3xl border-2 py-7 text-4xl titolo font-semibold tabular-nums active:scale-95',
+                'rounded-[1.75rem] py-7 text-4xl titolo font-bold tabular-nums active:scale-95',
                 giusta
-                  ? 'animate-pop border-oro-600 bg-oro-400 text-inchiostro'
+                  ? 'animate-pop bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
                   : sbagliata
-                    ? 'border-pericolo-400 bg-pericolo-400 text-panna-50'
-                    : 'border-panna-200 bg-panna-100 text-inchiostro',
+                    ? 'animate-trema bg-pericolo-400 text-panna-50'
+                    : 'ombra-dura bg-panna-50 text-inchiostro',
               ].join(' ')}
             >
               {o}

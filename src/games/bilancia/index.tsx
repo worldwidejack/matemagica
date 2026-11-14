@@ -82,7 +82,7 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundBilancia,
             aria-pressed={meno}
             className={[
               'h-14 w-14 rounded-2xl text-3xl font-black active:scale-95 disabled:opacity-40',
-              meno ? 'bg-oro-400 text-inchiostro' : 'bg-panna-100 text-inchiostro',
+              meno ? 'bg-oro-400 text-inchiostro' : 'bg-panna-50 text-inchiostro',
             ].join(' ')}
           >
             ±

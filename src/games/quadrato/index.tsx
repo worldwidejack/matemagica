@@ -68,10 +68,10 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
 
       <div className={`mx-auto grid w-full ${lato === 3 ? 'max-w-[16.5rem] grid-cols-3 gap-2' : 'max-w-[18.5rem] grid-cols-4 gap-1.5'}`}>
         {sol.map((x, i) => {
-          const base = `titolo flex aspect-square items-center justify-center rounded-2xl font-semibold tabular-nums ${testo}`;
+          const base = `titolo flex aspect-square items-center justify-center rounded-2xl font-bold tabular-nums ${testo}`;
           if (date[i]) {
             return (
-              <div key={i} className={`${base} bg-panna-100 text-inchiostro shadow-[0_4px_0_var(--color-panna-200)]`}>
+              <div key={i} className={`${base} bg-panna-50 text-inchiostro shadow-[0_4px_0_var(--color-panna-200)]`}>
                 {testoNumero(x)}
               </div>
             );
@@ -114,7 +114,7 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
             <button
               onClick={prova}
               disabled={locked || !piena}
-              className="titolo flex-1 rounded-2xl bg-oro-400 py-2.5 text-xl font-semibold text-inchiostro shadow-[0_4px_0_var(--color-oro-600)] active:translate-y-0.5 active:shadow-[0_1px_0_var(--color-oro-600)] disabled:bg-panna-100/15 disabled:text-panna-100/40 disabled:shadow-none"
+              className="titolo flex-1 rounded-2xl bg-oro-400 py-2.5 text-xl font-bold text-inchiostro shadow-[0_4px_0_var(--color-oro-600)] active:translate-y-0.5 active:shadow-[0_1px_0_var(--color-oro-600)] disabled:bg-panna-100/15 disabled:text-panna-100/40 disabled:shadow-none"
             >
               Controlla
             </button>

@@ -105,13 +105,13 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
               onClick={() => tocca(c.id)}
               disabled={locked || via}
               className={[
-                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] titolo font-semibold tabular-nums transition-all duration-200',
+                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] titolo font-bold tabular-nums transition-all duration-200',
                 via ? 'scale-50 opacity-0' : 'active:scale-90',
                 scelta === c.id
-                  ? 'scale-105 bg-oro-400 text-inchiostro shadow-[0_0_20px_var(--color-oro-400)]'
+                  ? 'scale-105 bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
                   : errore
                     ? 'bg-pericolo-400 text-panna-50'
-                    : 'bg-panna-100 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
+                    : 'bg-panna-50 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
                 correct === false && !via ? 'opacity-50' : '',
               ].join(' ')}
             >

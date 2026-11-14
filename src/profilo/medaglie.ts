@@ -147,8 +147,8 @@ export const MEDAGLIE: Medaglia[] = [
   },
   {
     id: 'mago',
-    nome: 'Apprendista mago',
-    icona: '🪄',
+    nome: 'Sempre più su',
+    icona: '📈',
     descrizione: 'Arriva al livello {n}',
     soglie: [5, 10, 20],
     valore: (d) => d.livello,

@@ -281,7 +281,14 @@ function Nodo({
         {livello.numero}
       </span>
       {!attuale && (
-        <span className="absolute top-full left-1/2 mt-1.5 -translate-x-1/2 rounded-full bg-inchiostro/75 px-1.5 py-0.5 text-[0.7rem] leading-none text-panna-50">
+        <span
+          className={`absolute rounded-full bg-inchiostro/75 px-1.5 py-0.5 text-[0.7rem] leading-none whitespace-nowrap text-panna-50 ${
+            // il nodo più basso ha sotto il pulsante «Livello N»: lì le stelle stanno di fianco
+            punto.y > 0.8
+              ? `top-1/2 -translate-y-1/2 ${punto.x > 0.5 ? 'right-full mr-1.5' : 'left-full ml-1.5'}`
+              : 'top-full left-1/2 mt-1.5 -translate-x-1/2'
+          }`}
+        >
           <Stelline n={stelle} />
         </span>
       )}
@@ -297,7 +304,7 @@ function Gatto({ punto, balzo }: { punto: Punto; balzo: boolean }) {
       aria-hidden
       className="animate-pop pointer-events-none absolute transition-[left,top] duration-500 ease-out"
       style={{
-        left: `calc(${punto.x * 100}% ${aSinistra ? '-' : '+'} 3.4rem)`,
+        left: `calc(${punto.x * 100}% ${aSinistra ? '-' : '+'} 4.1rem)`,
         top: `calc(${punto.y * 100}% + 2rem)`,
         translate: '-50% -100%',
       }}

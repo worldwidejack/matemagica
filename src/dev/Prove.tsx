@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+import { tintaDellaTappa } from '@/content/luoghi';
 import { Risultato } from '@/engine/Risultato';
 import { MEDAGLIE } from '@/profilo/medaglie';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -28,7 +30,7 @@ export function Prove({ quale }: { quale: string }) {
     tappaCompletata: 2,
   };
   return (
-    <div className="mx-auto min-h-full max-w-md">
+    <div className="tinta mx-auto max-w-md" style={{ '--tinta': tintaDellaTappa(2).tinta } as CSSProperties}>
       <Risultato
         titolo="Il Quadrato magico"
         etichetta="Livello 10"

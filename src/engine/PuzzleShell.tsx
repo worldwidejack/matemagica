@@ -116,6 +116,7 @@ export function PuzzleShell<R, A>({
     if (!st || st.chiuso) return;
     if (game.check(st.round, a)) {
       suona('giusto', 0.5);
+      vibra(20);
       setSt(chiudiRompicapo(st, 'risolto'));
       return;
     }
@@ -250,7 +251,7 @@ export function PuzzleShell<R, A>({
       {st.chiuso !== null ? (
         <div className="animate-pop flex flex-col gap-3">
           <div
-            className={`rounded-2xl px-4 py-3 bg-panna-100 text-inchiostro`}
+            className={`rounded-2xl px-4 py-3 bg-panna-50 text-inchiostro`}
           >
             <p className={`font-bold ${st.chiuso === 'risolto' ? 'text-oro-700' : 'text-inchiostro-chiaro'}`}>
               {st.chiuso === 'risolto' ? (st.sbagliQui === 0 && st.aiutiQui === 0 ? 'Perfetto!' : 'Risolto!') : 'La soluzione'}
@@ -269,7 +270,7 @@ export function PuzzleShell<R, A>({
           <button
             onClick={aiuto}
             disabled={st.aiutiQui >= aiuti.length}
-            className="flex-1 rounded-full bg-panna-100 py-3 font-bold text-inchiostro disabled:opacity-40"
+            className="flex-1 rounded-full bg-panna-50 py-3 font-bold text-inchiostro disabled:opacity-40"
           >
             💡 Aiuto {aiuti.length > 0 ? `(${aiuti.length - st.aiutiQui})` : ''}
           </button>

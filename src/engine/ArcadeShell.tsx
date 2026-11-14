@@ -78,7 +78,7 @@ function statoIniziale<R, A>(bravura: number, limiti?: Limiti): Stato<R, A> {
 }
 
 const PAUSA_GIUSTA = 420;
-const PAUSA_SBAGLIATA = 1100;
+const PAUSA_SBAGLIATA = 900;
 
 function rapiditaOra<R, A>(st: Stato<R, A>): number {
   return Math.max(0, Math.min(1, 1 - (performance.now() - st.inizio) / st.budget));
@@ -100,6 +100,7 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
     vibra(25);
   } else {
     suona('giusto', st.combo / 12);
+    vibra(10);
   }
 }
 
@@ -359,7 +360,7 @@ export function ArcadeShell<R, A>({
         )}
       </div>
 
-      <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-notte-950/50">
+      <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-inchiostro/25">
         {!st.revealing && !feedback && st.fase === 'gioco' && (
           <div
             key={`timer-${st.roundGiocati}-${st.inizio}`}
@@ -372,7 +373,7 @@ export function ArcadeShell<R, A>({
       {st.annuncioCombo !== null && st.colpoPunti === st.colpo && (
         <div
           key={`combo-${st.colpo}`}
-          className="animate-annuncio pointer-events-none absolute inset-x-0 top-1/3 z-10 text-center text-5xl font-black text-oro-400 drop-shadow-[0_0_20px_var(--color-oro-500)]"
+          className="animate-annuncio pointer-events-none absolute inset-x-0 top-1/3 z-10 text-center titolo text-5xl font-bold text-oro-400 [text-shadow:0_4px_0_rgb(21_19_46/0.35)]"
         >
           COMBO ×{st.annuncioCombo}!
         </div>

@@ -10,9 +10,9 @@
  * aggiornamento (che cancella la cache vecchia) l'app offline si aprirebbe bianca.
  * Per forzare un aggiornamento della cache basta cambiare VERSIONE.
  */
-const VERSIONE = 'matemagica-v3';
+const VERSIONE = 'matemagica-notte-v1';
 
-const FISSI = ['/', '/manifest.webmanifest', '/icona-192.png', '/favicon.svg'];
+const FISSI = ['/', '/manifest.webmanifest', '/icona-192.png', '/favicon.png'];
 
 /** I disegni: se uno manca non blocca l'installazione, arriva dalla rete quando serve. */
 const DISEGNI = [
@@ -24,7 +24,7 @@ const DISEGNI = [
   '/luoghi/luogo-6.webp',
   '/luoghi/luogo-7.webp',
   '/luoghi/luogo-8.webp',
-  '/personaggi/gatto.webp',
+  ...['gatto', 'gatto-festa', 'gatto-dubbio', 'gatto-indica', 'gatto-dorme'].map((g) => `/personaggi/${g}.webp`),
   ...['bersaglio', 'bilancia', 'catena', 'coppie', 'misto', 'piu-grande', 'quadrato', 'regola', 'stima'].map(
     (g) => `/giochi/${g}.webp`,
   ),
