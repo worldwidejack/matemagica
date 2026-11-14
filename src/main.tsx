@@ -34,6 +34,18 @@ createRoot(root).render(
   </StrictMode>,
 );
 
+// L'altezza vera di una schermata: lo schermo meno i margini della tacca, letti dal body.
+// All'avvio del guscio iOS le unità CSS arrivano a volte prima dei margini: si rimisura.
+function misuraAlto() {
+  const stile = getComputedStyle(document.body);
+  const alto = window.innerHeight - parseFloat(stile.paddingTop) - parseFloat(stile.paddingBottom);
+  if (alto > 0) document.documentElement.style.setProperty('--alto', `${alto}px`);
+}
+misuraAlto();
+window.addEventListener('resize', misuraAlto);
+window.visualViewport?.addEventListener('resize', misuraAlto);
+for (const ms of [100, 400, 1200]) setTimeout(misuraAlto, ms);
+
 // Funziona anche offline, una volta installato (solo in produzione: in sviluppo darebbe fastidio).
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {

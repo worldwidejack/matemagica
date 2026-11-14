@@ -2,9 +2,10 @@
 // fa il giro (prima apertura, partita, risultato, tappa, palestra, i giochi, collezione,
 // profilo) e salva un PNG per schermata. Poi `foglio-monta.py` li mette in un foglio solo.
 //
-//   node scripts/foglio-schermate.mjs [http://localhost:5182] [cartella]
+//   node scripts/foglio-schermate.mjs [http://localhost:5182] [cartella] [breve]
 //
 // Serve il server di sviluppo acceso (le prove `?prova=` esistono solo lì).
+// «breve» = solo prima apertura, una partita e il viaggio: è il controllo del link pubblicato.
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -12,6 +13,7 @@ import { join } from 'node:path';
 
 const BASE = process.argv[2] ?? 'http://localhost:5182';
 const DOVE = process.argv[3] ?? '_lavoro/foglio';
+const BREVE = process.argv[4] === 'breve';
 const PORTA = 9347;
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 mkdirSync(DOVE, { recursive: true });
@@ -141,6 +143,7 @@ try {
   await vai('/?cammino=L22');
   await z(2500);
   await scatto('viaggio-sera');
+  if (BREVE) throw 'breve';
 
   // 4 · risultato pieno, luogo completato, fiamma
   await vai('/?prova=risultato');
@@ -192,6 +195,8 @@ try {
   await scatto('profilo');
   await js('window.scrollTo(0, 99999); true');
   await scatto('profilo-giu');
+} catch (e) {
+  if (e !== 'breve') throw e;
 } finally {
   console.log(`${scatti.length} schermate in ${DOVE}`);
   console.log(errori.length ? `ERRORI in console (${errori.length}):\n- ${[...new Set(errori)].join('\n- ')}` : 'console senza errori');

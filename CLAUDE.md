@@ -233,6 +233,11 @@ Il resto usa l'alias `@/`.
   in "Deviazioni". Router e libreria audio tolti: navigazione a stato e Web Audio bastano.
 - Lint: `only-export-components` spenta (ogni file di gioco esporta cartuccia + vista).
 
+Carta bianca: `node scripts/foglio-schermate.mjs` (col server di prova acceso: 27 schermate a 375×812 da un
+Chrome senza finestra, e dice se la console ha errori; con un link e `breve` in coda controlla il sito
+pubblicato) + `scripts/foglio-monta.py _lavoro/foglio 9` (il foglio) · `scripts/pubblica-notte.sh "messaggio"`
+(jack-tools, `matemagica-notte/`) · iOS: `npm run build && npx cap sync ios`, poi `xcodebuild` sul simulatore.
+
 Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula` · `npm run verifica`
 · `python3 scripts/pdf-papa.py docs/papa/<file>.md` · `python3 scripts/icone.py`
 · `python3.14 scripts/fogli.py <sorgente> --nome <animazione>` (Pillow e numpy: il python3 di sistema non li ha)
@@ -308,3 +313,8 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
 - *(2026-10-17)* **Coppie**: `verifica` prova tutti gli ordini di gioco con `formano`, perché in
   differenza e multiplo un numero ha più compagni (il vecchio controllo "compagno unico" non vale
   più). `verifica` misura il tempo solo della generazione, non dei suoi controlli.
+- *(2026-11-14, carta bianca)* **Capacitor** (`@capacitor/core`, `@capacitor/ios`, `@capacitor/cli`): il
+  guscio iOS attorno alla build web, perché il traguardo è l'App Store e lì una PWA non entra.
+  Progetto in `ios/` (Swift Package Manager, niente CocoaPods), config in `capacitor.config.json`.
+  Dopo una build: `npx cap sync ios`. Niente firma né account finché non c'è l'account Apple;
+  l'identificativo `it.matemagica.app` è provvisorio (si fissa col nome definitivo).

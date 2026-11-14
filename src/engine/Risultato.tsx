@@ -20,7 +20,7 @@ type Props = {
   onEsci: () => void;
 };
 
-const FRASI = ['Riprova: la prossima parte più facile.', 'Bene, si scalda.', 'Partita completa!', 'Perfetta!'] as const;
+const FRASI = ['Riprova: la prossima parte più facile.', 'Bene, si scalda.', 'Partita completa!', 'Che partita!'] as const;
 
 /** Schermata di fine partita, uguale per tutti i giochi: il gatto, le stelle, i numeri. */
 export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, condividi, onAncora, onEsci }: Props) {

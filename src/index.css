@@ -268,10 +268,19 @@
   background: var(--tinta);
   color: var(--color-panna-50);
   /* il body ha già i margini della tacca: la schermata riempie quello che resta */
-  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  /* --alto lo misura main.tsx: nel guscio iOS, all'avvio, 100dvh e i margini della tacca
+     possono non andare d'accordo e la schermata usciva più alta dello schermo */
+  min-height: var(--alto, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
   /* una cella sola che si allunga: chi sta dentro riempie lo schermo e può centrarsi */
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+}
+
+/* La schermata dentro la tinta riempie la cella da sola (la griglia la allunga). Un'altezza
+   minima in percentuale qui resta incollata al valore dell'avvio su iOS, quando i margini
+   della tacca arrivano dopo: la schermata usciva 96 px più alta dello schermo. */
+.tinta > * {
+  min-height: 0;
 }
 
 /* Il colore arriva fino ai bordi dello schermo, anche sotto la tacca e la barra di casa. */

@@ -19,6 +19,9 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
 
   return (
     <div className="relative flex min-h-full flex-col overflow-hidden">
+      {/* Sul telefono vero: sotto la tacca continua il cielo dell'alba, sotto la barra di casa il foglio. */}
+      <div className="fixed inset-x-0 top-0 h-[env(safe-area-inset-top)] bg-[#fc9eb5]" aria-hidden />
+      <div className="fixed inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-carta" aria-hidden />
       {/* Il primo luogo, all'alba: dove comincia il viaggio. */}
       <div className="relative min-h-40 flex-1" aria-hidden>
         {luogo && <img src={luogo.file} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover object-[50%_18%]" />}
