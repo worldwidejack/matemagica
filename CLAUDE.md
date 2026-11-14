@@ -237,6 +237,7 @@ Comandi: `npm run dev` · `npm run build` · `npm run lint` · `npm run simula` 
 · `python3 scripts/pdf-papa.py docs/papa/<file>.md` · `python3 scripts/icone.py`
 · `python3.14 scripts/fogli.py <sorgente> --nome <animazione>` (Pillow e numpy: il python3 di sistema non li ha)
 · `npm run guarda -- <url di prova.html> <cartella>`: Chrome headless, tempi veri e una foto per disegno di ogni animazione
+· iOS: `npm run build && npx cap sync ios` · foglio delle schermate: `node scripts/foglio-schermate.mjs http://localhost:5184 _lavoro/foglio` (dev server acceso) poi `scripts/foglio-monta.py _lavoro/foglio 7` (venv di Fenaki)
 
 ## Flusso
 
@@ -308,3 +309,9 @@ Se una scelta si rivela sbagliata sul campo, cambiarla è legittimo: annotala qu
 - *(2026-10-17)* **Coppie**: `verifica` prova tutti gli ordini di gioco con `formano`, perché in
   differenza e multiplo un numero ha più compagni (il vecchio controllo "compagno unico" non vale
   più). `verifica` misura il tempo solo della generazione, non dei suoi controlli.
+- *(2026-11-14, guscio iOS)* **Capacitor** (`@capacitor/core`, `@capacitor/ios`, `@capacitor/cli`): il
+  guscio iOS attorno alla build web, perché il traguardo è l'App Store e lì una PWA non entra.
+  Progetto in `ios/` (Swift Package Manager, niente CocoaPods), config in `capacitor.config.json`
+  (fondo = la notte del paese, `#0a134d`). Dopo una build: `npx cap sync ios`. Icona e avvio sono
+  l'icona PWA segnaposto (`scripts/icona-ios.py`). Niente firma né account finché non c'è l'account
+  Apple; l'identificativo `it.matemagica.app` è provvisorio (si fissa col nome definitivo).

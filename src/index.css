@@ -279,6 +279,13 @@ button:disabled {
 
 }
 
+/* Guscio iOS: il body ha già i margini della tacca e della barra di casa, quindi una schermata
+   alta «100dvh» esce più alta dello schermo e spinge il pulsante sotto la barra. Sul web i
+   margini sono 0 e non cambia niente. */
+.min-h-dvh {
+  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

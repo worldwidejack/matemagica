@@ -1,0 +1,9 @@
+{
+  "appId": "it.matemagica.app",
+  "appName": "Matemagica",
+  "webDir": "dist",
+  "backgroundColor": "#0a134d",
+  "ios": {
+    "contentInset": "never"
+  }
+}
