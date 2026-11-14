@@ -4,6 +4,7 @@ import './index.css';
 import App from './App.tsx';
 import { StratoScoppi } from './anim/scoppi.tsx';
 import { Prove } from './dev/Prove.tsx';
+import { Attrezzi } from './ui/Attrezzi.tsx';
 import { useProfilo } from './profilo/store';
 
 const root = document.getElementById('root');
@@ -29,6 +30,8 @@ createRoot(root).render(
         <App />
         {/* Gli scoppi (es. la stella sul monumento) vivono sopra tutte le schermate: uno strato solo. */}
         <StratoScoppi />
+        {/* Da capo / Salta livello: solo per le prove, con ?dev nel link. */}
+        <Attrezzi />
       </>
     )}
   </StrictMode>,
