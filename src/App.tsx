@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { setMutoAudio, setVibrazioneAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
 import { PARTITA } from '@/engine/regole';
-import { versoTappa } from '@/content/isole';
+import { LUOGHI, tintaDelGioco, tintaDellaTappa, versoTappa } from '@/content/luoghi';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
@@ -14,8 +14,8 @@ import { Palestra } from '@/ui/Palestra';
 import { SpiegazioneSchermo, StoriaSchermo } from '@/ui/Schede';
 import { Benvenuto } from '@/ui/Benvenuto';
 import { Profilo } from '@/ui/Profilo';
-import { Sentiero } from '@/ui/Sentiero';
-import { SentieroPaese } from '@/ui/SentieroPaese';
+import { Casa } from '@/ui/Casa';
+import { livelloDiStoria } from '@/ui/progressi';
 import { testoSfida } from '@/ui/SfidaDelGiorno';
 import { giornoLocale } from '@/profilo/progressione';
 import { sfidaDel } from '@/profilo/sfida';
@@ -58,9 +58,40 @@ function useNavigazione() {
   return { cima, base, apri, sostituisci, chiudi, scheda };
 }
 
-/** Tutte le schermate stanno nella colonna di un telefono, anche su tablet e computer. */
-function Colonna({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto min-h-full max-w-md">{children}</div>;
+type Colore = { tinta: string; errore: string };
+
+/**
+ * Si gioca dentro il colore del luogo: la schermata si riempie della tinta e arriva salendo
+ * di poco. Il «no» prende il colore che in quella tinta si vede (sui luoghi caldi il rosso
+ * sparisce: lì è l'inchiostro).
+ */
+function Tinta({ di, children }: { di: Colore; children: ReactNode }) {
+  const stile: Record<string, string> = { '--tinta': di.tinta };
+  // Il rosso è già quello di base: ridirlo qui sarebbe una variabile che cita se stessa.
+  if (!di.errore.includes('pericolo')) stile['--color-pericolo-400'] = di.errore;
+  return (
+    <div className="tinta animate-entra mx-auto max-w-md" style={stile as CSSProperties}>
+      {children}
+    </div>
+  );
+}
+
+/** Il colore di una schermata: quello del luogo del livello, o del gioco in Palestra. */
+function coloreDi(s: Schermata): Colore | undefined {
+  if (s.tipo === 'spiegazione') return coloreDi(s.poi);
+  if (s.tipo === 'partita') {
+    if (s.salto) return tintaDellaTappa(s.salto);
+    const l = SENTIERO.find((x) => x.id === s.livello);
+    return l ? tintaDellaTappa(l.tappa) : tintaDelGioco(s.gioco);
+  }
+  if (s.tipo === 'storia') return tintaDellaTappa(livelloDiStoria(s.id)?.tappa ?? LUOGHI.length);
+  return undefined;
+}
+
+/** Da `var(--color-…)` al colore vero, per la barra di stato del telefono. */
+function coloreVero(c: string): string {
+  const nome = /var\((--[\w-]+)\)/.exec(c)?.[1];
+  return nome ? getComputedStyle(document.documentElement).getPropertyValue(nome).trim() : c;
 }
 
 export default function App() {
@@ -91,75 +122,76 @@ export default function App() {
   };
 
   const { cima } = nav;
+  const primaApertura = !benvenutoFatto && cima.tipo === 'scheda';
+  const colore = primaApertura ? tintaDellaTappa(1) : coloreDi(cima);
 
-  // Prima apertura: benvenuto, poi dritti al primo livello.
-  if (!benvenutoFatto && cima.tipo === 'scheda') {
+  // La barra di stato del telefono prende il colore della schermata.
+  const tinta = colore?.tinta ?? 'var(--color-carta)';
+  useEffect(() => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', coloreVero(tinta));
+  }, [tinta]);
+
+  // Prima apertura: una domanda, poi dritti al primo livello (che è già il tutorial).
+  if (primaApertura) {
     return (
-      <Colonna>
-      <Benvenuto
-        onFine={(motivo, obiettivo) => {
-          completaBenvenuto(motivo, obiettivo);
-          const primo = SENTIERO[0];
-          if (primo) gioca(primo.gioco, primo.id);
-        }}
-      />
-      </Colonna>
+      <Tinta di={tintaDellaTappa(1)}>
+        <Benvenuto
+          onFine={(motivo, obiettivo) => {
+            completaBenvenuto(motivo, obiettivo);
+            const primo = SENTIERO[0];
+            if (primo) gioca(primo.gioco, primo.id);
+          }}
+        />
+      </Tinta>
     );
   }
 
-  if (cima.tipo === 'spiegazione') {
+  if (cima.tipo === 'spiegazione' && colore) {
     return (
-      <Colonna>
-      <SpiegazioneSchermo
-        gioco={cima.gioco}
-        onAvanti={() => {
-          segnaSpiegazione(cima.gioco);
-          nav.sostituisci(cima.poi);
-        }}
-      />
-      </Colonna>
+      <Tinta key={`spiegazione-${cima.gioco}`} di={colore}>
+        <SpiegazioneSchermo
+          gioco={cima.gioco}
+          onAvanti={() => {
+            segnaSpiegazione(cima.gioco);
+            nav.sostituisci(cima.poi);
+          }}
+        />
+      </Tinta>
     );
   }
 
-  if (cima.tipo === 'partita') {
+  if (cima.tipo === 'partita' && colore) {
+    const chiave = `${cima.gioco}-${cima.livello ?? cima.sfida ?? cima.salto ?? 'palestra'}`;
     return (
-      <Colonna>
-      <Partita
-        key={`${cima.gioco}-${cima.livello ?? cima.sfida ?? cima.salto ?? 'palestra'}`}
-        gioco={cima.gioco}
-        livello={SENTIERO.find((l) => l.id === cima.livello)}
-        sfida={cima.sfida}
-        salto={cima.salto}
-        onPrimaStella={setAppenaFatto}
-        onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
-      />
-      </Colonna>
+      <Tinta key={chiave} di={colore}>
+        <Partita
+          key={chiave}
+          gioco={cima.gioco}
+          livello={SENTIERO.find((l) => l.id === cima.livello)}
+          sfida={cima.sfida}
+          salto={cima.salto}
+          onPrimaStella={setAppenaFatto}
+          onEsci={(cartaNuova) => (cartaNuova ? nav.sostituisci({ tipo: 'storia', id: cartaNuova, nuova: true }) : nav.chiudi())}
+        />
+      </Tinta>
     );
   }
 
-  if (cima.tipo === 'storia') {
+  if (cima.tipo === 'storia' && colore) {
     return (
-      <Colonna>
+      <Tinta key={`storia-${cima.id}`} di={colore}>
         <StoriaSchermo id={cima.id} nuova={cima.nuova} onAvanti={nav.chiudi} />
-      </Colonna>
+      </Tinta>
     );
   }
+  if (cima.tipo !== 'scheda') return null;
 
   return (
     <div className="mx-auto min-h-full max-w-md">
       <Intestazione onSfida={giocaSfida} />
-      {cima.scheda === 'sentiero' && !new URLSearchParams(window.location.search).has('isole') && (
-        <SentieroPaese
+      {cima.scheda === 'sentiero' && (
+        <Casa
           onLivello={(l) => gioca(l.gioco, l.id)}
-          onSfida={giocaSfida}
-          appenaFatto={appenaFatto}
-          onVisto={() => setAppenaFatto(undefined)}
-        />
-      )}
-      {cima.scheda === 'sentiero' && new URLSearchParams(window.location.search).has('isole') && (
-        <Sentiero
-          onLivello={(l) => gioca(l.gioco, l.id)}
-          onSfida={giocaSfida}
           onSalto={giocaSalto}
           appenaFatto={appenaFatto}
           onVisto={() => setAppenaFatto(undefined)}
@@ -175,14 +207,14 @@ export default function App() {
 
 function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) => void }) {
   const voci: { s: Scheda; icona: 'mappa' | 'fulmine' | 'carte' | 'persona'; nome: string }[] = [
-    { s: 'sentiero', icona: 'mappa', nome: 'Sentiero' },
+    { s: 'sentiero', icona: 'mappa', nome: 'Viaggio' },
     { s: 'palestra', icona: 'fulmine', nome: 'Palestra' },
     { s: 'collezione', icona: 'carte', nome: 'Collezione' },
     { s: 'profilo', icona: 'persona', nome: 'Profilo' },
   ];
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 rounded-t-3xl bg-panna-100 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgb(0_0_0/0.25)]">
-      <div className="mx-auto flex max-w-md">
+    <nav className="fixed inset-x-0 bottom-0 z-30 h-[var(--barra)] bg-carta pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_0_rgb(21_19_46/0.1)]">
+      <div className="mx-auto flex h-full max-w-md items-center">
         {voci.map((v) => {
           const on = v.s === attiva;
           return (
@@ -192,12 +224,13 @@ function Schede({ attiva, onScheda }: { attiva: Scheda; onScheda: (s: Scheda) =>
                 if (!on) suona('tap');
                 onScheda(v.s);
               }}
-              className={`flex flex-1 flex-col items-center gap-0.5 pt-2.5 pb-2 text-xs ${on ? 'font-bold text-notte-800' : 'text-inchiostro-chiaro'}`}
+              className={`flex flex-1 flex-col items-center gap-0.5 text-xs ${on ? 'font-extrabold text-inchiostro' : 'font-bold text-inchiostro-chiaro'}`}
               aria-current={on ? 'page' : undefined}
             >
-              <Icona nome={v.icona} className={`h-7 w-7 ${on ? 'fill-azzurro' : ''}`} />
+              <span className={`grid h-8 w-14 place-items-center rounded-full transition-colors duration-150 ${on ? 'animate-pop bg-oro-400' : ''}`}>
+                <Icona nome={v.icona} className="h-6 w-6" />
+              </span>
               {v.nome}
-              <span className={`mt-0.5 h-0.5 w-6 rounded-full ${on ? 'bg-notte-800' : 'bg-transparent'}`} />
             </button>
           );
         })}

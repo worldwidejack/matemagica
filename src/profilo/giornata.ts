@@ -82,7 +82,7 @@ const CATALOGO: Omit<Missione, 'id'>[] = [
   { tipo: 'puliti', obiettivo: 2, testo: 'Risolvi 2 rompicapo senza aiuti', premioXp: 40 },
   { tipo: 'giochi', obiettivo: 2, testo: 'Gioca a 2 giochi diversi', premioXp: 20 },
   { tipo: 'giochi', obiettivo: 3, testo: 'Gioca a 3 giochi diversi', premioXp: 40 },
-  { tipo: 'livelli', obiettivo: 1, testo: 'Completa un livello nuovo del sentiero', premioXp: 30 },
+  { tipo: 'livelli', obiettivo: 1, testo: 'Completa un livello nuovo del viaggio', premioXp: 30 },
 ];
 
 /** Hash semplice e stabile della data: stesso giorno, stesse missioni. */

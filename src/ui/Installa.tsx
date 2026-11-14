@@ -67,14 +67,14 @@ export function Installa({ discreta }: { discreta?: boolean }) {
   };
 
   return (
-    <div className="animate-pop relative rounded-3xl bg-panna-100 p-4 text-inchiostro shadow-[0_6px_20px_rgb(0_0_0/0.22)]">
+    <div className="animate-pop ombra-dura relative rounded-[1.75rem] bg-panna-50 p-4 text-inchiostro">
       {discreta && (
         <button onClick={chiudi} className="absolute top-3 right-3 text-inchiostro-chiaro" aria-label="Chiudi">
           <Icona nome="chiudi" className="h-5 w-5" />
         </button>
       )}
       <div className="flex items-center gap-3 pr-6">
-        <img src="/icona-192.png" alt="" className="h-12 w-12 rounded-2xl shadow" />
+        <img src="/icona-192.png" alt="" className="h-12 w-12 rounded-2xl" />
         <div>
           <p className="titolo text-lg font-semibold">Metti Matemagica sul telefono</p>
           <p className="text-sm text-inchiostro-chiaro">Si apre con un tocco, anche senza rete.</p>

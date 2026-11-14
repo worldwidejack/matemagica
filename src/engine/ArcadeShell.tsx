@@ -333,7 +333,7 @@ export function ArcadeShell<R, A>({
         </button>
         <div className="flex gap-1.5 text-2xl" aria-label={`${st.vite} vite`}>
           {Array.from({ length: PARTITA.vite }, (_, i) => (
-            <span key={i} className={i < st.vite ? 'text-magenta-400' : 'text-panna-100/15'}>
+            <span key={i} className={i < st.vite ? 'text-panna-50' : 'text-inchiostro/30'}>
               ◆
             </span>
           ))}
@@ -363,7 +363,7 @@ export function ArcadeShell<R, A>({
         {!st.revealing && !feedback && st.fase === 'gioco' && (
           <div
             key={`timer-${st.roundGiocati}-${st.inizio}`}
-            className="animate-timer h-full rounded-full bg-turchese-400"
+            className="animate-timer h-full rounded-full bg-panna-50"
             style={{ animationDuration: `${st.budget}ms` }}
           />
         )}

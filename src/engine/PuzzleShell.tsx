@@ -259,7 +259,7 @@ export function PuzzleShell<R, A>({
           </div>
           <button
             onClick={avanti}
-            className="titolo rounded-full border-2 border-oro-600/50 bg-oro-400 py-3.5 text-xl font-semibold text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]"
+            className="titolo rounded-full bg-oro-400 py-3.5 text-xl font-bold text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]"
           >
             {st.indice + 1 < totale ? 'Avanti' : 'Fine'}
           </button>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { suona } from '@/audio/sfx';
-import { doveTappa, nomeDellaTappa } from '@/content/isole';
+import { nomeDellaTappa, titoloTappa } from '@/content/luoghi';
 import { OBIETTIVI, avanzamento, completata, giornataVuota, missioniDel } from '@/profilo/giornata';
 import { giornoLocale, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
@@ -34,22 +34,24 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex items-center gap-2 bg-notte-900/85 px-3 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur-md">
-        <div className="titolo mr-auto flex items-baseline gap-2 text-panna-50">
-          <span className="text-xl font-semibold">Matemagica</span>
-          <span className="text-xs whitespace-nowrap text-panna-100/60">liv. {liv.livello}</span>
+      {/* Fissa in cima, alta --testa: Casa comincia esattamente sotto. */}
+      <header className="fixed inset-x-0 top-0 z-30 bg-carta pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex h-[3.75rem] max-w-md items-center gap-2 px-3">
+        <div className="titolo mr-auto leading-none text-inchiostro">
+          <span className="block text-[1.35rem] font-bold">Matemagica</span>
+          <span className="mt-0.5 block text-xs font-semibold whitespace-nowrap text-inchiostro-chiaro">livello {liv.livello}</span>
         </div>
         <Chip>
-          {/* La fiamma è grigia finché oggi non giochi; il ghiaccio dice che la tiene un salva-fiamma. */}
-          <span aria-hidden className={giocatoOggi ? '' : 'opacity-60 grayscale'}>
-            {protetta ? '🧊' : '🔥'}
-          </span>
+          {/* La fiamma è spenta finché oggi non giochi; il ghiaccio dice che la tiene un salva-fiamma. */}
+          {protetta ? (
+            <span aria-hidden>🧊</span>
+          ) : (
+            <Icona nome="fiamma" className={`h-5 w-5 ${giocatoOggi ? 'fill-tramonto text-tramonto' : 'text-inchiostro/35'}`} />
+          )}
           <span className={fiamma > 0 ? '' : 'opacity-50'}>{fiamma}</span>
         </Chip>
         <Chip>
-          <span className="text-oro-500" aria-hidden>
-            ★
-          </span>
+          <Icona nome="stella" className="h-5 w-5 fill-oro-400 text-oro-600" />
           {stelle}
         </Chip>
         <button
@@ -61,28 +63,31 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
           aria-label={`Oggi: ${giornata.partite} partite su ${obiettivo}, ${fatte} missioni su 3`}
         >
           <Anello quota={quota} />
-          <span className="titolo absolute inset-0 flex items-center justify-center text-sm font-semibold text-panna-50">
+          <span className="titolo absolute inset-0 flex items-center justify-center text-sm font-bold text-inchiostro">
             {fatte}/3
           </span>
         </button>
-        <button onClick={() => setMuto(!muto)} className="-m-2 p-3 text-panna-100/80" aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}>
+        <button onClick={() => setMuto(!muto)} className="-m-2 p-3 text-inchiostro-chiaro" aria-label={muto ? 'Attiva i suoni' : 'Togli i suoni'}>
           <Icona nome={muto ? 'muto' : 'suono'} />
         </button>
+        </div>
       </header>
+      {/* il posto della testa nel flusso della pagina */}
+      <div className="h-[3.75rem]" aria-hidden />
 
       {aperta && (
-        <div className="fixed inset-0 z-40 flex items-end bg-notte-950/60 backdrop-blur-sm" onClick={() => setAperta(false)}>
+        <div className="fixed inset-0 z-40 flex items-end bg-inchiostro/55" onClick={() => setAperta(false)}>
           <div className="animate-sale mx-auto w-full max-w-md p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]" onClick={(e) => e.stopPropagation()}>
             <Scheda className="p-5">
               <div className="flex items-center gap-4">
                 <div className="relative h-16 w-16 shrink-0">
-                  <Anello quota={quota} scuro />
+                  <Anello quota={quota} />
                   <span className="titolo absolute inset-0 flex items-center justify-center text-lg font-semibold">
                     {Math.min(giornata.partite, obiettivo)}/{obiettivo}
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold">Oggi</h2>
+                  <h2 className="text-2xl font-bold">Oggi</h2>
                   <p className="text-inchiostro-chiaro">
                     {quota >= 1 ? 'Obiettivo del giorno raggiunto!' : `Obiettivo: ${obiettivo} ${obiettivo === 1 ? 'partita' : 'partite'}`}
                   </p>
@@ -99,7 +104,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
                       setObiettivo(o.partite);
                     }}
                     className={`flex-1 rounded-2xl px-2 py-2 text-sm ${
-                      obiettivo === o.partite ? 'bg-oro-400 font-bold' : 'bg-panna-50 text-inchiostro-chiaro'
+                      obiettivo === o.partite ? 'bg-oro-400 font-bold shadow-[0_3px_0_var(--color-oro-600)]' : 'bg-carta text-inchiostro-chiaro'
                     }`}
                   >
                     {o.nome}
@@ -107,13 +112,13 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
                   </button>
                 ))}
               </div>
-              <h3 className="mt-5 text-lg font-semibold">Missioni del giorno</h3>
+              <h3 className="mt-5 text-lg font-bold">Missioni del giorno</h3>
               <ul className="mt-2 flex flex-col gap-3">
                 {missioni.map((m) => {
                   const a = avanzamento(m, giornata);
                   const ok = a >= m.obiettivo;
                   return (
-                    <li key={m.id} className="rounded-2xl bg-panna-50 p-3">
+                    <li key={m.id} className="rounded-2xl bg-carta p-3">
                       <div className="flex items-center justify-between gap-2">
                         <span className={ok ? 'line-through opacity-60' : ''}>{m.testo}</span>
                         <span className="shrink-0 text-sm font-bold text-oro-700">{ok ? '✓' : `+${m.premioXp} XP`}</span>
@@ -134,7 +139,7 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
                 />
               </div>
               <p className="mt-4 text-center text-sm text-inchiostro-chiaro">
-                Sei {doveTappa(tappa)} · {nomeDellaTappa(tappa)}
+                {titoloTappa(tappa)} · {nomeDellaTappa(tappa)}
                 {salvaFiamma > 0 && ` · 🧊 ×${salvaFiamma}`}
               </p>
             </Scheda>
@@ -147,19 +152,19 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="titolo flex items-center gap-1 rounded-full bg-panna-100/95 px-2.5 py-1 text-base font-semibold text-inchiostro tabular-nums shadow">
+    <span className="titolo flex items-center gap-1 rounded-full bg-panna-50 px-2.5 py-1 text-base font-bold text-inchiostro tabular-nums shadow-[0_3px_0_rgb(21_19_46/0.14)]">
       {children}
     </span>
   );
 }
 
 /** Anello di avanzamento dell'obiettivo del giorno. */
-function Anello({ quota, scuro }: { quota: number; scuro?: boolean }) {
+function Anello({ quota }: { quota: number }) {
   const r = 15;
   const c = 2 * Math.PI * r;
   return (
     <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90" aria-hidden>
-      <circle cx="18" cy="18" r={r} fill="none" strokeWidth="4" stroke={scuro ? 'var(--color-panna-200)' : 'rgb(255 255 255 / 0.2)'} />
+      <circle cx="18" cy="18" r={r} fill="none" strokeWidth="4" stroke="var(--color-panna-200)" />
       <circle
         cx="18"
         cy="18"
@@ -167,7 +172,7 @@ function Anello({ quota, scuro }: { quota: number; scuro?: boolean }) {
         fill="none"
         strokeWidth="4"
         strokeLinecap="round"
-        stroke="var(--color-oro-400)"
+        stroke="var(--color-oro-500)"
         strokeDasharray={c}
         strokeDashoffset={c * (1 - quota)}
         className="transition-[stroke-dashoffset] duration-700"

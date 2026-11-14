@@ -1,40 +1,43 @@
-import type { ReactNode } from 'react';
-import { suona } from '@/audio/sfx';
+import type { CSSProperties, ReactNode } from 'react';
+import { suona, vibra } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 
 /**
- * I mattoni dell'interfaccia nello stile approvato (riferimento: stile della P,
- * ambientazione della T). Carta panna e inchiostro sopra il cielo dell'ora blu,
- * pulsanti oro a pillola, titoli in Grandstander.
+ * I mattoni dell'interfaccia di «Un giorno intero col gatto» (docs/grafica/carta-bianca/BIBBIA.md):
+ * carta e inchiostro, giallo degli occhi del gatto per il pulsante che conta, angoli molto
+ * tondi, ombra dura sotto (il pulsante si schiaccia), nessun contorno. Tutte le schermate
+ * nascono da qui: è quello che le tiene uguali.
  */
 
 type BottoneProps = {
   children: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  variante?: 'oro' | 'carta' | 'vuoto';
+  variante?: 'oro' | 'carta' | 'inchiostro' | 'vuoto';
   freccia?: boolean;
   className?: string;
   respira?: boolean;
 };
 
-/** Il pulsante principale: pillola oro con testo in inchiostro e freccia, come "Continua →". */
+/** Il pulsante: giallo quello che conta (uno per schermata), di carta o d'inchiostro gli altri. */
 export function Bottone({ children, onClick, disabled, variante = 'oro', freccia, className = '', respira }: BottoneProps) {
   const stili = {
-    oro: 'bg-oro-400 text-inchiostro border-2 border-oro-600/50 shadow-[0_6px_0_var(--color-oro-600),0_10px_24px_rgb(0_0_0/0.25)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]',
-    carta: 'bg-panna-100 text-inchiostro border-2 border-panna-200 shadow-[0_4px_0_var(--color-panna-200)] active:translate-y-0.5 active:shadow-none',
-    vuoto: 'text-panna-100/70 underline-offset-4 hover:underline',
+    oro: 'bg-oro-400 text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]',
+    carta: 'bg-panna-50 text-inchiostro shadow-[0_5px_0_rgb(21_19_46/0.18)] active:translate-y-1 active:shadow-[0_1px_0_rgb(21_19_46/0.18)]',
+    inchiostro: 'bg-inchiostro text-panna-50 shadow-[0_5px_0_rgb(0_0_0/0.35)] active:translate-y-1 active:shadow-[0_1px_0_rgb(0_0_0/0.35)]',
+    vuoto: 'opacity-75 underline-offset-4 hover:underline active:opacity-100',
   }[variante];
   return (
     <button
       onClick={() => {
         if (disabled) return;
         suona('tap');
+        vibra(8);
         onClick?.();
       }}
       disabled={disabled}
       className={[
-        'titolo flex items-center justify-center gap-3 rounded-full px-8 py-3.5 text-xl font-semibold transition-transform disabled:opacity-40',
+        'titolo flex items-center justify-center gap-3 rounded-full px-8 py-3.5 text-xl font-bold transition-transform duration-100 disabled:opacity-40',
         stili,
         respira ? 'animate-respiro' : '',
         className,
@@ -46,7 +49,7 @@ export function Bottone({ children, onClick, disabled, variante = 'oro', freccia
   );
 }
 
-/** Contatore su carta: fiamma, stelle, livello… (le due pillole sotto il titolo del riferimento). */
+/** Contatore su carta: fiamma, stelle, livello… */
 export function Pillola({
   icona,
   valore,
@@ -58,34 +61,51 @@ export function Pillola({
   etichetta: string;
   tono?: 'pesca' | 'azzurro' | 'panna';
 }) {
-  const sfondo = { pesca: 'bg-pesca', azzurro: 'bg-azzurro', panna: 'bg-panna-100' }[tono];
+  const sfondo = { pesca: 'bg-pesca', azzurro: 'bg-azzurro', panna: 'bg-panna-50' }[tono];
   return (
-    <div className={`flex items-center gap-2 rounded-2xl ${sfondo} px-3.5 py-2 text-inchiostro shadow-[0_3px_10px_rgb(0_0_0/0.18)]`}>
+    <div className={`ombra-dura flex items-center gap-2 rounded-2xl ${sfondo} px-3.5 py-2 text-inchiostro`}>
       <span className="text-2xl leading-none">{icona}</span>
       <span className="leading-tight">
-        <span className="titolo block text-xl font-semibold tabular-nums">{valore}</span>
+        <span className="titolo block text-xl font-bold tabular-nums">{valore}</span>
         <span className="block text-xs text-inchiostro-chiaro">{etichetta}</span>
       </span>
     </div>
   );
 }
 
-/** Scheda di carta panna: per missioni, giochi, risultati. */
-export function Scheda({ children, className = '' }: { children: ReactNode; className?: string }) {
+/** Scheda di carta: per missioni, giochi, risultati. Sta bene sulla carta e sul colore del luogo. */
+export function Scheda({ children, className = '', style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
   return (
-    <div className={`rounded-3xl bg-panna-100 p-4 text-inchiostro shadow-[0_6px_20px_rgb(0_0_0/0.22)] ${className}`}>
+    <div className={`ombra-dura rounded-[1.75rem] bg-panna-50 p-4 text-inchiostro ${className}`} style={style}>
       {children}
     </div>
   );
 }
 
-type NomeIcona = 'freccia' | 'mappa' | 'fulmine' | 'carte' | 'chiudi' | 'suono' | 'muto' | 'lucchetto' | 'stella' | 'indietro' | 'persona' | 'calendario' | 'condividi';
+type NomeIcona =
+  | 'freccia'
+  | 'mappa'
+  | 'fulmine'
+  | 'carte'
+  | 'chiudi'
+  | 'suono'
+  | 'muto'
+  | 'lucchetto'
+  | 'stella'
+  | 'indietro'
+  | 'persona'
+  | 'calendario'
+  | 'condividi'
+  | 'spunta'
+  | 'fiamma';
 
-/** Icone a tratto, stesso spessore delle linee dell'illustrazione. */
+/** Icone a tratto grosso e tondo, come ritagliate. */
 export function Icona({ nome, className = 'h-6 w-6' }: { nome: NomeIcona; className?: string }) {
   const tratti: Record<NomeIcona, ReactNode> = {
     freccia: <path d="M4 12h15m-6-6 6 6-6 6" />,
     indietro: <path d="M20 12H5m6-6-6 6 6 6" />,
+    spunta: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+    fiamma: <path d="M12.5 2.5c.6 3.6 5.5 5.6 5.5 11a6 6 0 0 1-12 0c0-2.3 1-3.9 2.2-5 .2 1.7.9 2.7 2 3.1-.6-3.2.3-6.6 2.3-9.1z" />,
     mappa: (
       <>
         <path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z" />
@@ -141,13 +161,13 @@ export function Icona({ nome, className = 'h-6 w-6' }: { nome: NomeIcona; classN
     ),
   };
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
       {tratti[nome]}
     </svg>
   );
 }
 
-/** Le tre stelle sotto un livello o nel risultato. */
+/** Le tre stelle sotto un livello o nel risultato: le spente prendono il colore del testo. */
 export function Stelline({ n, className = '' }: { n: number; className?: string }) {
   return (
     <span className={`inline-flex gap-0.5 ${className}`} aria-label={`${n} stelle su 3`}>
@@ -155,9 +175,11 @@ export function Stelline({ n, className = '' }: { n: number; className?: string 
         <svg key={i} viewBox="0 0 24 24" className="h-[1em] w-[1em]" aria-hidden>
           <path
             d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"
-            fill={i <= n ? 'var(--color-oro-400)' : 'rgb(255 255 255 / 0.25)'}
+            fill={i <= n ? 'var(--color-oro-400)' : 'currentColor'}
+            fillOpacity={i <= n ? 1 : 0.22}
             stroke={i <= n ? 'var(--color-oro-600)' : 'none'}
             strokeWidth={1.2}
+            strokeLinejoin="round"
           />
         </svg>
       ))}
@@ -167,8 +189,8 @@ export function Stelline({ n, className = '' }: { n: number; className?: string 
 
 /** Il disco della medaglia: bronzo, argento o oro intorno all'icona. */
 export function Medaglione({ icona, grado, grande }: { icona: string; grado: 0 | 1 | 2 | 3; grande?: boolean }) {
-  const anello = ['ring-panna-100/20', 'ring-tramonto', 'ring-azzurro', 'ring-oro-500'][grado];
-  const fondo = ['bg-panna-100/10 grayscale opacity-50', 'bg-pesca', 'bg-panna-50', 'bg-oro-300'][grado];
+  const anello = ['ring-inchiostro/10', 'ring-tramonto', 'ring-azzurro', 'ring-oro-500'][grado];
+  const fondo = ['bg-inchiostro/8 grayscale opacity-50', 'bg-pesca', 'bg-panna-50', 'bg-oro-300'][grado];
   return (
     <span
       className={`flex shrink-0 items-center justify-center rounded-full ring-4 ${anello} ${fondo} ${
@@ -180,10 +202,7 @@ export function Medaglione({ icona, grado, grande }: { icona: string; grado: 0 |
   );
 }
 
-/**
- * L'icona dipinta di un gioco (medaglione tondo, public/giochi/<id>.webp,
- * ritagliata da scripts/icone-giochi.py). Le emoji restano solo nei messaggi condivisi.
- */
+/** La tessera di un gioco (public/giochi/<id>.webp): quadrata, a colore pieno, con l'ombra dura. */
 export function IconaGioco({ gioco, className = 'h-14 w-14' }: { gioco: GameId; className?: string }) {
   return (
     <img
@@ -192,7 +211,16 @@ export function IconaGioco({ gioco, className = 'h-14 w-14' }: { gioco: GameId; 
       width={256}
       height={256}
       draggable={false}
-      className={`shrink-0 rounded-full drop-shadow-[2px_3px_0_rgb(0_0_0/0.28)] ${className}`}
+      className={`shrink-0 rounded-[26%] shadow-[0_4px_0_rgb(21_19_46/0.2)] ${className}`}
     />
+  );
+}
+
+/** La barra di avanzamento: traccia morbida, riempimento giallo. */
+export function Barra({ quota, className = '' }: { quota: number; className?: string }) {
+  return (
+    <div className={`h-2.5 overflow-hidden rounded-full bg-inchiostro/10 ${className}`}>
+      <div className="h-full rounded-full bg-oro-500 transition-[width] duration-500" style={{ width: `${Math.max(0, Math.min(1, quota)) * 100}%` }} />
+    </div>
   );
 }

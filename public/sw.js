@@ -2,7 +2,7 @@
  * Service worker di Matemagica: il gioco si apre anche senza rete
  * (in fila alla posta il 4G va e viene).
  * - pagine: prima la rete (così arrivano gli aggiornamenti), se manca la cache;
- * - tutto il resto (js, css, font, disegni delle isole e dei personaggi, icone):
+ * - tutto il resto (js, css, font, disegni dei luoghi e del gatto, icone):
  *   prima la cache, poi la rete.
  * All'installazione si mette da parte TUTTO quello che serve per aprire il gioco offline:
  * la pagina, i file con l'hash di questa versione (letti dalla pagina stessa: js, css,
@@ -16,15 +16,14 @@ const FISSI = ['/', '/manifest.webmanifest', '/icona-192.png', '/favicon.svg'];
 
 /** I disegni: se uno manca non blocca l'installazione, arriva dalla rete quando serve. */
 const DISEGNI = [
-  '/isole/isola-1.webp',
-  '/isole/isola-2.webp',
-  '/isole/isola-3.webp',
-  '/isole/isola-4.webp',
-  '/isole/nuvola-1.webp',
-  '/isole/nuvola-2.webp',
-  '/isole/nuvola-sx.webp',
-  '/isole/nuvola-dx.webp',
-  '/personaggi/mago.webp',
+  '/luoghi/luogo-1.webp',
+  '/luoghi/luogo-2.webp',
+  '/luoghi/luogo-3.webp',
+  '/luoghi/luogo-4.webp',
+  '/luoghi/luogo-5.webp',
+  '/luoghi/luogo-6.webp',
+  '/luoghi/luogo-7.webp',
+  '/luoghi/luogo-8.webp',
   '/personaggi/gatto.webp',
   ...['bersaglio', 'bilancia', 'catena', 'coppie', 'misto', 'piu-grande', 'quadrato', 'regola', 'stima'].map(
     (g) => `/giochi/${g}.webp`,

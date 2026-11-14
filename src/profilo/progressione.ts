@@ -6,9 +6,9 @@ export const GRADI = [
   'Allievo',
   'Contabile',
   'Calcolatore',
-  'Alchimista',
-  'Mago',
-  'Arcimago',
+  'Geometra',
+  'Astronomo',
+  'Maestro',
   'Gran Maestro',
 ] as const;
 

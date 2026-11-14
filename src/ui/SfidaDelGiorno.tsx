@@ -32,7 +32,7 @@ export function SfidaDelGiorno({ onGioca, compatta }: { onGioca: () => void; com
           suona('tap');
           onGioca();
         }}
-        className="animate-pop flex min-h-12 items-center gap-1.5 rounded-full border-[1.5px] border-inchiostro bg-oro-400 py-1 pr-3.5 pl-1 text-inchiostro shadow-[3px_4px_0_rgb(0_0_0/0.28)] active:translate-y-0.5"
+        className="animate-pop flex min-h-12 items-center gap-1.5 rounded-full bg-oro-400 py-1 pr-3.5 pl-1 text-inchiostro shadow-[0_4px_0_var(--color-oro-600)] active:translate-y-0.5"
       >
         <IconaGioco gioco={sfida.gioco} className="h-8 w-8" />
         <span className="titolo text-left text-sm leading-tight font-semibold">
@@ -45,15 +45,15 @@ export function SfidaDelGiorno({ onGioca, compatta }: { onGioca: () => void; com
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-oro-300 to-oro-500 p-4 text-inchiostro shadow-[0_6px_0_var(--color-oro-600),0_10px_24px_rgb(0_0_0/0.25)]">
+    <div className="relative overflow-hidden rounded-[1.75rem] bg-oro-400 p-4 text-inchiostro shadow-[0_6px_0_var(--color-oro-600)]">
       <div className="flex items-center gap-3">
         <IconaGioco gioco={sfida.gioco} className="h-16 w-16" />
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase">
+          <p className="titolo flex items-center gap-1.5 text-sm font-bold">
             <Icona nome="calendario" className="h-4 w-4" /> Sfida del {dataBreve(oggi)}
           </p>
-          <p className="titolo text-xl font-semibold">{g.titolo}</p>
-          <p className="text-sm text-inchiostro-chiaro">
+          <p className="titolo text-xl font-bold">{g.titolo}</p>
+          <p className="text-sm font-semibold text-inchiostro/75">
             {fatta ? (
               <span className="inline-flex items-center gap-2">
                 <Stelline n={fatta.stelle} /> {fatta.punteggio} punti
@@ -72,7 +72,7 @@ export function SfidaDelGiorno({ onGioca, compatta }: { onGioca: () => void; com
                 suona('tap');
                 void condividiTesto(testoSfida(oggi, fatta.punteggio, fatta.stelle)).then((e) => setCopiato(e === 'copiato'));
               }}
-              className="titolo flex-1 rounded-full bg-notte-800 py-2.5 text-lg font-semibold text-panna-50"
+              className="titolo flex-1 rounded-full bg-inchiostro py-2.5 text-lg font-bold text-panna-50 active:translate-y-0.5"
             >
               {copiato ? 'Copiato!' : 'Condividi'}
             </button>
@@ -92,13 +92,13 @@ export function SfidaDelGiorno({ onGioca, compatta }: { onGioca: () => void; com
               suona('tap');
               onGioca();
             }}
-            className="titolo flex-1 rounded-full bg-notte-800 py-2.5 text-lg font-semibold text-panna-50"
+            className="titolo flex-1 rounded-full bg-inchiostro py-2.5 text-lg font-bold text-panna-50 active:translate-y-0.5"
           >
             Gioca la sfida
           </button>
         )}
       </div>
-      <p className="mt-2 text-center text-xs text-inchiostro-chiaro">Domani un gioco nuovo</p>
+      <p className="mt-2 text-center text-xs font-semibold text-inchiostro/70">Domani un gioco nuovo</p>
     </div>
   );
 }

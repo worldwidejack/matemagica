@@ -6,7 +6,7 @@ import { MEDAGLIE, grado, prossimaSoglia, type DatiMedaglie } from '@/profilo/me
 import { OBIETTIVI } from '@/profilo/giornata';
 import { SALVA_FIAMMA_MAX, giornoLocale, giornoMeno, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
-import { IconaGioco, Medaglione, Scheda } from './kit';
+import { Icona, IconaGioco, Medaglione, Scheda } from './kit';
 import { giocoSbloccato } from './progressi';
 import { Installa } from './Installa';
 
@@ -28,8 +28,8 @@ export function Profilo() {
   const prese = MEDAGLIE.filter((m) => grado(m, dati) > 0).length;
 
   return (
-    <div className="cielo-stellato min-h-full px-4 pt-4 pb-28">
-      <h2 className="text-4xl font-semibold text-panna-50">Profilo</h2>
+    <div className="animate-entra mx-auto max-w-md px-4 pt-4 pb-[calc(var(--barra)+1.5rem)]">
+      <h2 className="text-4xl font-bold">Profilo</h2>
       <div className="mt-4">
         <Installa />
       </div>
@@ -37,12 +37,12 @@ export function Profilo() {
       {/* Livello e grado */}
       <Scheda className="mt-4">
         <div className="flex items-center gap-4">
-          <span className="titolo flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-oro-400 text-3xl font-semibold shadow-[0_0_0_3px_var(--color-oro-600)]">
+          <span className="titolo flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-oro-400 text-3xl font-bold shadow-[0_4px_0_var(--color-oro-600)]">
             {liv.livello}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold tracking-wider text-inchiostro-chiaro uppercase">Livello {liv.livello}</p>
-            <p className="titolo text-2xl font-semibold">{liv.grado}</p>
+            <p className="titolo text-sm font-bold text-inchiostro-chiaro">Livello {liv.livello}</p>
+            <p className="titolo text-2xl font-bold">{liv.grado}</p>
             <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-panna-200">
               <div className="h-full rounded-full bg-oro-500" style={{ width: `${(liv.xpNelLivello / liv.xpPerIlProssimo) * 100}%` }} />
             </div>
@@ -57,8 +57,9 @@ export function Profilo() {
       <Scheda className="mt-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="titolo text-2xl font-semibold">
-              🔥 {fiamma.giorni} {fiamma.giorni === 1 ? 'giorno' : 'giorni'}
+            <p className="titolo flex items-center gap-1.5 text-2xl font-bold">
+              <Icona nome="fiamma" className="h-7 w-7 fill-tramonto text-tramonto" />
+              {fiamma.giorni} {fiamma.giorni === 1 ? 'giorno' : 'giorni'}
             </p>
             <p className="text-sm text-inchiostro-chiaro">
               Record: {Math.max(p.stat.streakMax, fiamma.giorni)} · {fiamma.protetta ? 'protetta da un salva-fiamma' : 'di fila'}
@@ -90,8 +91,8 @@ export function Profilo() {
       </div>
 
       {/* Medaglie */}
-      <h3 className="mt-6 text-2xl font-semibold text-panna-50">
-        Medaglie <span className="text-base text-panna-100/60">{prese}/{MEDAGLIE.length}</span>
+      <h3 className="mt-6 text-2xl font-bold">
+        Medaglie <span className="text-base text-inchiostro-chiaro">{prese}/{MEDAGLIE.length}</span>
       </h3>
       <ul className="mt-3 grid grid-cols-1 gap-2">
         {MEDAGLIE.map((m) => {
@@ -99,11 +100,11 @@ export function Profilo() {
           const v = m.valore(dati);
           const soglia = prossimaSoglia(m, dati);
           return (
-            <li key={m.id} className="flex items-center gap-3 rounded-2xl bg-panna-100 px-3 py-2.5 text-inchiostro shadow">
+            <li key={m.id} className="ombra-dura flex items-center gap-3 rounded-2xl bg-panna-50 px-3 py-2.5 text-inchiostro">
               <Medaglione icona={m.icona} grado={g} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="titolo text-lg font-semibold">{m.nome}</span>
+                  <span className="titolo text-lg font-bold">{m.nome}</span>
                   <span className="text-xs text-inchiostro-chiaro tabular-nums">
                     {g === 3 ? 'oro ✓' : `${Math.min(v, soglia)}/${soglia}`}
                   </span>
@@ -126,7 +127,7 @@ export function Profilo() {
       </ul>
 
       {/* Bravura per gioco */}
-      <h3 className="mt-6 text-2xl font-semibold text-panna-50">Bravura</h3>
+      <h3 className="mt-6 text-2xl font-bold">Bravura</h3>
       <Scheda className="mt-3">
         <ul className="flex flex-col gap-2.5">
           {ORDINE_GIOCHI.filter((g) => giocoSbloccato(g, p.stelleLivelli)).map((g) => {
@@ -156,8 +157,8 @@ export function Profilo() {
 
 function Numero({ valore, etichetta }: { valore: number | string; etichetta: string }) {
   return (
-    <div className="rounded-2xl bg-panna-100 px-2 py-3 text-center text-inchiostro shadow">
-      <p className="titolo text-2xl font-semibold tabular-nums">{valore}</p>
+    <div className="ombra-dura rounded-2xl bg-panna-50 px-2 py-3 text-center text-inchiostro">
+      <p className="titolo text-2xl font-bold tabular-nums">{valore}</p>
       <p className="text-xs leading-tight text-inchiostro-chiaro">{etichetta}</p>
     </div>
   );
@@ -191,10 +192,10 @@ function Calendario({ giorni, oggi }: { giorni: string[]; oggi: string }) {
               className={[
                 'flex aspect-square items-center justify-center rounded-lg text-[11px] tabular-nums',
                 on ? 'bg-oro-400 font-bold text-inchiostro' : futuro ? 'bg-transparent text-panna-200' : 'bg-panna-200/60 text-inchiostro-chiaro',
-                g === oggi ? 'ring-2 ring-notte-800' : '',
+                g === oggi ? 'ring-2 ring-inchiostro' : '',
               ].join(' ')}
             >
-              {on ? '🔥' : Number(g.slice(8))}
+              {Number(g.slice(8))}
             </span>
           );
         })}
@@ -215,7 +216,7 @@ function Impostazioni() {
 
   return (
     <>
-      <h3 className="mt-6 text-2xl font-semibold text-panna-50">Impostazioni</h3>
+      <h3 className="mt-6 text-2xl font-bold">Impostazioni</h3>
       <Scheda className="mt-3 flex flex-col gap-1 p-2">
         <Interruttore etichetta="Suoni" acceso={!muto} onCambia={(v) => setMuto(!v)} />
         <Interruttore etichetta="Vibrazione" acceso={vibrazione} onCambia={setVibrazione} />
@@ -231,7 +232,7 @@ function Impostazioni() {
                   suona('tap');
                   setObiettivo(o.partite);
                 }}
-                className={`flex-1 rounded-2xl px-2 py-2 text-sm ${obiettivo === o.partite ? 'bg-oro-400 font-bold' : 'bg-panna-50 text-inchiostro-chiaro'}`}
+                className={`flex-1 rounded-2xl px-2 py-2 text-sm ${obiettivo === o.partite ? 'bg-oro-400 font-bold shadow-[0_3px_0_var(--color-oro-600)]' : 'bg-carta text-inchiostro-chiaro'}`}
               >
                 {o.nome}
                 <span className="block text-xs">
@@ -244,7 +245,7 @@ function Impostazioni() {
       </Scheda>
       <div className="mt-6 text-center">
         {conferma === 0 ? (
-          <button onClick={() => setConferma(1)} className="text-sm text-panna-100/70 underline underline-offset-4">
+          <button onClick={() => setConferma(1)} className="text-sm text-inchiostro-chiaro underline underline-offset-4">
             Cancella i progressi
           </button>
         ) : (
@@ -252,7 +253,7 @@ function Impostazioni() {
             <p className="font-bold">Cancellare tutto?</p>
             <p className="mt-1 text-sm text-inchiostro-chiaro">Stelle, livelli, carte, medaglie e fiamma. Non si torna indietro.</p>
             <div className="mt-3 flex justify-center gap-3">
-              <button onClick={() => setConferma(0)} className="rounded-full bg-panna-50 px-5 py-2 font-bold">
+              <button onClick={() => setConferma(0)} className="rounded-full bg-carta px-5 py-2 font-bold">
                 No, tienili
               </button>
               <button
