@@ -13,6 +13,8 @@ import {
   stelleRompicapo,
 } from './regole';
 import { Risultato } from './Risultato';
+import { Testa } from './Testa';
+import { Bottone, Oggetto } from '@/ui/kit';
 import { suona, vibra } from '@/audio/sfx';
 import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -189,6 +191,7 @@ export function PuzzleShell<R, A>({
   if (fase === 'pronto' || !st) {
     return (
       <Pronto
+        gioco={game.id}
         titolo={game.title}
         hint={game.hint}
         etichetta={etichetta}
@@ -206,33 +209,14 @@ export function PuzzleShell<R, A>({
 
   return (
     <div ref={campo} className="relative flex min-h-full flex-col px-4 pt-3 pb-4">
-      <header className="flex items-center justify-between text-lg">
-        <button onClick={() => onEsci(false)} className="text-2xl text-panna-100/50" aria-label="Esci">
-          ✕
-        </button>
-        <div className="flex gap-2" aria-label={`Rompicapo ${st.indice + 1} di ${totale}`}>
-          {Array.from({ length: totale }, (_, i) => {
-            const e = st.esiti[i];
-            const colore =
-              e === 'risolto'
-                ? 'bg-oro-400'
-                : e === 'saltato'
-                  ? 'bg-panna-100/40'
-                  : i === st.indice
-                    ? 'bg-oro-400 animate-respiro'
-                    : 'bg-panna-100/20';
-            return <span key={i} className={`h-3 w-3 rounded-full ${colore}`} />;
-          })}
-        </div>
-        <div className="relative min-w-16 text-right font-bold tabular-nums text-oro-400">
-          {st.punteggio}
-          {st.chiuso === 'risolto' && (
-            <span key={`pti-${st.indice}`} className="animate-sali absolute top-6 right-0 text-base text-oro-300">
-              +{st.guadagno}
-            </span>
-          )}
-        </div>
-      </header>
+      <Testa
+        tacche={st.esiti.map((e) => (e === 'risolto' ? 'giusta' : e === 'saltato' ? 'saltata' : undefined))}
+        corrente={st.indice}
+        totale={totale}
+        punteggio={st.punteggio}
+        guadagno={st.chiuso === 'risolto' ? { punti: st.guadagno, chiave: st.indice } : undefined}
+        onEsci={() => onEsci(false)}
+      />
 
       <main className="flex flex-1 flex-col justify-center py-2">
         <View key={`${nPartita}-${st.indice}`} round={st.round} onTry={onTry} locked={st.chiuso !== null} sbagli={st.sbagliQui} risolto={st.chiuso !== null} />
@@ -241,8 +225,9 @@ export function PuzzleShell<R, A>({
       {st.aiutiQui > 0 && st.chiuso === null && (
         <div className="mb-3 flex flex-col gap-2">
           {aiuti.slice(0, st.aiutiQui).map((a, i) => (
-            <p key={i} className="animate-pop rounded-2xl bg-azzurro px-4 py-3 text-inchiostro">
-              💡 {a}
+            <p key={i} className="animate-pop flex items-center gap-3 rounded-2xl bg-panna-50 px-3.5 py-2.5 leading-snug font-semibold text-inchiostro">
+              <Oggetto nome="lampadina" className="h-9" />
+              <span>{a}</span>
             </p>
           ))}
         </div>
@@ -258,23 +243,22 @@ export function PuzzleShell<R, A>({
             </p>
             <p className="mt-1 text-inchiostro">{game.soluzione(st.round)}</p>
           </div>
-          <button
-            onClick={avanti}
-            className="titolo rounded-full bg-oro-400 py-3.5 text-xl font-bold text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]"
-          >
+          <Bottone freccia onClick={avanti} className="mb-1.5 w-full">
             {st.indice + 1 < totale ? 'Avanti' : 'Fine'}
-          </button>
+          </Bottone>
         </div>
       ) : (
         <div className="flex gap-3">
           <button
             onClick={aiuto}
             disabled={st.aiutiQui >= aiuti.length}
-            className="flex-1 rounded-full bg-panna-50 py-3 font-bold text-inchiostro disabled:opacity-40"
+            className="titolo mb-1.5 flex flex-1 items-center justify-center gap-2 rounded-full bg-panna-50 py-2.5 text-lg font-bold text-inchiostro shadow-[0_5px_0_rgb(21_19_46/0.2)] transition-transform duration-100 active:translate-y-1 active:shadow-[0_1px_0_rgb(21_19_46/0.2)] disabled:opacity-55"
           >
-            💡 Aiuto {aiuti.length > 0 ? `(${aiuti.length - st.aiutiQui})` : ''}
+            <Oggetto nome="lampadina" className="h-7" />
+            Aiuto
+            {aiuti.length > 0 && <span className="rounded-full bg-inchiostro/10 px-2 py-0.5 text-sm tabular-nums">{aiuti.length - st.aiutiQui}</span>}
           </button>
-          <button onClick={salta} className="rounded-full bg-panna-100/15 px-5 py-3 text-panna-100">
+          <button onClick={salta} className="titolo mb-1.5 rounded-full bg-inchiostro/25 px-6 py-2.5 text-lg font-bold text-panna-50 active:scale-95">
             Salta
           </button>
         </div>

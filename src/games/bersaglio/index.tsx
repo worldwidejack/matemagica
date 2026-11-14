@@ -70,8 +70,8 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
   return (
     <div className="flex flex-col gap-5">
       <div className="text-center">
-        <p className="text-panna-100/60">Arriva a</p>
-        <p className="text-7xl titolo font-bold tabular-nums text-oro-400">
+        <p className="titolo text-lg font-bold text-panna-50/90">Arriva a</p>
+        <p className="text-[5.25rem] leading-none titolo font-bold tabular-nums text-oro-400 [text-shadow:0_5px_0_rgb(21_19_46/0.35)]">
           {round.bersaglio}
         </p>
       </div>
@@ -83,7 +83,7 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
             onClick={() => tocca(t)}
             disabled={locked}
             className={[
-              'h-20 min-w-20 rounded-2xl px-3 text-3xl titolo font-bold tabular-nums active:scale-95',
+              'h-20 min-w-20 rounded-3xl px-3 text-4xl titolo font-bold tabular-nums shadow-[0_5px_0_rgb(21_19_46/0.2)] transition-transform duration-100 active:translate-y-1',
               t.nuova ? 'animate-pop' : '',
               scelta === t.id
                 ? 'bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
@@ -108,8 +108,12 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
             }}
             disabled={locked || scelta === null}
             className={[
-              'rounded-2xl py-3 text-3xl font-bold active:scale-95 disabled:opacity-30',
-              op === o ? 'bg-oro-400 text-inchiostro' : 'bg-panna-200 text-inchiostro',
+              'titolo rounded-2xl py-2.5 text-3xl font-bold transition-colors duration-150 active:scale-95',
+              op === o
+                ? 'bg-oro-400 text-inchiostro shadow-[0_4px_0_var(--color-oro-600)]'
+                : scelta === null
+                  ? 'bg-inchiostro/20 text-panna-50/70'
+                  : 'bg-panna-50 text-inchiostro shadow-[0_4px_0_rgb(21_19_46/0.2)]',
             ].join(' ')}
           >
             {o}
@@ -117,13 +121,13 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
         ))}
       </div>
 
-      <p className="h-5 text-center text-sm text-panna-100/70">
+      <p className="h-5 text-center font-bold text-panna-50/85">
         {avviso ??
           (scelta === null ? 'Tocca un numero…' : op === null ? '…poi un’operazione…' : '…poi l’altro numero.')}
       </p>
 
       {passi.length > 0 && (
-        <div className="flex flex-col items-center gap-1 text-panna-100/70 tabular-nums">
+        <div className="flex flex-col items-center gap-1 text-panna-50/90 tabular-nums">
           {passi.map((p, i) => (
             <span key={i}>{testoPasso(p)}</span>
           ))}
@@ -131,10 +135,10 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
       )}
 
       <div className="flex justify-center gap-3">
-        <button onClick={annulla} disabled={locked || storia.length === 0} className="rounded-full bg-panna-100/15 px-4 py-2 text-panna-100 disabled:opacity-30">
+        <button onClick={annulla} disabled={locked || storia.length === 0} className="rounded-full bg-inchiostro/20 px-4 py-2 font-bold text-panna-50 disabled:opacity-45">
           ↶ Annulla
         </button>
-        <button onClick={ricomincia} disabled={locked || passi.length === 0} className="rounded-full bg-panna-100/15 px-4 py-2 text-panna-100 disabled:opacity-30">
+        <button onClick={ricomincia} disabled={locked || passi.length === 0} className="rounded-full bg-inchiostro/20 px-4 py-2 font-bold text-panna-50 disabled:opacity-45">
           Ricomincia
         </button>
       </div>

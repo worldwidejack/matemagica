@@ -7,10 +7,10 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundRegola, n
   const [risposta, setRisposta] = useState('');
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-center text-panna-100/60">Qual è il prossimo numero?</p>
+      <p className="titolo text-center text-xl font-bold text-panna-50">Qual è il prossimo numero?</p>
       <div className="flex flex-wrap items-center justify-center gap-2">
         {round.termini.map((t, i) => (
-          <span key={i} className="rounded-2xl bg-panna-50 px-3.5 text-inchiostro py-3 text-2xl titolo font-bold tabular-nums">
+          <span key={i} className="titolo rounded-2xl bg-panna-50 px-3.5 py-3 text-2xl font-bold text-inchiostro tabular-nums shadow-[0_4px_0_rgb(21_19_46/0.2)]">
             {t}
           </span>
         ))}

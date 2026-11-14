@@ -265,7 +265,7 @@
   --color-notte-800: color-mix(in oklab, var(--tinta) 86%, black);
   --color-notte-700: color-mix(in oklab, var(--tinta) 86%, white);
   --color-notte-600: color-mix(in oklab, var(--tinta) 72%, white);
-  background: var(--tinta);
+  /* il fondo lo disegna ::before (colore e luogo), fino ai bordi dello schermo */
   color: var(--color-panna-50);
   /* il body ha già i margini della tacca: la schermata riempie quello che resta */
   /* --alto lo misura main.tsx: nel guscio iOS, all'avvio, 100dvh e i margini della tacca
@@ -283,13 +283,26 @@
   min-height: 0;
 }
 
-/* Il colore arriva fino ai bordi dello schermo, anche sotto la tacca e la barra di casa. */
+/* Il colore arriva fino ai bordi dello schermo, anche sotto la tacca e la barra di casa.
+   Dietro c'è il luogo, tono su tono: il disegno dà solo il chiaroscuro, il colore resta
+   quello della tinta, e da metà schermo in giù torna il colore pieno (lì stanno le risposte). */
 .tinta::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--tinta);
+  background-color: var(--tinta);
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--tinta) 62%, transparent) 0%,
+      color-mix(in oklab, var(--tinta) 78%, transparent) 30%,
+      var(--tinta) 58%
+    ),
+    var(--fondo, none);
+  background-size: cover;
+  background-position: 50% 0%;
+  background-blend-mode: normal, luminosity;
 }
 
 /* L'ombra dura: il pulsante sta sopra il foglio e si schiaccia. */

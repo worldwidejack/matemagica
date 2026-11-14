@@ -6,7 +6,7 @@ import { MEDAGLIE, grado, prossimaSoglia, type DatiMedaglie } from '@/profilo/me
 import { OBIETTIVI } from '@/profilo/giornata';
 import { SALVA_FIAMMA_MAX, giornoLocale, giornoMeno, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
-import { Icona, IconaGioco, Medaglione, Scheda } from './kit';
+import { IconaGioco, Medaglione, Oggetto, Scheda } from './kit';
 import { giocoSbloccato } from './progressi';
 import { Installa } from './Installa';
 
@@ -58,7 +58,7 @@ export function Profilo() {
         <div className="flex items-center justify-between">
           <div>
             <p className="titolo flex items-center gap-1.5 text-2xl font-bold">
-              <Icona nome="fiamma" className="h-7 w-7 fill-tramonto text-tramonto" />
+              <Oggetto nome="fiamma" className="h-8" />
               {fiamma.giorni} {fiamma.giorni === 1 ? 'giorno' : 'giorni'}
             </p>
             <p className="text-sm text-inchiostro-chiaro">
@@ -66,11 +66,9 @@ export function Profilo() {
             </p>
           </div>
           <div className="text-right" aria-label={`${p.salvaFiamma} salva-fiamma su ${SALVA_FIAMMA_MAX}`}>
-            <p className="text-2xl tracking-widest">
+            <p className="flex justify-end gap-1">
               {Array.from({ length: SALVA_FIAMMA_MAX }, (_, i) => (
-                <span key={i} className={i < p.salvaFiamma ? '' : 'opacity-25 grayscale'}>
-                  🧊
-                </span>
+                <Oggetto key={i} nome="ghiaccio" className={`h-8 ${i < p.salvaFiamma ? '' : 'opacity-25 grayscale'}`} />
               ))}
             </p>
             <p className="text-xs text-inchiostro-chiaro">salva-fiamma</p>
@@ -101,7 +99,7 @@ export function Profilo() {
           const soglia = prossimaSoglia(m, dati);
           return (
             <li key={m.id} className="ombra-dura flex items-center gap-3 rounded-2xl bg-panna-50 px-3 py-2.5 text-inchiostro">
-              <Medaglione icona={m.icona} grado={g} />
+              <Medaglione id={m.id} grado={g} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="titolo text-lg font-bold">{m.nome}</span>

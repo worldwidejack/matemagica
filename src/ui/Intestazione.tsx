@@ -4,7 +4,7 @@ import { nomeDellaTappa, titoloTappa } from '@/content/luoghi';
 import { OBIETTIVI, avanzamento, completata, giornataVuota, missioniDel } from '@/profilo/giornata';
 import { giornoLocale, livelloDa, statoFiamma } from '@/profilo/progressione';
 import { useProfilo } from '@/profilo/store';
-import { Icona, Scheda } from './kit';
+import { Icona, Oggetto, Scheda } from './kit';
 import { livelloCorrente } from './progressi';
 import { SfidaDelGiorno } from './SfidaDelGiorno';
 
@@ -44,9 +44,11 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
         <Chip>
           {/* La fiamma è spenta finché oggi non giochi; il ghiaccio dice che la tiene un salva-fiamma. */}
           {protetta ? (
-            <span aria-hidden>🧊</span>
+            <Oggetto nome="ghiaccio" className="h-5" />
+          ) : giocatoOggi ? (
+            <Oggetto nome="fiamma" className="h-6" />
           ) : (
-            <Icona nome="fiamma" className={`h-5 w-5 ${giocatoOggi ? 'fill-tramonto text-tramonto' : 'text-inchiostro/35'}`} />
+            <Icona nome="fiamma" className="h-5 w-5 text-inchiostro/35" />
           )}
           <span className={fiamma > 0 ? '' : 'opacity-50'}>{fiamma}</span>
         </Chip>
@@ -140,7 +142,12 @@ export function Intestazione({ onSfida }: { onSfida: () => void }) {
               </div>
               <p className="mt-4 text-center text-sm text-inchiostro-chiaro">
                 {titoloTappa(tappa)} · {nomeDellaTappa(tappa)}
-                {salvaFiamma > 0 && ` · 🧊 ×${salvaFiamma}`}
+                {salvaFiamma > 0 && (
+                  <>
+                    {' · '}
+                    <Oggetto nome="ghiaccio" className="h-4 align-[-0.2em]" /> ×{salvaFiamma}
+                  </>
+                )}
               </p>
             </Scheda>
           </div>

@@ -20,15 +20,19 @@ export function Tastierino({ valore, onCambia, onInvia, disabilitato, maxCifre =
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-x-2 gap-y-3 pb-1">
       {['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', 'OK'].map((t) => (
         <button
           key={t}
           onClick={() => tasto(t)}
           disabled={disabilitato}
           className={[
-            'rounded-2xl py-2.5 text-2xl font-bold active:scale-95 disabled:opacity-40',
-            t === 'OK' ? 'bg-oro-400 text-inchiostro' : t === '⌫' ? 'bg-panna-200 text-inchiostro' : 'bg-panna-50 text-inchiostro',
+            'titolo rounded-2xl py-2 text-[1.65rem] leading-8 font-bold tabular-nums transition-transform duration-75 active:translate-y-1 disabled:opacity-40',
+            t === 'OK'
+              ? 'bg-oro-400 text-inchiostro shadow-[0_4px_0_var(--color-oro-600)]'
+              : t === '⌫'
+                ? 'bg-inchiostro/25 text-panna-50 shadow-[0_4px_0_rgb(21_19_46/0.12)]'
+                : 'bg-panna-50 text-inchiostro shadow-[0_4px_0_rgb(21_19_46/0.2)]',
           ].join(' ')}
         >
           {t}

@@ -50,11 +50,11 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
                   cambia(m.id);
                 }}
                 className={[
-                  'flex min-h-[3.6rem] items-center gap-3 rounded-3xl px-4 py-2 text-left transition-transform duration-100 active:translate-y-1',
+                  'flex min-h-[3.75rem] items-center gap-3 rounded-3xl py-2 pr-4 pl-2 text-left transition-transform duration-100 active:translate-y-1',
                   attiva ? 'bg-oro-400 shadow-[0_5px_0_var(--color-oro-600)]' : 'bg-panna-50 shadow-[0_5px_0_rgb(21_19_46/0.14)]',
                 ].join(' ')}
               >
-                <span className="w-8 text-center text-2xl">{m.icona}</span>
+                <img src={`/motivi/${m.id}.webp`} alt="" width={320} height={320} draggable={false} className="h-11 w-11 shrink-0 rounded-[26%]" />
                 <span className="flex-1 text-[1.15rem] leading-tight font-extrabold">{m.testo}</span>
                 <span
                   aria-hidden

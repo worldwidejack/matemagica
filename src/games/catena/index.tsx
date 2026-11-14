@@ -9,7 +9,7 @@ function Vista({ round, onAnswer, locked, revealing, given, correct }: ArcadeVie
     // Le voci compaiono una alla volta nello stesso punto: solo CSS, nessun timer.
     return (
       <div className="flex flex-col items-center gap-8">
-        <p className="text-panna-100/60">Tieni il conto…</p>
+        <p className="text-panna-50/90">Tieni il conto…</p>
         <div className="relative h-32 w-full">
           {voci.map((v, i) => (
             <span
@@ -36,9 +36,9 @@ function Vista({ round, onAnswer, locked, revealing, given, correct }: ArcadeVie
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-center text-2xl">
+      <p className="titolo text-center text-2xl font-bold">
         {feedback ? (
-          <span className="text-lg text-panna-100/80">
+          <span className="text-lg text-panna-50/90">
             {round.inizio} {round.passi.map((p) => ` → ${testoPasso(p)}`).join('')} ={' '}
             <b className="text-oro-400">{round.risultato}</b>
           </span>

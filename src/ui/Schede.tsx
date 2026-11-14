@@ -12,9 +12,10 @@ export function SpiegazioneSchermo({ gioco, onAvanti }: { gioco: GameId; onAvant
   const s = SPIEGAZIONI[gioco];
   const v = GIOCHI[gioco];
   return (
-    <div className="flex min-h-full flex-col justify-center gap-5 px-6 py-8">
+    <div className="flex min-h-full flex-col px-6 pt-8 pb-6">
+      <div className="flex flex-1 flex-col justify-center gap-5 pb-4">
       <div className="flex items-center gap-4">
-        <IconaGioco gioco={gioco} className="animate-pop h-20 w-20" />
+        <IconaGioco gioco={gioco} className="animate-pop h-20 w-20 -rotate-3" />
         <div>
           <p className="titolo text-sm font-bold text-panna-50/80">Gioco nuovo</p>
           <h1 className="text-[2.1rem] leading-none font-bold text-panna-50">{v.titolo}</h1>
@@ -25,9 +26,11 @@ export function SpiegazioneSchermo({ gioco, onAvanti }: { gioco: GameId; onAvant
         <Blocco titolo="Il trucco">{s.trucco}</Blocco>
         <p className="titolo rounded-2xl bg-carta px-4 py-3 text-lg font-semibold tabular-nums">{s.esempio}</p>
       </Scheda>
-      <div className="flex items-end gap-3">
-        <img src="/personaggi/gatto-indica.webp" alt="" draggable={false} className="animate-respiro-scatti h-24 w-auto origin-bottom" />
-        <Bottone freccia respira className="mb-1 flex-1 px-4" onClick={onAvanti}>
+      </div>
+      {/* Il gatto, di profilo, indica dove si va. */}
+      <div className="flex items-end gap-2">
+        <img src="/personaggi/gatto-indica.webp" alt="" draggable={false} className="animate-respiro-scatti -ml-1 h-28 w-auto origin-bottom" />
+        <Bottone freccia respira className="mb-2 flex-1 px-4 py-4" onClick={onAvanti}>
           Si gioca
         </Bottone>
       </div>
@@ -61,14 +64,21 @@ export function StoriaSchermo({ id, nuova, onAvanti }: { id: string; nuova: bool
         </p>
       )}
       <div
-        className={`animate-carta rounded-[2rem] p-6 shadow-[0_8px_0_rgb(21_19_46/0.25)] ${
+        className={`animate-carta overflow-hidden rounded-[2rem] shadow-[0_8px_0_rgb(21_19_46/0.25)] ${
           stella ? 'bg-inchiostro text-panna-50' : 'bg-panna-50 text-inchiostro'
         }`}
       >
-        <div className="text-center text-6xl">{s.emoji}</div>
-        <p className={`titolo mt-3 text-center text-sm font-bold ${stella ? 'text-oro-300' : 'text-oro-700'}`}>{s.carta}</p>
-        <h1 className="mt-1 text-center text-3xl leading-tight font-bold">{s.titolo}</h1>
-        <p className="mt-3 text-lg leading-relaxed">{s.testo}</p>
+        {/* Le storie hanno la loro figura (public/carte/<id>.webp); le carte delle stelle, il segno. */}
+        {stella ? (
+          <div className="pt-6 text-center text-6xl">{s.emoji}</div>
+        ) : (
+          <img src={`/carte/${s.id}.webp`} alt="" width={640} height={640} draggable={false} className="aspect-[4/3] w-full object-cover" />
+        )}
+        <div className="px-6 pt-4 pb-6">
+          <p className={`titolo text-center text-sm font-bold ${stella ? 'text-oro-300' : 'text-oro-700'}`}>{s.carta}</p>
+          <h1 className="mt-1 text-center text-3xl leading-tight font-bold">{s.titolo}</h1>
+          <p className="mt-3 text-lg leading-relaxed">{s.testo}</p>
+        </div>
       </div>
       <Bottone freccia onClick={onAvanti}>
         Continua

@@ -90,10 +90,10 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
-        <p className="text-center text-xl text-balance">
+        <p className="text-center text-xl font-bold text-balance">
           <Regola round={round} />
         </p>
-        {nota(round) && <p className="text-center text-sm text-balance text-panna-100/60">{nota(round)}</p>}
+        {nota(round) && <p className="text-center text-sm text-balance text-panna-50/90">{nota(round)}</p>}
       </div>
       <div className={`grid ${colonne} gap-2.5`}>
         {round.celle.map((c) => {
@@ -105,13 +105,13 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
               onClick={() => tocca(c.id)}
               disabled={locked || via}
               className={[
-                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] titolo font-bold tabular-nums transition-all duration-200',
+                `titolo aspect-square rounded-3xl font-bold tabular-nums transition-all duration-200 ${round.celle.length > 9 ? 'text-[clamp(1.5rem,8vw,2.3rem)]' : 'text-[clamp(1.9rem,10.5vw,2.9rem)]'}`,
                 via ? 'scale-50 opacity-0' : 'active:scale-90',
                 scelta === c.id
                   ? 'scale-105 bg-oro-400 text-inchiostro shadow-[0_5px_0_var(--color-oro-600)]'
                   : errore
                     ? 'bg-pericolo-400 text-panna-50'
-                    : 'bg-panna-50 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
+                    : 'bg-panna-50 text-inchiostro shadow-[0_5px_0_rgb(21_19_46/0.2)]',
                 correct === false && !via ? 'opacity-50' : '',
               ].join(' ')}
             >
@@ -120,7 +120,7 @@ function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewPr
           );
         })}
       </div>
-      <p className="text-center text-sm text-panna-100/70">
+      <p className="text-center text-sm text-panna-50/90">
         {(round.coppie * 2 - tolte.size) / 2} coppie da trovare ·{' '}
         {round.tipo === 'multiplo' ? 'alla fine qualche numero resta da solo' : 'attento ai numeri senza compagno'}
       </p>

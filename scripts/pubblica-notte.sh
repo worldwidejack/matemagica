@@ -3,7 +3,7 @@
 #   scripts/pubblica-notte.sh "messaggio del commit"
 set -e
 B=/jack-tools/matemagica-notte
-P='isole|giochi|personaggi|paese|schermate|luoghi|sw\.js|manifest\.webmanifest|icona|favicon|apple-touch-icon'
+P='isole|giochi|carte|medaglie|oggetti|motivi|personaggi|paese|schermate|luoghi|sw\.js|manifest\.webmanifest|icona|favicon|apple-touch-icon'
 cd /Users/giacomolevi/Desktop/JACK/_GITHUB/matemagica-carta-bianca
 npx vite build --base=$B/ >/dev/null 2>&1
 cd dist

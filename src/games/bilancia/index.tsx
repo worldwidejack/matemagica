@@ -13,7 +13,7 @@ function PiattoVista({ piatto, compatta }: { piatto: Piatto; compatta: boolean }
   return (
     <div
       className={[
-        'flex flex-1 flex-wrap items-end justify-center rounded-b-[2rem] border-b-4 border-panna-200 bg-panna-100/90 px-2 pt-2 pb-1.5',
+        'flex flex-1 flex-wrap items-end justify-center rounded-t-lg rounded-b-[2rem] bg-panna-50 px-2 pt-2 pb-2 shadow-[0_4px_0_rgb(21_19_46/0.2)]',
         compatta ? 'min-h-13 gap-1' : 'min-h-16 gap-1.5',
       ].join(' ')}
     >
@@ -23,7 +23,7 @@ function PiattoVista({ piatto, compatta }: { piatto: Piatto; compatta: boolean }
         </span>
       ))}
       {piatto.peso > 0 && (
-        <span className="rounded-lg bg-oro-500 px-2.5 py-1 text-xl font-black text-inchiostro tabular-nums">{piatto.peso}</span>
+        <span className="titolo mb-0.5 rounded-xl bg-oro-400 px-3 py-1 text-xl font-bold text-inchiostro tabular-nums shadow-[0_3px_0_var(--color-oro-600)]">{piatto.peso}</span>
       )}
     </div>
   );
@@ -36,9 +36,9 @@ function BilanciaVista({ b, compatta }: { b: Bilancia; compatta: boolean }) {
         <PiattoVista piatto={b.sinistra} compatta={compatta} />
         <PiattoVista piatto={b.destra} compatta={compatta} />
       </div>
-      <div className="h-1.5 w-11/12 rounded-full bg-panna-200" />
+      <div className="mt-1.5 h-2 w-11/12 rounded-full bg-panna-50 shadow-[0_3px_0_rgb(21_19_46/0.2)]" />
       <div
-        className={`h-0 w-0 border-x-transparent border-b-panna-200 ${compatta ? 'border-x-[12px] border-b-[15px]' : 'border-x-[16px] border-b-[22px]'}`}
+        className={`h-0 w-0 mt-[3px] border-x-transparent border-b-panna-50 ${compatta ? 'border-x-[12px] border-b-[15px]' : 'border-x-[16px] border-b-[22px]'}`}
       />
     </div>
   );
@@ -56,18 +56,18 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundBilancia,
   return (
     <div className={`flex flex-col ${compatta ? 'gap-2' : 'gap-3'}`}>
       {round.sottoZero ? (
-        <p className="text-center text-sm text-panna-100/80">
+        <p className="text-center text-sm text-panna-50/90">
           🎈 Qui una forma può pesare <b className="font-black text-oro-400">meno di zero</b>: tira su.
         </p>
       ) : (
-        <p className="text-center text-sm text-panna-100/70">Tutte le bilance sono in equilibrio.</p>
+        <p className="text-center text-sm font-bold text-panna-50/90">Tutte le bilance sono in equilibrio.</p>
       )}
       <div className={`flex flex-col ${compatta ? 'gap-1' : 'gap-1.5'}`}>
         {round.bilance.map((b, i) => (
           <BilanciaVista key={i} b={b} compatta={compatta} />
         ))}
       </div>
-      <p className="text-center text-2xl">
+      <p className="titolo text-center text-2xl font-bold">
         Quanto pesa <span className="text-3xl">{forma}</span>?
       </p>
       <div className="flex items-center justify-center gap-2">
@@ -81,7 +81,7 @@ function Vista({ round, onTry, locked, risolto }: PuzzleViewProps<RoundBilancia,
             aria-label="Cambia segno"
             aria-pressed={meno}
             className={[
-              'h-14 w-14 rounded-2xl text-3xl font-black active:scale-95 disabled:opacity-40',
+              'h-14 w-14 rounded-2xl text-3xl font-black shadow-[0_4px_0_rgb(21_19_46/0.2)] active:translate-y-1 disabled:opacity-40',
               meno ? 'bg-oro-400 text-inchiostro' : 'bg-panna-50 text-inchiostro',
             ].join(' ')}
           >

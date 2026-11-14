@@ -8,8 +8,8 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
       <div className="text-center">
         {round.sopra && <p className="mb-2 text-xl text-panna-100/75">{round.sopra}</p>}
         <p className="text-[clamp(2.4rem,12vw,3.8rem)] leading-none titolo font-bold tabular-nums">{round.testo}</p>
-        {round.formula && <p className="mt-3 text-base text-panna-100/70 tabular-nums">{round.formula}</p>}
-        <p className={`mt-3 text-xl ${feedback ? 'text-panna-100/80' : 'text-panna-100/70'}`}>
+        {round.formula && <p className="mt-3 text-base text-panna-50/90 tabular-nums">{round.formula}</p>}
+        <p className={`mt-3 text-xl ${feedback ? 'text-panna-50/90' : 'text-panna-50/90'}`}>
           {feedback ? rivela(round) : (round.domanda ?? '≈ quanto, più o meno?')}
         </p>
       </div>

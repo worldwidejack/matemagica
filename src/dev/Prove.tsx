@@ -30,7 +30,7 @@ export function Prove({ quale }: { quale: string }) {
     tappaCompletata: 2,
   };
   return (
-    <div className="tinta mx-auto max-w-md" style={{ '--tinta': tintaDellaTappa(2).tinta } as CSSProperties}>
+    <div className="tinta mx-auto max-w-md" style={{ '--tinta': tintaDellaTappa(2).tinta, '--fondo': `url(${tintaDellaTappa(2).fondo})` } as CSSProperties}>
       <Risultato
         titolo="Il Quadrato magico"
         etichetta="Livello 10"

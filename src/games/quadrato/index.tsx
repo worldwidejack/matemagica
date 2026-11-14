@@ -58,9 +58,9 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col items-center gap-1 text-center">
-        <p className="text-sm text-panna-100/70">Righe, colonne e diagonali: stessa somma.</p>
+        <p className="text-sm font-bold text-panna-50/90">Righe, colonne e diagonali: stessa somma.</p>
         {round.sommaData && (
-          <p className="rounded-full bg-oro-400/15 px-3 py-0.5 text-sm font-bold text-oro-300">
+          <p className="titolo rounded-full bg-inchiostro/30 px-3.5 py-1 text-sm font-bold text-oro-300">
             Somma magica: <span className="tabular-nums">{testoNumero(round.somma)}</span>
           </p>
         )}
@@ -71,7 +71,7 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
           const base = `titolo flex aspect-square items-center justify-center rounded-2xl font-bold tabular-nums ${testo}`;
           if (date[i]) {
             return (
-              <div key={i} className={`${base} bg-panna-50 text-inchiostro shadow-[0_4px_0_var(--color-panna-200)]`}>
+              <div key={i} className={`${base} bg-panna-50 text-inchiostro shadow-[0_4px_0_rgb(21_19_46/0.22)]`}>
                 {testoNumero(x)}
               </div>
             );
@@ -106,7 +106,7 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
                 onClick={segno}
                 disabled={locked || scelta < 0}
                 aria-label="Cambia segno"
-                className="rounded-2xl bg-panna-200 px-5 text-2xl font-bold text-inchiostro active:scale-95 disabled:opacity-40"
+                className="titolo rounded-2xl bg-panna-50 px-5 text-2xl font-bold text-inchiostro shadow-[0_4px_0_rgb(21_19_46/0.2)] active:translate-y-1 disabled:opacity-40"
               >
                 ±
               </button>
@@ -114,7 +114,7 @@ function Vista({ round, onTry, locked, sbagli, risolto }: PuzzleViewProps<RoundQ
             <button
               onClick={prova}
               disabled={locked || !piena}
-              className="titolo flex-1 rounded-2xl bg-oro-400 py-2.5 text-xl font-bold text-inchiostro shadow-[0_4px_0_var(--color-oro-600)] active:translate-y-0.5 active:shadow-[0_1px_0_var(--color-oro-600)] disabled:bg-panna-100/15 disabled:text-panna-100/40 disabled:shadow-none"
+              className="titolo flex-1 rounded-2xl bg-oro-400 py-2.5 text-xl font-bold text-inchiostro shadow-[0_4px_0_var(--color-oro-600)] active:translate-y-0.5 active:shadow-[0_1px_0_var(--color-oro-600)] disabled:bg-inchiostro/20 disabled:text-panna-50/55 disabled:shadow-none"
             >
               Controlla
             </button>

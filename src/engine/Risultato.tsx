@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { suona } from '@/audio/sfx';
 import { LUOGHI, luogoDellaTappa, nomeDellaTappa, oraDellaTappa, titoloTappa, versoTappa } from '@/content/luoghi';
 import { NOMI_GRADO } from '@/profilo/medaglie';
-import { Bottone, Icona, Medaglione, Scheda } from '@/ui/kit';
+import { Bottone, Icona, Medaglione, Oggetto, Scheda } from '@/ui/kit';
 import { Coriandoli } from '@/ui/Coriandoli';
 import { condividiTesto, indirizzo, stelleTesto } from '@/ui/condividi';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -85,38 +85,41 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
         {titolo}
       </p>
 
-      <div className="mt-auto flex gap-1.5">
+      {/* Le stelle di carta: quelle non prese restano come un'ombra. */}
+      <div className="mt-auto flex items-end gap-1.5 pt-3" role="img" aria-label={`${stelle} stelle su 3`}>
         {[1, 2, 3].map((i) => (
-          <svg key={i} viewBox="0 0 24 24" className={`h-14 w-14 ${i === 2 ? '-translate-y-3' : ''} ${i <= visibili ? 'animate-stella' : ''}`} aria-hidden>
-            <path
-              d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"
-              fill={i <= visibili ? 'var(--color-oro-400)' : 'rgb(21 19 46 / 0.28)'}
-              stroke={i <= visibili ? 'var(--color-inchiostro)' : 'none'}
-              strokeWidth={1.3}
-              strokeLinejoin="round"
-            />
-          </svg>
+          <img
+            key={i}
+            src="/oggetti/stella.webp"
+            alt=""
+            draggable={false}
+            className={`w-auto ${i === 2 ? 'h-[4.6rem] -translate-y-3' : 'h-14'} ${i === 1 ? '-rotate-12' : i === 3 ? 'rotate-12' : ''} ${
+              i <= visibili ? 'animate-stella' : 'opacity-25 brightness-0'
+            }`}
+          />
         ))}
       </div>
+      <h1 className="text-[1.9rem] leading-tight font-bold text-panna-50 [text-shadow:0_3px_0_rgb(21_19_46/0.18)]">{FRASI[stelle]}</h1>
 
-      {/* Il gatto: festeggia da due stelle in su, sennò ci pensa. Non parla mai. */}
-      <img
-        key={stelle >= 2 ? 'festa' : 'dubbio'}
-        src={stelle >= 2 ? '/personaggi/gatto-festa.webp' : '/personaggi/gatto-dubbio.webp'}
-        alt=""
-        draggable={false}
-        className="animate-pop -mt-1 h-36 w-auto origin-bottom"
-      />
-      <h1 className="text-[1.75rem] leading-tight font-bold text-panna-50">{FRASI[stelle]}</h1>
-
-      <div className="leading-none">
-        <p className="titolo text-6xl font-bold text-panna-50 tabular-nums">{punteggio}</p>
-        <p className="mt-1 text-sm font-bold text-panna-50/75">{nuovoRecord ? '' : 'punti'}</p>
-        {nuovoRecord && <p className="animate-pop titolo inline-block rounded-full bg-oro-400 px-3 py-1 text-sm font-bold text-inchiostro">Nuovo record!</p>}
-      </div>
-
-      <Scheda className="w-full max-w-xs">
-        <div className="grid grid-cols-3 divide-x divide-panna-200 text-center">
+      {/* Il gatto sta seduto sul foglio dei numeri: festeggia da due stelle in su, sennò ci pensa. Non parla mai. */}
+      <div className="relative mt-[7.25rem] w-full max-w-xs">
+        <img
+          key={stelle >= 2 ? 'festa' : 'dubbio'}
+          src={stelle >= 2 ? '/personaggi/gatto-festa.webp' : '/personaggi/gatto-dubbio.webp'}
+          alt=""
+          draggable={false}
+          className="animate-pop pointer-events-none absolute bottom-full left-1/2 -mb-3.5 h-32 w-auto -translate-x-1/2 origin-bottom"
+        />
+      <Scheda className="w-full">
+        <div className="pt-3 pb-3 leading-none">
+          <p className="titolo text-6xl font-bold tabular-nums">{punteggio}</p>
+          {nuovoRecord ? (
+            <p className="animate-pop titolo mt-1.5 inline-block rounded-full bg-oro-400 px-3 py-1 text-sm font-bold">Nuovo record!</p>
+          ) : (
+            <p className="mt-1 text-sm font-bold text-inchiostro-chiaro">punti</p>
+          )}
+        </div>
+        <div className="grid grid-cols-3 divide-x divide-panna-200 border-t border-panna-200 pt-3 text-center">
           {fine.dati.map((d) => (
             <Dato key={d.etichetta} etichetta={d.etichetta} valore={d.valore} />
           ))}
@@ -127,6 +130,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
           {Math.abs(delta) >= 0.05 && <span className="ml-1">{delta > 0 ? '▲' : '▼'}</span>}
         </p>
       </Scheda>
+      </div>
 
       {riepilogo.missioniNuove.map((m) => (
         <p key={m.id} className="animate-pop ombra-dura w-full max-w-xs rounded-2xl bg-oro-400 px-4 py-2.5 text-left text-inchiostro">
@@ -143,7 +147,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
       )}
       {riepilogo.medaglieNuove.map(({ medaglia, grado }) => (
         <div key={medaglia.id} className="animate-pop ombra-dura flex w-full max-w-xs items-center gap-3 rounded-2xl bg-panna-50 px-4 py-2.5 text-left text-inchiostro">
-          <Medaglione icona={medaglia.icona} grado={grado} />
+          <Medaglione id={medaglia.id} grado={grado} grande />
           <span>
             <span className="titolo block text-xs font-bold text-oro-700">Medaglia {NOMI_GRADO[grado]}</span>
             <span className="titolo text-lg font-bold">{medaglia.nome}</span>
@@ -151,13 +155,16 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
         </div>
       ))}
       {riepilogo.salvaVinto && (
-        <p className="animate-pop ombra-dura w-full max-w-xs rounded-2xl bg-azzurro px-4 py-2.5 text-inchiostro">
-          <span className="font-bold">🧊 Salva-fiamma vinto!</span> Se salti un giorno, la fiamma resta accesa.
+        <p className="animate-pop ombra-dura flex w-full max-w-xs items-center gap-3 rounded-2xl bg-panna-50 px-4 py-2.5 text-left text-inchiostro">
+          <Oggetto nome="ghiaccio" className="h-10" />
+          <span>
+            <span className="font-bold">Salva-fiamma vinto!</span> Se salti un giorno, la fiamma resta accesa.
+          </span>
         </p>
       )}
 
       {/* I pulsanti restano a portata di pollice anche quando le novità allungano la pagina. */}
-      <div className="sticky bottom-0 -mx-6 mt-auto flex w-[calc(100%+3rem)] flex-col items-center gap-1.5 bg-gradient-to-t from-[var(--tinta)] from-80% to-transparent px-6 pt-6 pb-3">
+      <div className="sticky bottom-0 z-[60] -mx-6 mt-auto flex w-[calc(100%+3rem)] flex-col items-center gap-1.5 bg-gradient-to-t from-[var(--tinta)] from-80% to-transparent px-6 pt-6 pb-3">
         <Bottone freccia={!inPalestra} className="w-full max-w-xs" onClick={inPalestra ? onAncora : continua}>
           {inPalestra ? 'Ancora una!' : 'Continua'}
         </Bottone>
@@ -259,19 +266,25 @@ function FiammaSchermo({
   }, [giorni]);
   return (
     <div className="animate-entra flex min-h-full flex-col items-center justify-center gap-5 px-6 py-8 text-center">
-      <Icona nome="fiamma" className="animate-pop h-28 w-28 fill-oro-400 text-inchiostro" />
+      {/* Il gatto si scalda alla fiamma: è lui che la tiene accesa. */}
+      <img src="/personaggi/gatto-fuoco.webp" alt="" draggable={false} className="animate-pop h-52 w-auto origin-bottom" />
       <p key={mostrato} className="titolo animate-pop text-8xl leading-none font-bold text-panna-50 tabular-nums">
         {mostrato}
       </p>
       <h1 className="text-3xl font-bold text-panna-50">{giorni === 1 ? 'giorno di fila!' : 'giorni di fila!'}</h1>
       <p className="max-w-xs text-lg text-panna-50/85">
         {salvaUsati > 0
-          ? `Il salva-fiamma 🧊 l'ha protetta ${salvaUsati === 1 ? 'nel giorno che hai saltato' : `nei ${salvaUsati} giorni che hai saltato`}.`
+          ? `Il salva-fiamma l'ha protetta ${salvaUsati === 1 ? 'nel giorno che hai saltato' : `nei ${salvaUsati} giorni che hai saltato`}.`
           : giorni === 1
             ? 'La fiamma è accesa. Torna domani per tenerla viva.'
             : 'Non spegnerla: basta una partita al giorno.'}
       </p>
-      {salvaVinto && <p className="animate-pop ombra-dura rounded-2xl bg-azzurro px-4 py-2 text-inchiostro">🧊 Hai vinto un salva-fiamma!</p>}
+      {salvaVinto && (
+        <p className="animate-pop ombra-dura flex items-center gap-2.5 rounded-2xl bg-panna-50 px-4 py-2 font-bold text-inchiostro">
+          <Oggetto nome="ghiaccio" className="h-9" />
+          Hai vinto un salva-fiamma!
+        </p>
+      )}
       <Bottone freccia className="w-full max-w-xs" onClick={onAvanti}>
         Continua
       </Bottone>

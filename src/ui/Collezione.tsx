@@ -1,5 +1,5 @@
 import { suona } from '@/audio/sfx';
-import { titoloTappa } from '@/content/luoghi';
+import { luogoDellaTappa, titoloTappa } from '@/content/luoghi';
 import { STORIE } from '@/content/storie';
 import { useProfilo } from '@/profilo/store';
 import { Icona } from './kit';
@@ -17,6 +17,8 @@ export function Collezione({ onCarta }: { onCarta: (id: string) => void }) {
       <ul className="mt-5 grid grid-cols-2 gap-3">
         {STORIE.map((s) => {
           const presa = carte.includes(s.id);
+          const tappa = Math.ceil((livelloDiStoria(s.id)?.numero ?? 5) / 5);
+          const colore = luogoDellaTappa(tappa).tinta;
           return (
             <li key={s.id}>
               <button
@@ -25,17 +27,23 @@ export function Collezione({ onCarta }: { onCarta: (id: string) => void }) {
                   suona('tap');
                   onCarta(s.id);
                 }}
+                style={presa ? undefined : { backgroundColor: `color-mix(in oklab, ${colore} 16%, var(--color-carta))`, color: colore }}
                 className={[
-                  'flex aspect-[3/4] w-full flex-col items-center justify-center gap-3 rounded-3xl p-3 text-center transition-transform',
-                  presa
-                    ? 'ombra-dura bg-panna-50 text-inchiostro active:translate-y-1 active:shadow-none'
-                    : 'bg-inchiostro/6 text-inchiostro/40',
+                  'flex aspect-[3/4] w-full flex-col overflow-hidden rounded-3xl text-center transition-transform',
+                  presa ? 'ombra-dura bg-panna-50 text-inchiostro active:translate-y-1 active:shadow-none' : 'items-center justify-center gap-3 p-3',
                 ].join(' ')}
               >
-                <span className={presa ? 'text-5xl' : ''}>{presa ? s.emoji : <Icona nome="lucchetto" className="h-8 w-8" />}</span>
-                <span className={`titolo text-base leading-tight font-bold ${presa ? '' : 'text-sm'}`}>
-                  {presa ? s.carta : titoloTappa(Math.ceil((livelloDiStoria(s.id)?.numero ?? 5) / 5))}
-                </span>
+                {presa ? (
+                  <>
+                    <img src={`/carte/${s.id}.webp`} alt="" width={640} height={640} draggable={false} className="aspect-square w-full object-cover" />
+                    <span className="titolo flex flex-1 items-center justify-center px-2 text-base leading-tight font-bold">{s.carta}</span>
+                  </>
+                ) : (
+                  <>
+                    <Icona nome="lucchetto" className="h-8 w-8" />
+                    <span className="titolo text-sm leading-tight font-bold">{titoloTappa(tappa)}</span>
+                  </>
+                )}
               </button>
             </li>
           );

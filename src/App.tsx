@@ -3,7 +3,7 @@ import { setMutoAudio, setVibrazioneAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
 import { PARTITA } from '@/engine/regole';
-import { LUOGHI, tintaDelGioco, tintaDellaTappa, versoTappa } from '@/content/luoghi';
+import { LUOGHI, tintaDelGioco, tintaDellaTappa, versoTappa, type Colore } from '@/content/luoghi';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import { GIOCHI } from '@/games/registro';
 import { useProfilo } from '@/profilo/store';
@@ -58,7 +58,6 @@ function useNavigazione() {
   return { cima, base, apri, sostituisci, chiudi, scheda };
 }
 
-type Colore = { tinta: string; errore: string };
 
 /**
  * Si gioca dentro il colore del luogo: la schermata si riempie della tinta e arriva salendo
@@ -66,7 +65,7 @@ type Colore = { tinta: string; errore: string };
  * sparisce: lì è l'inchiostro).
  */
 function Tinta({ di, children }: { di: Colore; children: ReactNode }) {
-  const stile: Record<string, string> = { '--tinta': di.tinta };
+  const stile: Record<string, string> = { '--tinta': di.tinta, '--fondo': `url(${di.fondo})` };
   // Il rosso è già quello di base: ridirlo qui sarebbe una variabile che cita se stessa.
   if (!di.errore.includes('pericolo')) stile['--color-pericolo-400'] = di.errore;
   return (

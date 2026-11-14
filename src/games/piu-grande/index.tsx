@@ -35,7 +35,7 @@ function Vista({ round, onAnswer, locked, given, correct }: ArcadeViewProps<Roun
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-center font-bold text-panna-50/80">Quale è più grande?</p>
+      <p className="titolo text-center text-xl font-bold text-panna-50">Quale è più grande?</p>
       {carta('a')}
       {carta('b')}
     </div>

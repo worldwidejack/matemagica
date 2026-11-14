@@ -22,7 +22,7 @@ type BottoneProps = {
 /** Il pulsante: giallo quello che conta (uno per schermata), di carta o d'inchiostro gli altri. */
 export function Bottone({ children, onClick, disabled, variante = 'oro', freccia, className = '', respira }: BottoneProps) {
   const stili = {
-    oro: 'bg-oro-400 text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)]',
+    oro: 'bg-oro-400 text-inchiostro shadow-[0_6px_0_var(--color-oro-600)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-oro-600)] disabled:bg-inchiostro/10 disabled:text-inchiostro/45 disabled:shadow-[0_6px_0_rgb(21_19_46/0.07)]',
     carta: 'bg-panna-50 text-inchiostro shadow-[0_5px_0_rgb(21_19_46/0.18)] active:translate-y-1 active:shadow-[0_1px_0_rgb(21_19_46/0.18)]',
     inchiostro: 'bg-inchiostro text-panna-50 shadow-[0_5px_0_rgb(0_0_0/0.35)] active:translate-y-1 active:shadow-[0_1px_0_rgb(0_0_0/0.35)]',
     vuoto: 'opacity-75 underline-offset-4 hover:underline active:opacity-100',
@@ -37,7 +37,7 @@ export function Bottone({ children, onClick, disabled, variante = 'oro', freccia
       }}
       disabled={disabled}
       className={[
-        'titolo flex items-center justify-center gap-3 rounded-full px-8 py-3.5 text-xl font-bold transition-transform duration-100 disabled:opacity-40',
+        'titolo flex items-center justify-center gap-3 rounded-full px-8 py-3.5 text-xl font-bold transition-[transform,background-color,box-shadow] duration-150',
         stili,
         respira ? 'animate-respiro' : '',
         className,
@@ -188,18 +188,25 @@ export function Stelline({ n, className = '' }: { n: number; className?: string 
 }
 
 /** Il disco della medaglia: bronzo, argento o oro intorno all'icona. */
-export function Medaglione({ icona, grado, grande }: { icona: string; grado: 0 | 1 | 2 | 3; grande?: boolean }) {
+export function Medaglione({ id, grado, grande }: { id: string; grado: 0 | 1 | 2 | 3; grande?: boolean }) {
   const anello = ['ring-inchiostro/10', 'ring-tramonto', 'ring-azzurro', 'ring-oro-500'][grado];
-  const fondo = ['bg-inchiostro/8 grayscale opacity-50', 'bg-pesca', 'bg-panna-50', 'bg-oro-300'][grado];
   return (
-    <span
-      className={`flex shrink-0 items-center justify-center rounded-full ring-4 ${anello} ${fondo} ${
-        grande ? 'h-16 w-16 text-3xl' : 'h-11 w-11 text-2xl'
-      }`}
-    >
-      {icona}
+    <span className={`block shrink-0 rounded-full ring-4 ${anello} ${grande ? 'h-16 w-16' : 'h-12 w-12'}`}>
+      <img
+        src={`/medaglie/${id}.webp`}
+        alt=""
+        width={256}
+        height={256}
+        draggable={false}
+        className={`h-full w-full ${grado === 0 ? 'opacity-30 grayscale' : ''}`}
+      />
     </span>
   );
+}
+
+/** Un oggetto disegnato (public/oggetti/<nome>.webp): sta in riga col testo, alto quanto dici tu. */
+export function Oggetto({ nome, className = 'h-6' }: { nome: 'fiamma' | 'ghiaccio' | 'lampadina' | 'stella'; className?: string }) {
+  return <img src={`/oggetti/${nome}.webp`} alt="" draggable={false} className={`inline-block w-auto shrink-0 ${className}`} />;
 }
 
 /** La tessera di un gioco (public/giochi/<id>.webp): quadrata, a colore pieno, con l'ombra dura. */

@@ -180,28 +180,34 @@ export function versoTappa(n: number): string {
   return `al luogo ${n}`;
 }
 
+/**
+ * Il colore in cui si gioca e il luogo che ci sta dietro, tono su tono (index.css, .tinta):
+ * il monumento resta in alto, dove le schermate di gioco sono vuote.
+ */
+export type Colore = { tinta: string; errore: string; fondo: string };
+
 /** Il colore in cui si gioca un livello della tappa `n`. */
-export function tintaDellaTappa(n: number): { tinta: string; errore: string } {
+export function tintaDellaTappa(n: number): Colore {
   const l = luogoDellaTappa(n);
-  return { tinta: l.tinta, errore: l.errore };
+  return { tinta: l.tinta, errore: l.errore, fondo: l.file };
 }
 
 /**
  * In Palestra ogni gioco ha il suo colore, lo stesso della sua tessera
  * (public/giochi/<id>.webp).
  */
-const TINTE_GIOCHI: Record<GameId, { tinta: string; errore: string }> = {
-  bersaglio: { tinta: 'var(--color-luogo-1)', errore: INCHIOSTRO },
-  bilancia: { tinta: 'var(--color-luogo-2)', errore: ROSSO },
-  catena: { tinta: 'var(--color-luogo-3)', errore: ROSSO },
-  coppie: { tinta: 'var(--color-luogo-4)', errore: INCHIOSTRO },
-  misto: { tinta: 'var(--color-luogo-5)', errore: ROSSO },
-  'piu-grande': { tinta: 'var(--color-luogo-6)', errore: INCHIOSTRO },
-  quadrato: { tinta: 'var(--color-luogo-7)', errore: ROSSO },
-  regola: { tinta: 'var(--color-luogo-8)', errore: ROSSO },
-  stima: { tinta: 'var(--color-luogo-2)', errore: ROSSO },
+const LUOGO_DEL_GIOCO: Record<GameId, number> = {
+  bersaglio: 1,
+  bilancia: 2,
+  catena: 3,
+  coppie: 4,
+  misto: 5,
+  'piu-grande': 6,
+  quadrato: 7,
+  regola: 8,
+  stima: 2,
 };
 
-export function tintaDelGioco(g: GameId): { tinta: string; errore: string } {
-  return TINTE_GIOCHI[g];
+export function tintaDelGioco(g: GameId): Colore {
+  return tintaDellaTappa(LUOGO_DEL_GIOCO[g]);
 }

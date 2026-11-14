@@ -193,6 +193,8 @@ try {
   await z(800);
   await premi('Profilo');
   await scatto('profilo');
+  await js(`(() => { const h = [...document.querySelectorAll('h2,h3')].find((h) => /Medaglie/.test(h.textContent)); h?.scrollIntoView({ block: 'start' }); return !!h; })()`);
+  await scatto('profilo-medaglie');
   await js('window.scrollTo(0, 99999); true');
   await scatto('profilo-giu');
 } catch (e) {

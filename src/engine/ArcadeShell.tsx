@@ -15,6 +15,7 @@ import {
   type Limiti,
 } from './regole';
 import { Risultato } from './Risultato';
+import { Testa, Vite, type Tacca } from './Testa';
 import { suona, vibra } from '@/audio/sfx';
 import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -31,6 +32,8 @@ type Stato<R, A> = {
   giuste: number;
   errori: number;
   diffGiuste: number[];
+  /** Com'è andato ogni quesito chiuso: le tacche in testa. */
+  tacche: Tacca[];
   given: A | null;
   correct: boolean | null;
   revealing: boolean;
@@ -62,6 +65,7 @@ function statoIniziale<R, A>(bravura: number, limiti?: Limiti): Stato<R, A> {
     giuste: 0,
     errori: 0,
     diffGiuste: [],
+    tacche: [],
     given: null,
     correct: null,
     revealing: false,
@@ -231,6 +235,7 @@ export function ArcadeShell<R, A>({
       st.given = a;
       st.correct = ok;
       st.roundGiocati++;
+      st.tacche.push(ok ? 'giusta' : 'sbagliata');
       if (ok) {
         st.giuste++;
         st.diffGiuste.push(st.d);
@@ -297,6 +302,7 @@ export function ArcadeShell<R, A>({
   if (st.fase === 'pronto') {
     return (
       <Pronto
+        gioco={game.id}
         titolo={game.title}
         hint={game.hint}
         etichetta={etichetta}
@@ -328,39 +334,25 @@ export function ArcadeShell<R, A>({
         <div key={`flash-${st.colpo}`} className="animate-flash pointer-events-none absolute inset-0 bg-pericolo-400/25" />
       )}
 
-      <header className="relative flex items-center justify-between text-lg">
-        <button onClick={() => onEsci(false)} className="text-2xl text-panna-100/50" aria-label="Esci">
-          ✕
-        </button>
-        <div className="flex gap-1.5 text-2xl" aria-label={`${st.vite} vite`}>
-          {Array.from({ length: PARTITA.vite }, (_, i) => (
-            <span key={i} className={i < st.vite ? 'text-panna-50' : 'text-inchiostro/30'}>
-              ◆
-            </span>
-          ))}
-        </div>
-        <div className="relative min-w-16 text-right font-bold tabular-nums text-oro-400">
-          {st.punteggio}
-          {st.colpoPunti === st.colpo ? (
-            <span key={`pti-${st.colpo}`} className="animate-sali absolute top-6 right-0 text-base text-oro-300">
-              +{st.guadagno}
-            </span>
-          ) : null}
-        </div>
-      </header>
+      <Testa
+        tacche={st.tacche}
+        corrente={st.roundGiocati}
+        totale={totale}
+        punteggio={st.punteggio}
+        guadagno={st.colpoPunti === st.colpo ? { punti: st.guadagno, chiave: st.colpo } : undefined}
+        onEsci={() => onEsci(false)}
+      />
 
-      <div className="relative mt-2 flex items-center justify-between text-sm text-panna-100/70">
-        <span className="tabular-nums">
-          {Math.min(st.roundGiocati + (feedback ? 0 : 1), totale)} / {totale}
-        </span>
+      <div className="relative mt-3 flex h-7 items-center justify-between">
+        <Vite rimaste={st.vite} totale={PARTITA.vite} />
         {molt > 1 && (
-          <span key={`molt-${molt}`} className="animate-pop rounded-full bg-oro-400 px-3 py-0.5 font-bold text-inchiostro">
+          <span key={`molt-${molt}`} className="animate-pop titolo rounded-full bg-oro-400 px-3 py-0.5 font-bold text-inchiostro shadow-[0_3px_0_var(--color-oro-600)]">
             ×{molt}
           </span>
         )}
       </div>
 
-      <div className="relative mt-3 h-2.5 overflow-hidden rounded-full bg-inchiostro/25">
+      <div className="relative mt-2 h-3.5 overflow-hidden rounded-full bg-inchiostro/25">
         {!st.revealing && !feedback && st.fase === 'gioco' && (
           <div
             key={`timer-${st.roundGiocati}-${st.inizio}`}
@@ -378,6 +370,16 @@ export function ArcadeShell<R, A>({
           COMBO ×{st.annuncioCombo}!
         </div>
       )}
+
+      {/* Il gatto guarda la partita dal bordo: si alza se indovini, si nasconde se sbagli. Non parla mai. */}
+      <img
+        src="/personaggi/gatto-sbircia.webp"
+        alt=""
+        draggable={false}
+        className={`pointer-events-none absolute right-7 bottom-0 h-[5.25rem] w-auto origin-bottom transition-transform duration-200 ease-out [@media(max-height:700px)]:hidden ${
+          st.correct === true ? '-translate-y-1 scale-105' : st.correct === false ? 'translate-y-[62%]' : 'translate-y-[6%]'
+        }`}
+      />
 
       <main className="relative flex flex-1 flex-col justify-center py-6">
         {st.round !== null && (
