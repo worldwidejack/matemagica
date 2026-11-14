@@ -22,6 +22,8 @@ export type VoceGioco = {
   titolo: string;
   icona: string;
   tipo: 'arcade' | 'rompicapo';
+  /** «Oltre la porta»: si gioca col gesto e senza fermate; niente scheda di spiegazione prima. */
+  fluido?: boolean;
   Play: FC<PlayProps>;
 };
 
@@ -29,6 +31,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   'piu-grande': {
     id: 'piu-grande',
     titolo: piuGrande.title,
+    fluido: piuGrande.fluido,
     icona: '🆚',
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={piuGrande} {...p} />,
@@ -36,6 +39,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   coppie: {
     id: 'coppie',
     titolo: coppieMagiche.title,
+    fluido: coppieMagiche.fluido,
     icona: '💞',
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={coppieMagiche} {...p} />,
@@ -57,6 +61,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   bersaglio: {
     id: 'bersaglio',
     titolo: numeroBersaglio.title,
+    fluido: numeroBersaglio.fluido,
     icona: '🎯',
     tipo: 'rompicapo',
     Play: (p) => <PuzzleShell game={numeroBersaglio} {...p} />,

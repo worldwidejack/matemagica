@@ -61,6 +61,14 @@ export type ArcadeGame<R, A> = {
   revealFor?(round: R): number;
   /** Quesiti per partita. Default 20; meno per i quesiti lunghi (una griglia intera). */
   roundPerPartita?: number;
+  /**
+   * «Oltre la porta» (14/11): la partita non si ferma. Niente schermata «Pronto» né
+   * spiegazione prima, si gioca muovendo oggetti; nel sentiero sopra il gioco c'è il
+   * pezzo di paese che cambia a ogni vittoria. Assente = le viste di prima.
+   */
+  fluido?: boolean;
+  /** Millisecondi in cui l'oggetto reagisce prima del quesito dopo. Default 420 / 1100. */
+  reazione?(giusta: boolean): number;
 };
 
 // ── Rompicapo: niente timer né vite, si ragiona ──────────────────────────
@@ -91,4 +99,6 @@ export type PuzzleGame<R, A> = {
   soluzione(round: R): string;
   /** Rompicapi per partita. Default 5. */
   roundPerPartita?: number;
+  /** Come negli arcade: niente «Pronto», niente «Avanti» fra un rompicapo e l'altro. */
+  fluido?: boolean;
 };

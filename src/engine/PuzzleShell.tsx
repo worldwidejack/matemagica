@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PuzzleGame } from './cartuccia';
 import { SCOSSA, type FinePartita, type PlayProps } from './partita';
 import { Pronto } from './Pronto';
@@ -13,6 +13,8 @@ import {
   stelleRompicapo,
 } from './regole';
 import { Risultato } from './Risultato';
+import { FineLuogo } from '@/ui/FineLuogo';
+import { Luogo } from '@/ui/Luogo';
 import { suona, vibra } from '@/audio/sfx';
 import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -49,6 +51,7 @@ export function PuzzleShell<R, A>({
   quesiti,
   etichetta,
   inPalestra,
+  luogo,
   seme,
   condividi,
   onFine,
@@ -170,6 +173,40 @@ export function PuzzleShell<R, A>({
     setFase('fine');
   };
 
+  // Legge 2 nei rompicapo fluidi: niente «Pronto» e niente «Avanti». Risolto, la
+  // soluzione si legge un attimo sopra il gioco e arriva il rompicapo dopo.
+  const nelLuogo = !!game.fluido && luogo !== undefined && !inPalestra;
+  const partito = useRef(false);
+  useEffect(() => {
+    if (!game.fluido || partito.current) return;
+    partito.current = true;
+    via();
+  }, [game.fluido, via]);
+  const avantiRif = useRef(avanti);
+  useEffect(() => {
+    avantiRif.current = avanti;
+  });
+  const chiuso = st?.chiuso ?? null;
+  const indice = st?.indice ?? 0;
+  useEffect(() => {
+    if (!game.fluido || chiuso === null) return;
+    const t = window.setTimeout(() => avantiRif.current(), chiuso === 'risolto' ? 1700 : 2800);
+    return () => window.clearTimeout(t);
+  }, [game.fluido, chiuso, indice]);
+
+  if (fase === 'fine' && fine && nelLuogo) {
+    return (
+      <FineLuogo
+        luogo={luogo ?? 0}
+        vittorie={fine.fine.risolti ?? 0}
+        fine={fine.fine}
+        riepilogo={fine.riepilogo}
+        onAncora={via}
+        onEsci={() => onEsci(true)}
+      />
+    );
+  }
+
   if (fase === 'fine' && fine) {
     return (
       <Risultato
@@ -186,6 +223,7 @@ export function PuzzleShell<R, A>({
   }
 
   if (fase === 'pronto' || !st) {
+    if (game.fluido) return null;
     return (
       <Pronto
         titolo={game.title}
@@ -233,7 +271,18 @@ export function PuzzleShell<R, A>({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col justify-center py-2">
+      {nelLuogo && (
+        <div className="relative -mx-4 mt-2">
+          <Luogo
+            indice={luogo ?? 0}
+            progresso={st.esiti.filter((e) => e === 'risolto').length / totale}
+            vittorie={st.esiti.filter((e) => e === 'risolto').length}
+            alto={150}
+          />
+        </div>
+      )}
+
+      <main className="relative flex flex-1 flex-col justify-center py-2">
         <View key={`${nPartita}-${st.indice}`} round={st.round} onTry={onTry} locked={st.chiuso !== null} sbagli={st.sbagliQui} risolto={st.chiuso !== null} />
       </main>
 
@@ -247,7 +296,17 @@ export function PuzzleShell<R, A>({
         </div>
       )}
 
-      {st.chiuso !== null ? (
+      {game.fluido && st.chiuso !== null ? (
+        <div className="pointer-events-none absolute inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+1.25rem)] z-20 flex justify-center">
+          <p
+            key={`sol-${st.indice}`}
+            className={`animate-pop rounded-2xl px-4 py-2 text-center font-bold shadow-[0_6px_0_var(--color-notte-950)] ${st.chiuso === 'risolto' ? 'bg-oro-400 text-inchiostro' : 'bg-panna-100 text-inchiostro'}`}
+          >
+            {st.chiuso === 'risolto' ? '' : 'Si poteva così: '}
+            {game.soluzione(st.round)}
+          </p>
+        </div>
+      ) : st.chiuso !== null ? (
         <div className="animate-pop flex flex-col gap-3">
           <div
             className={`rounded-2xl px-4 py-3 bg-panna-100 text-inchiostro`}

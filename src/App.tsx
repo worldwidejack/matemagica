@@ -74,6 +74,8 @@ export default function App() {
   // Il livello che ha appena preso la prima stella: la mappa lo racconta (salto o scoperta)
   // quando ci torni, poi si dimentica. È navigazione, non profilo: niente migrazione.
   const [appenaFatto, setAppenaFatto] = useState<string>();
+  /** Il gatto è appena entrato dalla porta: la sua luce si spegne sul primo luogo. */
+  const [luce, setLuce] = useState(false);
 
   useEffect(() => setMutoAudio(muto), [muto]);
   useEffect(() => setVibrazioneAudio(vibrazione), [vibrazione]);
@@ -81,7 +83,8 @@ export default function App() {
   /** Prima partita a un gioco: prima la spiegazione. */
   const gioca = (gioco: GameId, livello?: string, sfida?: string) => {
     const partita: Schermata = { tipo: 'partita', gioco, livello, sfida };
-    nav.apri(viste.includes(gioco) ? partita : { tipo: 'spiegazione', gioco, poi: partita });
+    // I giochi fluidi si spiegano giocando (il gesto lo dice l'oggetto stesso).
+    nav.apri(viste.includes(gioco) || GIOCHI[gioco].fluido ? partita : { tipo: 'spiegazione', gioco, poi: partita });
   };
   /** Il test per saltare a una tappa: un Lampo misto alla difficoltà di quella tappa. */
   const giocaSalto = (tappa: number) => nav.apri({ tipo: 'partita', gioco: 'misto', salto: tappa });
@@ -92,15 +95,14 @@ export default function App() {
 
   const { cima } = nav;
 
-  // Prima apertura: benvenuto, poi dritti al primo livello.
+  // Prima apertura: benvenuto; il gatto entra dalla porta e si apre il mondo sul primo luogo.
   if (!benvenutoFatto && cima.tipo === 'scheda') {
     return (
       <Colonna>
       <Benvenuto
         onFine={(motivo, obiettivo) => {
           completaBenvenuto(motivo, obiettivo);
-          const primo = SENTIERO[0];
-          if (primo) gioca(primo.gioco, primo.id);
+          setLuce(true);
         }}
       />
       </Colonna>
@@ -169,6 +171,13 @@ export default function App() {
       {cima.scheda === 'collezione' && <Collezione onCarta={(id) => nav.apri({ tipo: 'storia', id, nuova: false })} />}
       {cima.scheda === 'profilo' && <Profilo />}
       <Schede attiva={cima.scheda} onScheda={nav.scheda} />
+      {luce && (
+        <div
+          aria-hidden
+          onAnimationEnd={() => setLuce(false)}
+          className="luce-svanisce pointer-events-none fixed inset-0 z-50 bg-oro-300"
+        />
+      )}
     </div>
   );
 }
@@ -280,6 +289,7 @@ function Partita({
         salto ? `Salta ${versoTappa(salto)} · servono 2 stelle` : sfida ? 'Sfida del giorno' : livello ? `Livello ${livello.numero}` : 'Palestra'
       }
       inPalestra={!livello && !sfida && !salto}
+      luogo={livello && !sfida && !salto ? livello.numero - 1 : undefined}
       seme={sfida ? sfidaDel(sfida).seme : undefined}
       condividi={sfida ? (f) => testoSfida(sfida, f.punteggio, f.stelle) : undefined}
       onFine={onFine}

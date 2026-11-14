@@ -23,6 +23,8 @@ export type PlayProps = {
   record: number;
   /** Fascia di difficoltà del livello del sentiero; assente in Palestra. */
   limiti?: Limiti;
+  /** Indice (da 0) del livello nel sentiero: i giochi fluidi ci disegnano sopra quel pezzo di paese. */
+  luogo?: number;
   /** Riga sopra il titolo, es. "Livello 7". */
   etichetta?: string;
   /** In Palestra il pulsante principale è "Ancora una!", nel sentiero "Continua". */

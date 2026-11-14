@@ -342,3 +342,46 @@ body::after {
 .velo-soglia {
   background: linear-gradient(rgb(13 23 102 / 0.8) 0%, rgb(13 23 102 / 0.5) 38%, rgb(13 23 102 / 0) 62%);
 }
+
+/* «Oltre la porta» (14/11): reazioni degli oggetti e luce della porta. */
+@keyframes linea-via {
+  0% { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: var(--lunga, 300); }
+}
+.linea-via {
+  animation: linea-via 0.5s ease-in forwards;
+}
+@keyframes scoppia {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.2); opacity: 0; }
+}
+.scoppia {
+  animation: scoppia 0.42s var(--ease-rimbalzo) forwards;
+}
+@keyframes anello-luce {
+  from { transform: translate(-50%, -50%) scale(0.3); opacity: 0.9; }
+  to { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+.anello-luce {
+  animation: anello-luce 0.8s ease-out forwards;
+}
+@keyframes luce-svanisce {
+  0% { opacity: 1; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.luce-svanisce {
+  animation: luce-svanisce 1.4s ease-out forwards;
+}
+@keyframes nasce {
+  0% { transform: translate(-50%, -50%) scale(0.4); }
+  55% { transform: translate(-50%, -50%) scale(1.18); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.nasce {
+  animation: nasce 0.38s var(--ease-rimbalzo);
+}
+@media (prefers-reduced-motion: reduce) {
+  .linea-via, .scoppia, .anello-luce, .luce-svanisce, .nasce { animation-duration: 1ms; }
+}

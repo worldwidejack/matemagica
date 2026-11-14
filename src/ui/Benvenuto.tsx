@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { menoMovimento } from '@/anim/orologio';
 import { suona } from '@/audio/sfx';
 import { MOTIVI } from '@/profilo/giornata';
 import { Bottone } from './kit';
@@ -18,6 +19,47 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
   // Più risposte insieme (Jack, 13/11): nel profilo finiscono unite da una virgola.
   const [motivi, setMotivi] = useState<string[]>([]);
   const cambia = (id: string) => setMotivi((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+  // «Si parte» (Jack, 14/11): il gatto va alla porta socchiusa, entra, e la luce della porta apre il mondo.
+  const [porta, setPorta] = useState(false);
+  const scena = useRef<HTMLDivElement>(null);
+  const luce = useRef<HTMLDivElement>(null);
+  const bianco = useRef<HTMLDivElement>(null);
+
+  const entra = async () => {
+    const box = scena.current?.getBoundingClientRect();
+    const l = luce.current;
+    const b = bianco.current;
+    const fine = () => onFine(motivi.join(','), OBIETTIVO_INIZIALE);
+    if (!box || !l || !b) return fine();
+    // Dove cade la porta: l'immagine è 1024×1536 in object-cover, ancorata in basso a sinistra.
+    const s = Math.max(box.width / 1024, box.height / 1536);
+    const alto = box.height - 1536 * s;
+    const porta = { x: 418 * s, y: alto + 630 * s, w: 192 * s, h: 665 * s };
+    Object.assign(l.style, {
+      left: `${porta.x}px`,
+      top: `${porta.y}px`,
+      width: `${porta.w}px`,
+      height: `${porta.h}px`,
+    });
+    const k = menoMovimento() ? 0.05 : 1;
+    try {
+      // 1. Le scritte si spengono (transizione CSS su `porta`), la porta si accende.
+      await l.animate([{ opacity: 0 }, { opacity: 0.95 }], { duration: 650 * k, delay: 300 * k, easing: 'ease-out', fill: 'forwards' }).finished;
+      // 2. Qui andrà il gatto disegnato che cammina di spalle fino alla porta ed entra
+      //    (animazione a disegni, da fare a parte: non si inventa da codice).
+      // 3. La luce della porta cresce, inghiotte il gatto e riempie lo schermo.
+      const cresce = Math.max(box.width, box.height) / Math.min(porta.w, porta.h) * 2.4;
+      l.animate([{ transform: 'scale(1)' }, { transform: `scale(${cresce})` }], {
+        duration: 900 * k,
+        easing: 'cubic-bezier(.6,0,.3,1)',
+        fill: 'forwards',
+      });
+      await b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 520 * k, delay: 480 * k, easing: 'ease-in', fill: 'forwards' }).finished;
+    } catch {
+      // Animazione interrotta (pagina chiusa): si va avanti lo stesso.
+    }
+    fine();
+  };
 
   if (passo === 0) {
     return (
@@ -62,7 +104,10 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
   }
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-notte-900 px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
+    <div
+      ref={scena}
+      className="relative flex min-h-dvh flex-col overflow-hidden bg-notte-900 px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]"
+    >
       {/* La soglia (Jack, 13/11): il gatto in basso a sinistra, la porta di luce, il pavimento scuro. */}
       <img
         src="/schermate/soglia.webp"
@@ -70,7 +115,23 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
         aria-hidden
         className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[left_bottom]"
       />
-      <div className="velo-soglia pointer-events-none absolute inset-0" aria-hidden />
+      <div
+        className={`velo-soglia pointer-events-none absolute inset-0 transition-opacity duration-300 ${porta ? 'opacity-0' : ''}`}
+        aria-hidden
+      />
+      {/* La luce della porta socchiusa: si accende, poi cresce fino a riempire lo schermo. */}
+      <div
+        ref={luce}
+        aria-hidden
+        className="pointer-events-none absolute z-20 opacity-0 mix-blend-screen"
+        style={{
+          borderRadius: '50% 50% 4px 4px / 18% 18% 4px 4px',
+          background: 'radial-gradient(ellipse at 50% 55%, var(--color-panna-50) 0%, var(--color-oro-300) 55%, rgb(255 255 255 / 0) 100%)',
+          transformOrigin: '50% 60%',
+        }}
+      />
+      <div ref={bianco} aria-hidden className="pointer-events-none absolute inset-0 z-30 bg-oro-300 opacity-0" />
+      <div className={`relative flex flex-1 flex-col transition-opacity duration-300 ${porta ? 'pointer-events-none opacity-0' : ''}`}>
       <h1 className="relative mt-8 text-[2.6rem] leading-none font-extrabold text-panna-50 [text-shadow:0_3px_0_rgb(10_17_80)]">
         Perché sei qui?
       </h1>
@@ -97,12 +158,15 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
         className="relative mt-auto py-4 text-2xl font-extrabold disabled:!opacity-100 disabled:brightness-90 disabled:grayscale-[0.7]"
         disabled={motivi.length === 0}
         onClick={() => {
+          if (porta) return;
           suona('stella');
-          onFine(motivi.join(','), OBIETTIVO_INIZIALE);
+          setPorta(true);
+          void entra();
         }}
       >
         Si parte
       </Bottone>
+      </div>
     </div>
   );
 }

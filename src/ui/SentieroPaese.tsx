@@ -17,9 +17,9 @@ import ripo from '../../public/paese/gatto-riposo.json';
  * che si scorre da sinistra a destra; i sassi stanno sulla strada dipinta.
  * Prova per il telefono: prende il posto delle isole solo sul preview, non su main.
  */
-const PEZZI = 8;
-const RAPPORTO = linea.w / linea.h; // larghezza / altezza della striscia
-const MARGINE = 0.035;
+export const PEZZI = 8;
+export const RAPPORTO = linea.w / linea.h; // larghezza / altezza della striscia
+export const MARGINE = 0.035;
 /** Il gatto fermo (sentiero) e quello che cammina: misure a schermo. */
 const GATTO_FERMO = { h: 64, w: 51 };
 const CAMM_H = 58;
@@ -30,8 +30,8 @@ const PASSO = 13;
 const MS_RIPOSO = 110;
 const SCALA = CAMM_H / camm.h; // px a schermo per ogni px del foglio
 /** Quanto paese si vede davanti al gatto, in livelli, e quanto è morbido il bordo della nebbia. */
-const VISTA = 0.55;
-const NEBBIA = '6, 10, 34';
+export const VISTA = 0.55;
+export const NEBBIA = '6, 10, 34';
 /**
  * Prova B (`?sentiero=b`, Jack 13/11 «fammi vedere prima»): stesso paese, ma un pulsante
  * solo per tutti i giochi e il gatto fermo accanto al livello attuale. Completato un livello
@@ -51,7 +51,7 @@ function statoDi(l: Livello, corrente: number, stelle: Record<string, Stelle>): 
 }
 
 /** Dove sta il livello i (di n): frazione in x, percentuale in y sulla strada. */
-function postoDi(i: number, n: number): { x: number; y: number } {
+export function postoDi(i: number, n: number): { x: number; y: number } {
   const x = MARGINE + (1 - 2 * MARGINE) * (n <= 1 ? 0 : i / (n - 1));
   const k = Math.min(linea.y.length - 1, Math.round((x * linea.w) / linea.step));
   return { x, y: linea.y[k] ?? 62 };

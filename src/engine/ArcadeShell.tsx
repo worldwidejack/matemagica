@@ -15,6 +15,8 @@ import {
   type Limiti,
 } from './regole';
 import { Risultato } from './Risultato';
+import { FineLuogo } from '@/ui/FineLuogo';
+import { Luogo } from '@/ui/Luogo';
 import { suona, vibra } from '@/audio/sfx';
 import { quesitoNuovo, rngConSeme, type Rng } from './caso';
 import type { RiepilogoPartita } from '@/profilo/store';
@@ -45,6 +47,8 @@ type Stato<R, A> = {
   budget: number;
   inizio: number;
   annuncioCombo: number | null;
+  /** Le vittorie (giuste e parziali): ognuna accende una luce nel luogo. */
+  vittorie: number;
   /** Numero del quesito: la vista del gioco si azzera a ogni quesito nuovo. */
   nRound: number;
 };
@@ -73,6 +77,7 @@ function statoIniziale<R, A>(bravura: number, limiti?: Limiti): Stato<R, A> {
     budget: 1,
     inizio: 0,
     annuncioCombo: null,
+    vittorie: 0,
     nRound: 0,
   };
 }
@@ -93,6 +98,7 @@ function premia<R, A>(st: Stato<R, A>, rapidita: number): void {
   st.comboMax = Math.max(st.comboMax, st.combo);
   st.colpo++;
   st.colpoPunti = st.colpo;
+  st.vittorie++;
   const dopo = moltiplicatore(st.combo);
   if (dopo > prima) {
     st.annuncioCombo = dopo;
@@ -132,6 +138,7 @@ export function ArcadeShell<R, A>({
   quesiti,
   etichetta,
   inPalestra,
+  luogo,
   seme,
   condividi,
   onFine,
@@ -239,7 +246,9 @@ export function ArcadeShell<R, A>({
       }
       st.d = dentroLimiti(diffDopoRisposta(st.d, ok, rapidita, undefined, PARTITA.round / totale), limiti);
       ridisegna();
-      timer.current = window.setTimeout(nuovoRound, ok ? PAUSA_GIUSTA : PAUSA_SBAGLIATA);
+      // Nei giochi fluidi la pausa è solo il tempo in cui l'oggetto reagisce.
+      const pausa = game.reazione?.(ok) ?? (ok ? PAUSA_GIUSTA : PAUSA_SBAGLIATA);
+      timer.current = window.setTimeout(nuovoRound, pausa);
     },
     [game, limiti, nuovoRound, pulisci, ridisegna, totale],
   );
@@ -278,6 +287,33 @@ export function ArcadeShell<R, A>({
     nuovoRound();
   }, [bravura, limiti, nuovoRound, pulisci, seme]);
 
+  // Legge 2: nei giochi fluidi niente «Pronto», si entra e si gioca. Si parte al
+  // montaggio e si spegne allo smontaggio (in sviluppo React monta due volte: la
+  // seconda riparte pulita, se no il timer del primo quesito andava perso).
+  const viaRif = useRef(via);
+  useEffect(() => {
+    viaRif.current = via;
+  }, [via]);
+  useEffect(() => {
+    if (!game.fluido) return;
+    viaRif.current();
+    return pulisci;
+  }, [game.fluido, pulisci]);
+  const nelLuogo = !!game.fluido && luogo !== undefined && !inPalestra;
+
+  if (st.fase === 'fine' && fine && nelLuogo) {
+    return (
+      <FineLuogo
+        luogo={luogo ?? 0}
+        vittorie={st.vittorie}
+        fine={fine.fine}
+        riepilogo={fine.riepilogo}
+        onAncora={via}
+        onEsci={() => onEsci(true)}
+      />
+    );
+  }
+
   if (st.fase === 'fine' && fine) {
     return (
       <Risultato
@@ -294,6 +330,7 @@ export function ArcadeShell<R, A>({
   }
 
   if (st.fase === 'pronto') {
+    if (game.fluido) return null;
     return (
       <Pronto
         titolo={game.title}
@@ -348,6 +385,12 @@ export function ArcadeShell<R, A>({
         </div>
       </header>
 
+      {nelLuogo && (
+        <div className="relative -mx-4 mt-2">
+          <Luogo indice={luogo ?? 0} progresso={st.giuste / totale} vittorie={st.vittorie} />
+        </div>
+      )}
+
       <div className="relative mt-2 flex items-center justify-between text-sm text-panna-100/70">
         <span className="tabular-nums">
           {Math.min(st.roundGiocati + (feedback ? 0 : 1), totale)} / {totale}
@@ -378,7 +421,7 @@ export function ArcadeShell<R, A>({
         </div>
       )}
 
-      <main className="relative flex flex-1 flex-col justify-center py-6">
+      <main className={`relative flex flex-1 flex-col justify-center ${nelLuogo ? 'py-3' : 'py-6'}`}>
         {st.round !== null && (
           <View
             key={st.nRound}
