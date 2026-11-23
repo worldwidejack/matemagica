@@ -88,6 +88,21 @@ export function Segnalino({
       className="relative block active:translate-y-0.5"
       style={{ width: larghezza, height: m.alto, touchAction: 'manipulation' }}
     >
+      {/* L'alone del livello attuale: un cerchio di luce dietro al disegno. Non un drop-shadow sul
+          disegno: Safari lo taglia sul rettangolo del segnalino e diventa un riquadro giallo (Jack, 23/11). */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 rounded-full"
+        style={{
+          width: m.alto * 2.3,
+          height: m.alto * 2.3,
+          transform: 'translate(-50%, -50%)',
+          background:
+            'radial-gradient(closest-side, color-mix(in srgb, var(--color-oro-400) 62%, transparent), color-mix(in srgb, var(--color-oro-500) 24%, transparent) 48%, transparent 100%)',
+          opacity: luce ? 1 : 0,
+          transition: 'opacity 400ms',
+        }}
+      />
       <span
         className="absolute inset-0"
         style={{
@@ -95,9 +110,6 @@ export function Segnalino({
           backgroundSize: `${info.n * 100}% 100%`,
           backgroundPosition: `${info.n > 1 ? (frame / (info.n - 1)) * 100 : 0}% 0`,
           backgroundRepeat: 'no-repeat',
-          opacity: 1,
-          filter: luce ? 'drop-shadow(0 0 10px rgb(255 196 64 / 0.95)) drop-shadow(0 0 22px rgb(255 170 40 / 0.6))' : undefined,
-          transition: 'filter 400ms',
         }}
       />
       {pulsante ? (
