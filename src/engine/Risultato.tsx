@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GattoFine, msStella } from '@/anim/Attore';
+import { useConta } from '@/anim/conta';
 import { suona } from '@/audio/sfx';
 import { ISOLE, isolaDellaTappa, nomeDellaTappa, titoloTappa } from '@/content/isole';
 import { TAPPE } from '@/content/sentiero';
@@ -33,6 +34,8 @@ const FRASI = [
 export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, condividi, onAncora, onEsci }: Props) {
   const { stelle, punteggio } = fine;
   const [visibili, setVisibili] = useState(0);
+  // Il punteggio conta fino al suo valore mentre entrano le stelle.
+  const contato = useConta(punteggio, 700, 300);
 
   // Le stelle entrano una alla volta, ognuna col suo suono, sui tempi della scena del gatto.
   useEffect(() => {
@@ -41,7 +44,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
       ids.push(
         window.setTimeout(() => {
           setVisibili(i);
-          suona('stella');
+          suona('stella', (i - 1) / 3);
         }, msStella(i)),
       );
     }
@@ -116,8 +119,8 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
       <h1 className="text-3xl font-semibold text-panna-50">{FRASI[stelle]}</h1>
 
       <div>
-        <p className="titolo text-6xl font-semibold tabular-nums text-oro-400">{punteggio}</p>
-        {nuovoRecord && <p className="animate-pop mt-1 font-bold text-oro-300">Nuovo record!</p>}
+        <p className="titolo text-6xl font-semibold tabular-nums text-oro-400">{contato}</p>
+        {nuovoRecord && contato === punteggio && <p className="animate-pop mt-1 font-bold text-oro-300">Nuovo record!</p>}
       </div>
 
       <Scheda className="w-full max-w-xs">
