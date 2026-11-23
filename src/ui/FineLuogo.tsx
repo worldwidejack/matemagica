@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
+import { GattoFine, msStella } from '@/anim/Attore';
 import { suona } from '@/audio/sfx';
 import { FiammaSchermo, TappaSchermo } from '@/engine/Risultato';
 import type { FinePartita } from '@/engine/partita';
 import type { RiepilogoPartita } from '@/profilo/store';
 import { Bottone } from './kit';
 import { Luogo } from './Luogo';
+
+/** Quanto aspetta il gatto prima di cominciare la sua scena: il tempo che il paese si apra. */
+const ATTESA = 500;
 
 /**
  * Fine livello di «Oltre la porta» (solo nel sentiero, per i giochi fluidi): niente
@@ -30,18 +34,21 @@ export function FineLuogo({
   const { stelle } = fine;
   const [aperto, setAperto] = useState(false);
   const [visibili, setVisibili] = useState(0);
+  const [scena, setScena] = useState(false);
   const [schermo, setSchermo] = useState<'luogo' | 'tappa' | 'fiamma'>('luogo');
 
   useEffect(() => {
     const ids: number[] = [];
     if (stelle > 0) {
       ids.push(window.setTimeout(() => setAperto(true), 350));
+      // Prima si apre il paese, poi parte la scena del gatto e le stelle cadono sui suoi tempi.
+      ids.push(window.setTimeout(() => setScena(true), ATTESA));
       for (let i = 1; i <= stelle; i++) {
         ids.push(
           window.setTimeout(() => {
             setVisibili(i);
             suona('stella', i / 3);
-          }, 900 + i * 380),
+          }, ATTESA + msStella(i)),
         );
       }
     }
@@ -68,7 +75,8 @@ export function FineLuogo({
   return (
     <div className="flex min-h-dvh flex-col bg-notte-900">
       <Luogo indice={luogo} progresso={1} vittorie={vittorie} alto={340} finale={aperto} />
-      <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 pb-8 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-8 text-center">
+        <div className="flex flex-col items-center">
         <div className="flex gap-2" aria-label={`${stelle} stelle su 3`}>
           {[1, 2, 3].map((i) => (
             <svg
@@ -86,6 +94,8 @@ export function FineLuogo({
               />
             </svg>
           ))}
+        </div>
+        <GattoFine stelle={stelle} altezza={128} pausa={!scena} className="relative mt-1" />
         </div>
         <p className="text-lg font-bold text-panna-100">
           {stelle === 0 ? 'La nebbia è tornata. Riprova!' : stelle === 3 ? 'Perfetto. La strada è libera.' : 'La strada è libera.'}

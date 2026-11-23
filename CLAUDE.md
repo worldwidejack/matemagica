@@ -120,6 +120,7 @@ smonta i trucchi ovvi e `npm run verifica` li misura su 46.000 quesiti:
 | Il Numero bersaglio | "sommo tutto"; un'operazione sola | 0% da d≥2; risolutore esaustivo |
 | La Bilancia | "la leggo da una bilancia sola"; da d 7 "i pesi sono tutti positivi" | soluzione unica e incrocio obbligato (forza bruta, anche sui negativi); negativi 15-23%, la chiesta è la negativa nel 34% |
 | Trova la regola | "aggiungo l'ultimo salto"; "mi ricordo la risposta" (sequenze scritte) | 100% / 42% / 0% / 0% / 0% per fascia; ogni sequenza scritta ≤ 19% dei quesiti (prima fino a metà) |
+| I due divisori | «provo 2, 3, 5 / guardo l'ultima cifra»; «colpisco sempre il 7» o «spazzo 7, 11, 13 in fila» | 2·3·5 bastano 99% (d0) → 24% (d5) → 0% da d6; ultima cifra 0% da d6; miglior tacca fissa 29% a d8-10; chi spazza in fila sbaglia 1,66 / 1,84 / 1,99 colpi a quesito (d8/9/10) |
 
 Le famiglie nuove dalle risposte di papà (16/10) restano minoritarie: in Chi è più grande? mista
 23%, divisione 11% (da d 4), quadrato 6% (da d 2); in Coppie differenza 15%, multiplo 9%, primi

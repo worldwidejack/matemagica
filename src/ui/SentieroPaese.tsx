@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { GattoVivo } from '@/anim/Attore';
 import { ascolta, menoMovimento } from '@/anim/orologio';
 import { SENTIERO, type Livello } from '@/content/sentiero';
 import type { Stelle } from '@/engine/regole';
@@ -289,12 +290,10 @@ export function SentieroPaese({
                   onTocca={() => onLivello(l)}
                 />
                 {stato === 'attuale' && !inSequenza && (
-                  <img
-                    src="/personaggi/gatto.webp"
-                    alt=""
-                    draggable={false}
-                    className="pointer-events-none absolute"
-                    style={{ height: 64, right: '100%', bottom: 0, marginRight: -6 }}
+                  <GattoVivo
+ altezza={GATTO_FERMO.h}
+ className="pointer-events-none absolute"
+ style={{ right: '100%', bottom: 0, marginRight: -6 }}
                   />
                 )}
               </div>
@@ -302,12 +301,10 @@ export function SentieroPaese({
           })}
           {/* Il gatto fermo accanto al sasso da cui parte, poi quello che cammina. */}
           {inSequenza && partenza && fase === 'fiore' && (
-            <img
-              src="/personaggi/gatto.webp"
-              alt=""
-              draggable={false}
-              className="pointer-events-none absolute left-0 top-0"
-              style={{ height: GATTO_FERMO.h, zIndex: 5, transform: `translate(${partenza.x - GATTO_FERMO.w / 2}px, ${partenza.y - GATTO_FERMO.h}px)` }}
+            <GattoVivo
+ altezza={GATTO_FERMO.h}
+ className="pointer-events-none absolute left-0 top-0"
+ style={{ zIndex: 5, transform: `translate(${partenza.x - GATTO_FERMO.w / 2}px, ${partenza.y - GATTO_FERMO.h}px)` }}
             />
           )}
           {inSequenza && partenza && fase === 'cammina' && !SEMPLICE && (
@@ -327,13 +324,10 @@ export function SentieroPaese({
             />
           )}
           {inSequenza && cammino && fase === 'cammina' && SEMPLICE && (
-            <img
-              src="/personaggi/gatto.webp"
-              alt=""
-              draggable={false}
-              className="pointer-events-none absolute left-0 top-0"
-              style={{
-                height: GATTO_FERMO.h,
+            <GattoVivo
+ altezza={GATTO_FERMO.h}
+ className="pointer-events-none absolute left-0 top-0"
+ style={{
                 zIndex: 5,
                 transform: `translate(${gattoDi(cammino.a).x - GATTO_FERMO.w / 2}px, ${gattoDi(cammino.a).y - GATTO_FERMO.h}px)`,
                 animation: `comparsa ${MS_SCORRI * 0.6}ms ${MS_SCORRI * 0.4}ms both`,

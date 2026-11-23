@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { GattoVivo } from '@/anim/Attore';
 import { SENTIERO } from '@/content/sentiero';
 import { FAMIGLIA_DI, Segnalino, altezzaDi, appoggioDi } from './Segnalino';
 import { MARGINE, NEBBIA, PEZZI, RAPPORTO, VISTA, postoDi } from './SentieroPaese';
@@ -120,13 +121,7 @@ export function Luogo({
       >
         <Segnalino famiglia={fam} stato={stato} numero={l.numero} stelle={0} etichetta="" onTocca={() => {}} />
         {i === indice && (
-          <img
-            src={`${import.meta.env.BASE_URL}personaggi/gatto.webp`}
-            alt=""
-            draggable={false}
-            className="pointer-events-none absolute"
-            style={{ height: 64, right: '100%', bottom: 0, marginRight: -6 }}
-          />
+          <GattoVivo altezza={64} className="pointer-events-none absolute" style={{ right: '100%', bottom: 0, marginRight: -6 }} />
         )}
         {i === indice + 1 && finale && (
           <span

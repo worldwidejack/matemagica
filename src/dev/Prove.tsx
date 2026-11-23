@@ -2,6 +2,7 @@ import type { GameId } from '@/engine/cartuccia';
 import { Risultato } from '@/engine/Risultato';
 import { GIOCHI } from '@/games/registro';
 import { MEDAGLIE } from '@/profilo/medaglie';
+import { FineLuogo } from '@/ui/FineLuogo';
 import type { RiepilogoPartita } from '@/profilo/store';
 
 /**
@@ -48,6 +49,22 @@ export function Prove({ quale }: { quale: string }) {
           etichetta={luogo !== null ? `Livello ${Number(luogo) + 1}` : 'Palestra'}
           inPalestra={luogo === null}
           onFine={() => riepilogo}
+          onEsci={() => location.reload()}
+        />
+      </div>
+    );
+  }
+  // ?prova=fineluogo&stelle=2&luogo=3: la fine di un livello del sentiero, senza giocarlo.
+  if (quale === 'fineluogo') {
+    const luogo = Number(q.get('luogo') ?? 2);
+    return (
+      <div className="mx-auto grid min-h-full max-w-md grid-cols-[minmax(0,1fr)]">
+        <FineLuogo
+          luogo={luogo}
+          vittorie={stelle > 0 ? 5 : 2}
+          fine={{ punteggio: 1240, stelle, bravuraDopo: 3.9, dati: [] }}
+          riepilogo={{ ...riepilogo, tappaCompletata: undefined, fiammaAccesa: false }}
+          onAncora={() => location.reload()}
           onEsci={() => location.reload()}
         />
       </div>
