@@ -340,7 +340,7 @@ body::after {
 
 /* «Perché sei qui?»: la notte scende dall'alto sulla soglia, così titolo e riquadri si leggono. */
 .velo-soglia {
-  background: linear-gradient(rgb(13 23 102 / 0.8) 0%, rgb(13 23 102 / 0.5) 38%, rgb(13 23 102 / 0) 62%);
+  background: linear-gradient(rgb(3 12 36 / 0.75) 0%, rgb(3 12 36 / 0.4) 38%, rgb(3 12 36 / 0) 60%);
 }
 
 /* «Oltre la porta» (14/11): reazioni degli oggetti e luce della porta. */
