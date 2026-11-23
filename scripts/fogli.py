@@ -13,11 +13,18 @@ Uso (serve il Python con Pillow e numpy: /opt/homebrew/bin/python3.14):
   python3.14 scripts/fogli.py render/giusto/ --nome giusto
   python3.14 scripts/fogli.py griglia.png --griglia 4x2 --nome tocco --lato 256
   python3.14 scripts/fogli.py bottone.png --tremolio 3 --nome bottone --loop
+  python3.14 scripts/fogli.py seq/ --nome gatto-fine-1 --unici --fps 24 --lato 360 --riquadro 104,235,750,1048
   python3.14 scripts/fogli.py --manifest      # rigenera solo manifest.ts dai .json
+
+--unici: per le sequenze esportate da Fenaki (un PNG per fotogramma, tanti uguali di fila).
+Nel foglio va un disegno solo per ogni disegno diverso; il copione (`passi`: quale disegno e
+per quanti fotogrammi) va nel .json e `Scatto` lo segue. I disegni non si toccano: si
+ritagliano tutti allo stesso riquadro e si riducono interi.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import re
@@ -220,15 +227,24 @@ def scrivi_manifest() -> None:
         "  loop: boolean;",
         "  /** peso del foglio */",
         "  kb: number;",
+        "  /** il copione, se i disegni durano tempi diversi: [disegno nel foglio, fotogrammi che dura] */",
+        "  passi?: readonly (readonly number[])[];",
+        "  /** dove sta il personaggio nel primo fotogramma: [x, y, larghezza, altezza] in px del foglio */",
+        "  corpo?: readonly number[];",
         "};",
         "",
         "export const FOGLI = {",
     ]
     for v in voci:
+        extra = ""
+        if v.get("corpo"):
+            extra += f", corpo: {json.dumps(v['corpo'])}"
+        if v.get("passi"):
+            extra += f", passi: {json.dumps(v['passi'], separators=(',', ':'))}"
         righe.append(
             f"  '{v['nome']}': {{ url: {identificatore(v['nome'])}, fps: {v['fps']}, fotogrammi: {v['fotogrammi']}, "
             f"colonne: {v['colonne']}, righe: {v['righe']}, w: {v['w']}, h: {v['h']}, "
-            f"loop: {'true' if v['loop'] else 'false'}, kb: {v['kb']} }},"
+            f"loop: {'true' if v['loop'] else 'false'}, kb: {v['kb']}{extra} }},"
         )
     righe += ["} satisfies Record<string, Foglio>;", "", "export type NomeFoglio = keyof typeof FOGLI;", ""]
     MANIFEST.write_text("\n".join(righe))
@@ -252,6 +268,9 @@ def main() -> None:
     p.add_argument("--salta", default="", help="fotogrammi da buttare, numerati da 1 (es. 3,7)")
     p.add_argument("--tremolio", type=int, default=0, help="da un disegno fermo: N fotogrammi che tremano")
     p.add_argument("--forza", type=float, default=2.5, help="ampiezza del tremolio in px della sorgente")
+    p.add_argument("--unici", action="store_true", help="tieni un disegno per ogni disegno diverso e scrivi il copione (passi)")
+    p.add_argument("--riquadro", help="X0,Y0,X1,Y1: ritaglio fisso in px della sorgente (lo stesso per più animazioni)")
+    p.add_argument("--corpo", action="store_true", help="scrivi nel .json dove sta il personaggio nel primo fotogramma")
     p.add_argument("--anteprima", action="store_true", help="scrive <nome>-controllo.png accanto alla sorgente")
     p.add_argument("--manifest", action="store_true", help="rigenera solo src/anim/manifest.ts")
     a = p.parse_args()
@@ -287,7 +306,39 @@ def main() -> None:
     fotogrammi = [f for i, f in enumerate(fotogrammi, 1) if i not in via]
     if a.centra:
         fotogrammi = centra(fotogrammi)
-    fotogrammi, avvisi = ritaglia_insieme(fotogrammi)
+
+    # Il copione: disegni uguali di fila diventano un passo solo; un disegno che torna si riusa.
+    passi: list[list[int]] | None = None
+    if a.unici:
+        posto: dict[str, int] = {}
+        unici: list[Image.Image] = []
+        passi = []
+        for f in fotogrammi:
+            chiave = hashlib.md5(f.tobytes()).hexdigest()
+            if chiave not in posto:
+                posto[chiave] = len(unici)
+                unici.append(f)
+            i = posto[chiave]
+            if passi and passi[-1][0] == i:
+                passi[-1][1] += 1
+            else:
+                passi.append([i, 1])
+        fotogrammi = unici
+
+    if a.riquadro:
+        box = tuple(int(x) for x in a.riquadro.split(","))
+        if len(box) != 4:
+            p.error("--riquadro: X0,Y0,X1,Y1")
+        avvisi = []
+        for i, f in enumerate(fotogrammi):
+            s_ = scatola(f)
+            if s_ and (s_[0] < box[0] or s_[1] < box[1] or s_[2] > box[2] or s_[3] > box[3]):
+                avvisi.append(f"disegno {i + 1}: esce dal riquadro {s_}")
+        fotogrammi = [f.crop(box) for f in fotogrammi]
+    else:
+        fotogrammi, avvisi = ritaglia_insieme(fotogrammi)
+    corpo_sorgente = scatola(fotogrammi[0]) if a.corpo else None
+    k_riduci = (a.lato - 2 * BORDO) / max(fotogrammi[0].width, fotogrammi[0].height)
     fotogrammi = [riduci(f, a.lato) for f in fotogrammi]
     foglio, colonne, righe = impagina(fotogrammi)
 
@@ -306,7 +357,15 @@ def main() -> None:
         "loop": a.loop or bool(a.tremolio),
         "kb": kb,
     }
-    (FOGLI / f"{a.nome}.json").write_text(json.dumps(meta, indent=1) + "\n")
+    if corpo_sorgente:
+        x0, y0, x1, y1 = corpo_sorgente
+        meta["corpo"] = [round(v, 1) for v in (BORDO + x0 * k_riduci, BORDO + y0 * k_riduci, (x1 - x0) * k_riduci, (y1 - y0) * k_riduci)]
+    if passi:
+        meta["passi"] = passi
+    testo = json.dumps({k: v for k, v in meta.items() if k != "passi"}, indent=1)
+    if passi:
+        testo = testo[:-2] + ',\n "passi": ' + json.dumps(passi, separators=(",", ":")) + "\n}"
+    (FOGLI / f"{a.nome}.json").write_text(testo + "\n")
     print(f"{a.nome}: {len(fotogrammi)} fotogrammi {w}×{h} in {colonne}×{righe}, {kb} KB → {dest.relative_to(RADICE)}")
     for av in avvisi:
         print("  attenzione:", av, file=sys.stderr)

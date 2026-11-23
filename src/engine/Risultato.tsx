@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { GattoFine, msStella } from '@/anim/Attore';
 import { suona } from '@/audio/sfx';
 import { ISOLE, isolaDellaTappa, nomeDellaTappa, titoloTappa } from '@/content/isole';
 import { TAPPE } from '@/content/sentiero';
@@ -33,7 +34,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
   const { stelle, punteggio } = fine;
   const [visibili, setVisibili] = useState(0);
 
-  // Le stelle entrano una alla volta, ognuna col suo suono.
+  // Le stelle entrano una alla volta, ognuna col suo suono, sui tempi della scena del gatto.
   useEffect(() => {
     const ids: number[] = [];
     for (let i = 1; i <= stelle; i++) {
@@ -41,7 +42,7 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
         window.setTimeout(() => {
           setVisibili(i);
           suona('stella');
-        }, 350 + i * 380),
+        }, msStella(i)),
       );
     }
     if (riepilogo.livelloDopo > riepilogo.livelloPrima) {
@@ -91,12 +92,13 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
         {titolo}
       </p>
 
+      <div className="flex flex-col items-center">
       <div className="flex gap-2">
         {[1, 2, 3].map((i) => (
           <svg
             key={i}
             viewBox="0 0 24 24"
-            className={`h-16 w-16 ${i === 2 ? '-translate-y-3' : ''} ${i <= visibili ? 'animate-stella drop-shadow-[0_0_14px_var(--color-oro-500)]' : ''}`}
+            className={`h-14 w-14 ${i === 2 ? '-translate-y-3' : ''} ${i <= visibili ? 'animate-stella drop-shadow-[0_0_14px_var(--color-oro-500)]' : ''}`}
             aria-hidden
           >
             <path
@@ -107,6 +109,9 @@ export function Risultato({ titolo, etichetta, fine, riepilogo, inPalestra, cond
             />
           </svg>
         ))}
+      </div>
+      {/* Il gatto fa la sua scena sotto le stelle: quando salta le raggiunge. */}
+      <GattoFine stelle={stelle} altezza={128} className="relative mt-1" />
       </div>
       <h1 className="text-3xl font-semibold text-panna-50">{FRASI[stelle]}</h1>
 

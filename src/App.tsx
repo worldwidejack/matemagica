@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { precaricaFogli } from '@/anim/precarica';
 import { setMutoAudio, setVibrazioneAudio, suona } from '@/audio/sfx';
 import type { GameId } from '@/engine/cartuccia';
 import type { FinePartita } from '@/engine/partita';
@@ -77,6 +78,11 @@ export default function App() {
   /** Il gatto è appena entrato dalla porta: la sua luce si spegne sul primo luogo. */
   const [luce, setLuce] = useState(false);
 
+  // Le scene del gatto si scaricano con calma dopo l'avvio: a fine partita partono senza buco.
+  useEffect(() => {
+    const id = window.setTimeout(() => void precaricaFogli(), 1500);
+    return () => window.clearTimeout(id);
+  }, []);
   useEffect(() => setMutoAudio(muto), [muto]);
   useEffect(() => setVibrazioneAudio(vibrazione), [vibrazione]);
 
