@@ -3,11 +3,15 @@
  * zero dipendenze. Sono segnaposto: i suoni veri arrivano con l'identità (B8),
  * e basterà cambiare questo file.
  *
+ * 23/11: il «giusto» sale di un semitono per ogni risposta giusta di fila (tetto 8),
+ * le stelle salgono di tono una dopo l'altra, l'errore è una nota morbida che scende
+ * (mai un ronzio), e c'è il «tick» del punteggio che conta.
+ *
  * Su iPhone l'audio si sblocca solo dentro un tocco: il primo `suona()`
  * chiamato da un click crea e riattiva il contesto.
  */
 
-export type Suono = 'tap' | 'giusto' | 'sbagliato' | 'combo' | 'fine' | 'stella' | 'livello' | 'festa';
+export type Suono = 'tap' | 'tick' | 'giusto' | 'sbagliato' | 'combo' | 'fine' | 'stella' | 'livello' | 'festa';
 
 let ctx: AudioContext | null = null;
 /** Il bus d'uscita: un compressore leggero e un filo d'eco, come in una piazza di sera. */
@@ -87,19 +91,32 @@ function note(lista: Nota[]): void {
   }
 }
 
-/** `intensita` (0-1) alza il tono del "giusto" col combo: più vai, più sale. */
+/** Do, mi, sol: la prima, la seconda e la terza stella. */
+const SCALA_STELLE = [1, 1.26, 1.498] as const;
+
+/**
+ * `intensita` (0-1): per il «giusto» sono le giuste di fila in dodicesimi (combo / 12),
+ * un semitono l'una fino a 8; per la «stella» è quale stella (0, ⅓, ⅔).
+ */
 export function suona(s: Suono, intensita = 0): void {
-  const su = 1 + Math.min(1, intensita) * 0.5;
+  const i = Math.max(0, Math.min(1, intensita));
+  const su = 2 ** (Math.min(8, Math.round(i * 12)) / 12);
   switch (s) {
     case 'tap':
       return note([{ f: 660, t: 0, dur: 0.05, tipo: 'sine', vol: 0.08 }]);
+    case 'tick':
+      return note([{ f: 1320 * (1 + i * 0.5), t: 0, dur: 0.03, tipo: 'sine', vol: 0.05 }]);
     case 'giusto':
       return note([
         { f: 660 * su, t: 0, dur: 0.09, campana: true },
         { f: 990 * su, t: 0.06, dur: 0.18, campana: true },
       ]);
     case 'sbagliato':
-      return note([{ f: 220, t: 0, dur: 0.28, tipo: 'sawtooth', vol: 0.1, aF: 110 }]);
+      // Due note tonde che scendono: «quasi», non «sbagliato».
+      return note([
+        { f: 330, t: 0, dur: 0.16, tipo: 'triangle', vol: 0.13, aF: 262 },
+        { f: 247, t: 0.12, dur: 0.28, tipo: 'sine', vol: 0.14, aF: 196 },
+      ]);
     case 'combo':
       return note([
         { f: 784, t: 0, dur: 0.08 },
@@ -107,7 +124,7 @@ export function suona(s: Suono, intensita = 0): void {
         { f: 1319, t: 0.14, dur: 0.2 },
       ]);
     case 'stella':
-      return note([{ f: 1047, t: 0, dur: 0.45, tipo: 'sine', vol: 0.2, campana: true }]);
+      return note([{ f: 1047 * (SCALA_STELLE[Math.round(i * 3)] ?? 1.498), t: 0, dur: 0.45, tipo: 'sine', vol: 0.2, campana: true }]);
     case 'fine':
       return note([
         { f: 523, t: 0, dur: 0.15 },
@@ -135,7 +152,42 @@ export function suona(s: Suono, intensita = 0): void {
   }
 }
 
-/** Vibrazione breve su Android (iPhone la ignora). */
+/**
+ * Il colpetto su iPhone: Safari non ha `navigator.vibrate`, ma un interruttore
+ * (`<input type="checkbox" switch>`) dà il suo «tic» quando scatta. Se ne crea uno
+ * nascosto, lo si fa scattare e lo si toglie. Dove l'interruttore non esiste non succede niente.
+ */
+function colpetto(): void {
+  if (typeof document === 'undefined') return;
+  const etichetta = document.createElement('label');
+  etichetta.setAttribute('aria-hidden', 'true');
+  etichetta.style.display = 'none';
+  const leva = document.createElement('input');
+  leva.type = 'checkbox';
+  leva.setAttribute('switch', '');
+  etichetta.appendChild(leva);
+  document.head.appendChild(etichetta);
+  etichetta.click();
+  etichetta.remove();
+}
+
+/** Solo i telefoni Apple: lì la vibrazione del browser non c'è. */
+const SOLO_COLPETTO = ((): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  const nav: Navigator = navigator;
+  if (typeof nav.vibrate === 'function') return false;
+  return /iP(hone|ad|od)/.test(nav.userAgent) || nav.maxTouchPoints > 1;
+})();
+
+/** Vibrazione breve: su Android quella del browser, su iPhone il colpetto dell'interruttore (due per un errore). */
 export function vibra(ms: number): void {
-  if (vibrazione && typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate(ms);
+  if (!vibrazione || typeof navigator === 'undefined') return;
+  const nav: Navigator = navigator;
+  if (typeof nav.vibrate === 'function') {
+    nav.vibrate(ms);
+    return;
+  }
+  if (!SOLO_COLPETTO) return;
+  colpetto();
+  if (ms >= 60) window.setTimeout(colpetto, 110);
 }
