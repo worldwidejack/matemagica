@@ -21,6 +21,8 @@ export type GameId =
   | 'bilancia'
   | 'regola'
   | 'quadrato'
+  /** Giochi nuovi del 23/11 (bozze per papà). */
+  | 'divisori'
   /** Lampo misto: i giochi arcade mescolati, un quesito ciascuno. */
   | 'misto';
 

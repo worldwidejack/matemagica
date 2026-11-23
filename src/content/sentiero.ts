@@ -26,8 +26,8 @@ const ORDINE: Riga[] = [
   { gioco: 'piu-grande' },
   { gioco: 'catena' },
   { gioco: 'regola', storia: 'al-khwarizmi' },
-  // ── Tappa 3 ──
-  { gioco: 'coppie' },
+  // ── Tappa 3 ── (da qui entrano i giochi nuovi del 23/11: bozza, l'ordine lo decide papà)
+  { gioco: 'divisori' },
   { gioco: 'bersaglio' },
   { gioco: 'stima' },
   { gioco: 'bilancia' },
@@ -149,7 +149,7 @@ export const COSTELLAZIONI = [
 const TAPPE_GENERATE = 60;
 
 /** I giochi che girano nelle tappe tra le stelle. */
-const ROTAZIONE: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'misto'];
+const ROTAZIONE: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'divisori', 'misto'];
 
 function semeLivelli(t: number): () => number {
   let a = (t * 2654435761) >>> 0;

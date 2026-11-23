@@ -55,6 +55,11 @@ export const SPIEGAZIONI: Record<GameId, Spiegazione> = {
     trucco: 'Cerca la riga (o colonna, o diagonale) a cui manca un numero solo. Poi chiediti: quanto vale il centro?',
     esempio: '8 · 1 · 6  →  somma 15: in ogni riga, colonna e diagonale.',
   },
+  divisori: {
+    come: 'Compare un cristallo con un numero. Gira lo scalpello sull’anello fino a un numero che lo divide, poi spingilo verso il centro: il cristallo si spacca nei due numeri che moltiplicati lo danno.',
+    trucco: 'Prima guarda l’ultima cifra: pari si spacca col 2, 0 o 5 col 5. Somma le cifre: se fa 3, 6 o 9 si spacca col 3. Quando nessuno dei tre funziona, prova 7, 11, 13… uno per volta, a mente.',
+    esempio: '91 non è pari, non finisce per 5, 9 + 1 = 10 non va col 3. Col 7? 7 × 13 = 91: si spacca in 7 e 13.',
+  },
   misto: {
     come: 'Un quesito per gioco, sempre diverso: confronti, catene, stime e coppie mescolati.',
     trucco: 'Leggi il nome del gioco sopra al quesito prima di tutto: cambia il modo di pensare.',
