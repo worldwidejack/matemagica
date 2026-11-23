@@ -3,24 +3,44 @@ import { menoMovimento } from '@/anim/orologio';
 import { suona } from '@/audio/sfx';
 import { MOTIVI } from '@/profilo/giornata';
 import { Bottone } from './kit';
-import { Segnalino } from './Segnalino';
 
 /** L'obiettivo del giorno di partenza (3 partite): si cambia dal profilo. */
 const OBIETTIVO_INIZIALE = 3;
 
+/** La tela dei disegni dell'intro e il vano della porta spalancata (da lì parte la luce). */
+const TELA = { w: 1024, h: 1536 };
+const VANO = { x: 690, y: 676, w: 200, h: 352 };
+/** Quanto a sinistra sta la finestra sul disegno: gatto intero, porta sul bordo destro (Jack, 14/11). */
+const FUOCO_X = 0.49;
+
 /**
- * La prima apertura: un saluto, una domanda da un tocco, e subito il primo livello.
+ * La scaletta di «Si parte» (Jack, 23/11: niente camminata verso la porta): il gatto smette di
+ * salutare, si alza e si gira verso la porta mentre si spalanca; poi la luce riempie lo schermo
+ * e ci porta nel paese. Ogni quadro è un disegno intero: [millisecondi, porta, gatto].
+ */
+const SCALETTA: [number, number, number][] = [
+  [240, 2, 2],
+  [370, 2, 3],
+  [500, 3, 4],
+  [960, 4, 5],
+  [1120, 5, 5],
+];
+const LUCE_DA = 1120;
+const QUADRI = [1, 2, 3, 4, 5];
+
+const aspetta = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * La prima apertura: una domanda da un tocco, la porta che si spalanca, e subito il paese.
  * Niente account, niente moduli. (La domanda «quanto tempo al giorno» tolta il 18/10,
  * su richiesta di Jack.)
  */
 export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: number) => void }) {
-  // Si apre subito sulla domanda (Jack, 13/11); il passo 0 diventerà il volo nel mondo, dopo la domanda.
-  const [passo, setPasso] = useState<0 | 1>(1);
   // Più risposte insieme (Jack, 13/11): nel profilo finiscono unite da una virgola.
   const [motivi, setMotivi] = useState<string[]>([]);
   const cambia = (id: string) => setMotivi((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
-  // «Si parte» (Jack, 14/11): il gatto va alla porta socchiusa, entra, e la luce della porta apre il mondo.
   const [porta, setPorta] = useState(false);
+  const [quadro, setQuadro] = useState({ porta: 1, gatto: 1 });
   const scena = useRef<HTMLDivElement>(null);
   const luce = useRef<HTMLDivElement>(null);
   const bianco = useRef<HTMLDivElement>(null);
@@ -31,90 +51,73 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
     const b = bianco.current;
     const fine = () => onFine(motivi.join(','), OBIETTIVO_INIZIALE);
     if (!box || !l || !b) return fine();
-    // Dove cade la porta: l'immagine è 1024×1536 in object-cover, ancorata in basso a sinistra.
-    const s = Math.max(box.width / 1024, box.height / 1536);
-    const alto = box.height - 1536 * s;
-    const porta = { x: 418 * s, y: alto + 630 * s, w: 192 * s, h: 665 * s };
+    // Dove cade il vano della porta: i disegni sono in object-cover, ancorati in basso.
+    const s = Math.max(box.width / TELA.w, box.height / TELA.h);
+    const sx = (box.width - TELA.w * s) * FUOCO_X;
+    const alto = box.height - TELA.h * s;
+    const vano = { x: sx + VANO.x * s, y: alto + VANO.y * s, w: VANO.w * s, h: VANO.h * s };
     Object.assign(l.style, {
-      left: `${porta.x}px`,
-      top: `${porta.y}px`,
-      width: `${porta.w}px`,
-      height: `${porta.h}px`,
+      left: `${vano.x}px`,
+      top: `${vano.y}px`,
+      width: `${vano.w}px`,
+      height: `${vano.h}px`,
     });
     const k = menoMovimento() ? 0.05 : 1;
     try {
-      // 1. Le scritte si spengono (transizione CSS su `porta`), la porta si accende.
-      await l.animate([{ opacity: 0 }, { opacity: 0.95 }], { duration: 650 * k, delay: 300 * k, easing: 'ease-out', fill: 'forwards' }).finished;
-      // 2. Qui andrà il gatto disegnato che cammina di spalle fino alla porta ed entra
-      //    (animazione a disegni, da fare a parte: non si inventa da codice).
-      // 3. La luce della porta cresce, inghiotte il gatto e riempie lo schermo.
-      const cresce = Math.max(box.width, box.height) / Math.min(porta.w, porta.h) * 2.4;
-      l.animate([{ transform: 'scale(1)' }, { transform: `scale(${cresce})` }], {
-        duration: 900 * k,
-        easing: 'cubic-bezier(.6,0,.3,1)',
-        fill: 'forwards',
-      });
-      await b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 520 * k, delay: 480 * k, easing: 'ease-in', fill: 'forwards' }).finished;
+      // 1. Le scritte si spengono (transizione CSS su `porta`); il gatto si gira, la porta si apre.
+      let ora = 0;
+      for (const [quando, p, g] of SCALETTA) {
+        await aspetta((quando - ora) * k);
+        ora = quando;
+        setQuadro({ porta: p, gatto: g });
+        if (p === 3 && g === 4) suona('combo');
+      }
+      await aspetta((LUCE_DA - ora) * k);
+      // 2. La luce della porta spalancata cresce e riempie lo schermo.
+      suona('livello');
+      const cresce = (Math.max(box.width, box.height) / Math.min(vano.w, vano.h)) * 2.6;
+      l.animate(
+        [
+          { opacity: 0, transform: 'scale(1)' },
+          { opacity: 0.95, transform: 'scale(1.3)', offset: 0.25 },
+          { opacity: 1, transform: `scale(${cresce})` },
+        ],
+        { duration: 760 * k, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'forwards' },
+      );
+      await b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420 * k, delay: 380 * k, easing: 'ease-in', fill: 'forwards' }).finished;
     } catch {
       // Animazione interrotta (pagina chiusa): si va avanti lo stesso.
     }
     fine();
   };
 
-  if (passo === 0) {
-    return (
-      <div className="cielo-stellato relative flex min-h-dvh flex-col overflow-hidden">
-        <div className="relative px-6 pt-[calc(env(safe-area-inset-top)+3.5rem)] text-center">
-          <h1 className="animate-pop text-6xl font-semibold text-panna-50 drop-shadow-lg">Matemagica</h1>
-          <p className="titolo mt-3 text-xl text-balance text-panna-100 italic">Piccole sfide, grandi viaggi nella mente</p>
-        </div>
-        {/* Il paese dei numeri: un pezzo vero della strada, il fiore che sboccia e il gatto che aspetta. */}
-        <div className="pointer-events-none flex min-h-0 flex-1 items-center justify-center py-4" aria-hidden>
-          <div
-            className="relative overflow-hidden rounded-[2rem] shadow-[0_10px_40px_rgb(0_0_0/0.45)]"
-            style={{ width: 'min(86%, calc((100dvh - 24rem) * 0.9))', aspectRatio: '9 / 10' }}
-          >
-            <img
-              src="/paese/p1.webp"
-              alt=""
-              className="absolute inset-y-0 h-full max-w-none"
-              style={{ left: '-62%', width: 'auto' }}
-            />
-            <div className="absolute" style={{ left: '56%', top: '66%', transform: 'translate(-50%, -88%)' }}>
-              <Segnalino famiglia="fiore-a" stato="attuale" numero={1} stelle={0} etichetta="" onTocca={() => {}} />
-              <img
-                src="/personaggi/gatto.webp"
-                alt=""
-                className="animate-respiro-scatti absolute origin-bottom"
-                style={{ height: 70, right: '100%', bottom: 0, marginRight: -6 }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="relative flex flex-col items-center gap-3 px-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
-          <p className="max-w-xs text-center text-lg text-panna-50 drop-shadow">
-            Un paese fatto di numeri, un passo dopo l'altro. Ogni fiore, cristallo e anello è un gioco che allena la mente.
-          </p>
-          <Bottone freccia respira className="w-full max-w-xs" onClick={() => setPasso(1)}>
-            Iniziamo
-          </Bottone>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       ref={scena}
       className="relative flex min-h-dvh flex-col overflow-hidden bg-notte-900 px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]"
     >
-      {/* La soglia (Jack, 13/11): il gatto in basso a sinistra, la porta di luce, il pavimento scuro. */}
-      <img
-        src="/schermate/soglia.webp"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[left_bottom]"
-      />
+      {/* La scena dell'intro (Jack, 14/11): il gatto che saluta nel fascio di luce, la porta socchiusa a destra.
+          Tutti i quadri sono già in pagina (nascosti): al «Si parte» non si aspetta nessun caricamento. */}
+      {QUADRI.map((n) => (
+        <img
+          key={`p${n}`}
+          src={`/intro/porta-${n}.webp`}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${FUOCO_X * 100}% 100%`, visibility: n === quadro.porta ? 'visible' : 'hidden' }}
+        />
+      ))}
+      {QUADRI.map((n) => (
+        <img
+          key={`g${n}`}
+          src={`/intro/gatto-${n}.webp`}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${FUOCO_X * 100}% 100%`, visibility: n === quadro.gatto ? 'visible' : 'hidden' }}
+        />
+      ))}
       <div
         className={`velo-soglia pointer-events-none absolute inset-0 transition-opacity duration-300 ${porta ? 'opacity-0' : ''}`}
         aria-hidden
