@@ -7,6 +7,16 @@
 
 ## Stato
 
+**Versione definitiva su `main` (notte del 23/11/2026, PR #12-#18).** Jack: «rendi questa la versione ultima definitiva
+su github». `main` e il sito live sono il paese (sentiero da sinistra a destra col gatto che cammina), l'intro senza
+camminata (porta che si spalanca), la fine partita col gatto (1★ v15, 2★/3★ v3d non approvate), 8 giochi rifatti coi
+gesti (`fluido`), 3 giochi nuovi in bozza per papà (`divisori` L11, `aree` L14, `sudoku` L18; domande in
+`docs/papa/03-per-papa.md`) e il giro di juice (`src/audio/sfx.ts`, `src/anim/conta.ts`). Il `main` vecchio (isole) è
+nel tag `main-isole`. Rotte di prova: `?dev`, `?papa`, `?prova=gioco&id=<GameId>&b=<bravura>`,
+`?prova=fineluogo&stelle=N&luogo=n`, `?prova=risultato&stelle=N`, `?cammino=L<n>`. Da fare dopo la prova con papà:
+2★/3★ in Fenaki, medaglioni dipinti dei giochi nuovi (oggi ÷ ▱ #), suoni veri, camminata verso la porta solo in
+After Effects. Tutto ciò che sta sotto in questa sezione è storia fino al 18/10.
+
 **Ripartiti da zero il 7 ottobre 2026**, dopo l'intervista a Jack e papà. Il lavoro
 precedente (M0/M1, gioco dei segni) è stato accantonato: resta solo nella storia di git.
 
