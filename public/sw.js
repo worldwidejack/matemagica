@@ -8,9 +8,10 @@
  * la pagina, i file con l'hash di questa versione (letti dalla pagina stessa: js, css,
  * font latini, fogli delle animazioni) e i disegni. Senza, al primo avvio o dopo un
  * aggiornamento (che cancella la cache vecchia) l'app offline si aprirebbe bianca.
- * Per forzare un aggiornamento della cache basta cambiare VERSIONE.
+ * VERSIONE: alla build vite.config.ts ci scrive il timbro della pubblicazione (al posto di
+ * «sviluppo»), così ogni versione messa online butta la cache della precedente da sola.
  */
-const VERSIONE = 'matemagica-v3';
+const VERSIONE = 'matemagica-sviluppo';
 
 const FISSI = ['/', '/manifest.webmanifest', '/icona-192.png', '/favicon.svg'];
 
@@ -26,6 +27,15 @@ const DISEGNI = [
   '/isole/nuvola-dx.webp',
   '/personaggi/mago.webp',
   '/personaggi/gatto.webp',
+  '/schermate/soglia.webp',
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/paese/p${n}.webp`),
+  '/paese/sentiero.json',
+  '/paese/gatto-cammina.webp',
+  '/paese/gatto-cammina.json',
+  '/paese/gatto-riposo.webp',
+  '/paese/gatto-riposo.json',
+  '/paese/seg/seg.json',
+  ...['cerchio', 'cristallo', 'fiore-a', 'fiore-b', 'pulsante'].map((s) => `/paese/seg/${s}.webp`),
   ...['bersaglio', 'bilancia', 'catena', 'coppie', 'misto', 'piu-grande', 'quadrato', 'regola', 'stima'].map(
     (g) => `/giochi/${g}.webp`,
   ),

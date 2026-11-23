@@ -16,6 +16,8 @@ const ANGOLI: { op: Op; dove: string }[] = [
 ];
 /** Lato del quadrato delle operazioni che si apre sotto il numero bersaglio. */
 const CROCE = 148;
+/** Raggio del cuore di un numero: entrarci col dito lo fa diventare il bersaglio. */
+const CUORE = 36;
 
 /** − e ÷ si fanno sempre col più grande davanti: chi trascina non deve pensare all'ordine. */
 function passoDi(a: number, op: Op, b: number): Passo | null {
@@ -63,21 +65,24 @@ function Vista({ round, onTry, locked }: PuzzleViewProps<RoundBersaglio, Passo[]
     const mio = centri.current.get(presa.id);
     if (!mio) return;
     const dito = { x: mio.x + d.x, y: mio.y + d.y };
-    // Il bersaglio più vicino; per lasciarlo bisogna allontanarsi di più (niente sfarfallio).
+    // Il numero più vicino al dito.
+    let vicino: number | null = null;
+    let dmin = Infinity;
+    for (const [id, q] of centri.current) {
+      if (id === presa.id) continue;
+      const dd = Math.hypot(q.x - dito.x, q.y - dito.y);
+      if (dd < dmin) {
+        dmin = dd;
+        vicino = id;
+      }
+    }
+    // Il bersaglio resta agganciato finché non ci si allontana (niente sfarfallio mentre
+    // si sceglie l'angolo), ma entrare nel cuore di un altro numero lo cambia subito:
+    // passare sopra un numero di mezzo non deve lasciarti agganciato a lui.
     let su = presa.su;
     const dSu = su !== null ? centri.current.get(su) : undefined;
-    if (!dSu || Math.hypot(dSu.x - dito.x, dSu.y - dito.y) > CROCE * 0.62) {
-      su = null;
-      let dmin = 62;
-      centri.current.forEach((q, id) => {
-        if (id === presa.id) return;
-        const dd = Math.hypot(q.x - dito.x, q.y - dito.y);
-        if (dd < dmin) {
-          dmin = dd;
-          su = id;
-        }
-      });
-    }
+    if (dmin < CUORE) su = vicino;
+    else if (!dSu || Math.hypot(dSu.x - dito.x, dSu.y - dito.y) > CROCE * 0.62) su = dmin < 62 ? vicino : null;
     let op: Op | null = null;
     const q = su !== null ? centri.current.get(su) : undefined;
     if (q) {
