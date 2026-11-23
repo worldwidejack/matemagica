@@ -184,7 +184,22 @@ export function Medaglione({ icona, grado, grande }: { icona: string; grado: 0 |
  * L'icona dipinta di un gioco (medaglione tondo, public/giochi/<id>.webp,
  * ritagliata da scripts/icone-giochi.py). Le emoji restano solo nei messaggi condivisi.
  */
+/** I giochi nuovi (bozze del 23/11) non hanno ancora il medaglione dipinto: un segno su un tondo coi colori del tema. */
+const SEGNO_SENZA_DISEGNO: Partial<Record<GameId, string>> = { divisori: '÷', aree: '▱', sudoku: '#' };
+
 export function IconaGioco({ gioco, className = 'h-14 w-14' }: { gioco: GameId; className?: string }) {
+  const segno = SEGNO_SENZA_DISEGNO[gioco];
+  if (segno) {
+    return (
+      <span
+        aria-hidden
+        className={`titolo flex shrink-0 items-center justify-center rounded-full border-[3px] border-inchiostro bg-oro-400 leading-none font-semibold text-inchiostro drop-shadow-[2px_3px_0_rgb(0_0_0/0.28)] ${className}`}
+        style={{ containerType: 'size' }}
+      >
+        <span style={{ fontSize: '58cqh' }}>{segno}</span>
+      </span>
+    );
+  }
   return (
     <img
       src={`/giochi/${gioco}.webp`}

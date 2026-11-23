@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "simula": "node scripts/simula.ts",
-    "verifica": "node scripts/verifica.ts && node scripts/verifica-quadrato.ts && node scripts/verifica-divisori.ts",
+    "verifica": "node scripts/verifica.ts && node scripts/verifica-quadrato.ts && node scripts/verifica-divisori.ts && node scripts/verifica-aree.ts && node scripts/verifica-sudoku.ts",
     "guarda": "node scripts/guarda-animazioni.mjs"
   },
   "dependencies": {

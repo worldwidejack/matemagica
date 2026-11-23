@@ -1,0 +1,27 @@
+/* «Quanto è grande?»: il rettangolo elastico. Colori solo dai token. */
+
+/* Risolto: il rettangolo che contiene la figura e i pezzi che avanzano si accendono. */
+.aree-svela {
+  animation: aree-appare 0.45s ease-out both;
+}
+@keyframes aree-appare {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* La maniglia presa si gonfia un poco: si vede che il dito la tiene. */
+.aree-maniglia-presa {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aree-svela {
+    animation: none;
+  }
+}

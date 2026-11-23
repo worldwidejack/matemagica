@@ -60,6 +60,16 @@ export const SPIEGAZIONI: Record<GameId, Spiegazione> = {
     trucco: 'Prima guarda l’ultima cifra: pari si spacca col 2, 0 o 5 col 5. Somma le cifre: se fa 3, 6 o 9 si spacca col 3. Quando nessuno dei tre funziona, prova 7, 11, 13… uno per volta, a mente.',
     esempio: '91 non è pari, non finisce per 5, 9 + 1 = 10 non va col 3. Col 7? 7 × 13 = 91: si spacca in 7 e 13.',
   },
+  aree: {
+    come: 'Sotto la figura c’è un rettangolo d’oro: tira il suo angolo finché è grande quanto la figura, poi spingilo su.',
+    trucco: 'Non contare i quadretti uno a uno: chiudi la figura nel rettangolo che la contiene e togli quello che avanza. Ogni triangolo d’angolo è metà del suo rettangolo.',
+    esempio: 'Rettangolo 6 × 4 = 24, meno due triangoli da 3: restano 18. Fai un rettangolo 6 × 3.',
+  },
+  sudoku: {
+    come: 'Una griglia 4 × 4 (più avanti 6 × 6) divisa in riquadri: in ogni riga, colonna e riquadro ci vanno tutti i numeri, da 1 a 4 (o da 1 a 6), una volta sola. Tieni premuta una casella vuota e scorri sul numero.',
+    trucco: 'Cerca la casella a cui resta un numero solo. Quando non ce n’è, cambia domanda: in questa riga (o riquadro) il 3 dove può andare? Se c’è un posto solo, è lì. I segni < > aiutano: la punta indica la casella più piccola.',
+    esempio: 'Riga 1, colonna 4: la riga ha già 2 e 3, la colonna il 4 → lì va l’1.',
+  },
   misto: {
     come: 'Un quesito per gioco, sempre diverso: confronti, catene, stime e coppie mescolati.',
     trucco: 'Leggi il nome del gioco sopra al quesito prima di tutto: cambia il modo di pensare.',

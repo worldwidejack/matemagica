@@ -22,6 +22,8 @@ export const FAMIGLIA_DI: Record<GameId, Famiglia> = {
   bersaglio: 'cristallo',
   quadrato: 'cristallo',
   divisori: 'cristallo',
+  sudoku: 'cristallo',
+  aree: 'cerchio',
   bilancia: 'cerchio',
 };
 
