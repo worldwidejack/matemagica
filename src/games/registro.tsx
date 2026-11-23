@@ -13,6 +13,8 @@ import { trovaLaRegola } from './regola';
 import { quadratoMagico } from './quadrato';
 import { lampoMisto } from './misto';
 import { dueDivisori } from './divisori';
+import { quantoGrande } from './aree';
+import { miniSudoku } from './sudoku';
 
 /**
  * Tutti i giochi di Matemagica. Un gioco nuovo = una cartella in src/games/
@@ -101,6 +103,22 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={dueDivisori} {...p} />,
   },
+  aree: {
+    id: 'aree',
+    titolo: quantoGrande.title,
+    fluido: quantoGrande.fluido,
+    icona: '📐',
+    tipo: 'rompicapo',
+    Play: (p) => <PuzzleShell game={quantoGrande} {...p} />,
+  },
+  sudoku: {
+    id: 'sudoku',
+    titolo: miniSudoku.title,
+    fluido: miniSudoku.fluido,
+    icona: '🧩',
+    tipo: 'rompicapo',
+    Play: (p) => <PuzzleShell game={miniSudoku} {...p} />,
+  },
   misto: {
     id: 'misto',
     titolo: lampoMisto.title,
@@ -112,7 +130,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
 };
 
 /** Ordine di presentazione in Palestra. */
-export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'divisori'];
+export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'divisori', 'aree', 'sudoku'];
 
 /** I giochi arcade che il Lampo misto mescola: si apre quando ne hai sbloccati almeno due. */
 export const GIOCHI_DEL_MISTO: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima'];

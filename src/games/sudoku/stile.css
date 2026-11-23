@@ -1,0 +1,48 @@
+/* «Mini sudoku»: la corolla, le cornici che tremano e la luce che corre. Colori solo dai token. */
+
+/* La corolla si apre attorno al dito. */
+.sudoku-corolla {
+  animation: sudoku-apri 0.14s var(--ease-rimbalzo) both;
+  transform-origin: center;
+}
+@keyframes sudoku-apri {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Sbagliato: righe, colonne e riquadri in conflitto tremano (0,6 s). */
+.sudoku-trema {
+  animation: sudoku-trema 0.6s ease-in-out both;
+}
+@keyframes sudoku-trema {
+  0% { translate: 0 0; opacity: 0; }
+  10% { translate: -4px 0; opacity: 1; }
+  25% { translate: 4px 0; }
+  40% { translate: -3px 0; }
+  55% { translate: 3px 0; }
+  70% { translate: -1px 0; }
+  85% { translate: 0 0; opacity: 1; }
+  100% { translate: 0 0; opacity: 0; }
+}
+
+/* Risolto: la cornice d'oro che passa su ogni riga, colonna e riquadro. */
+.sudoku-lampo {
+  animation: sudoku-lampo 0.18s ease-out both;
+  box-shadow: 0 0 14px var(--color-oro-300);
+}
+@keyframes sudoku-lampo {
+  from {
+    transform: scale(1.06);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
