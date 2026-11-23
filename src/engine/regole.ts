@@ -11,8 +11,12 @@ export const DIFF_MAX = 10;
 
 export const PARTITA = {
   vite: 3,
-  /** Una partita "completa" sono 20 quesiti: ~1-2 minuti, il tempo di una fila. */
+  /** Riferimento dei passi adattivi (tarati su 20 quesiti): non è la lunghezza della partita. */
   round: 20,
+  /** Una partita "completa" sono 10 quesiti al massimo (Jack, 8/11: 20 erano lunghissimi e noiosi). */
+  lunghezza: 10,
+  /** Il livello in cui incontri un gioco per la prima volta: assaggio da 5 quesiti. */
+  lunghezzaDebutto: 5,
   /** Il moltiplicatore sale di 1 ogni N risposte giuste di fila. */
   passoCombo: 4,
   maxMoltiplicatore: 4,

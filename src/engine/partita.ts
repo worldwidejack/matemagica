@@ -17,10 +17,14 @@ export type FinePartita = {
 };
 
 export type PlayProps = {
+  /** Quesiti di questa partita, se il livello li vuole più corti (debutto di un gioco). */
+  quesiti?: number;
   bravura: number;
   record: number;
   /** Fascia di difficoltà del livello del sentiero; assente in Palestra. */
   limiti?: Limiti;
+  /** Indice (da 0) del livello nel sentiero: i giochi fluidi ci disegnano sopra quel pezzo di paese. */
+  luogo?: number;
   /** Riga sopra il titolo, es. "Livello 7". */
   etichetta?: string;
   /** In Palestra il pulsante principale è "Ancora una!", nel sentiero "Continua". */

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { menoMovimento } from '@/anim/orologio';
 import { suona } from '@/audio/sfx';
-import { isolaDellaTappa } from '@/content/isole';
 import { MOTIVI } from '@/profilo/giornata';
 import { Bottone } from './kit';
+import { Segnalino } from './Segnalino';
 
 /** L'obiettivo del giorno di partenza (3 partite): si cambia dal profilo. */
 const OBIETTIVO_INIZIALE = 3;
@@ -13,11 +14,52 @@ const OBIETTIVO_INIZIALE = 3;
  * su richiesta di Jack.)
  */
 export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: number) => void }) {
-  const [passo, setPasso] = useState<0 | 1>(0);
-  const [motivo, setMotivo] = useState<string | null>(null);
-  // L'isola della tappa 1 (segue la storia, come sulla mappa); bimbo e gatto al suo primo sasso.
-  const isola = isolaDellaTappa(1);
-  const primo = isola?.sassi[0] ?? { x: 0.5, y: 0.56 };
+  // Si apre subito sulla domanda (Jack, 13/11); il passo 0 diventerà il volo nel mondo, dopo la domanda.
+  const [passo, setPasso] = useState<0 | 1>(1);
+  // Più risposte insieme (Jack, 13/11): nel profilo finiscono unite da una virgola.
+  const [motivi, setMotivi] = useState<string[]>([]);
+  const cambia = (id: string) => setMotivi((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+  // «Si parte» (Jack, 14/11): il gatto va alla porta socchiusa, entra, e la luce della porta apre il mondo.
+  const [porta, setPorta] = useState(false);
+  const scena = useRef<HTMLDivElement>(null);
+  const luce = useRef<HTMLDivElement>(null);
+  const bianco = useRef<HTMLDivElement>(null);
+
+  const entra = async () => {
+    const box = scena.current?.getBoundingClientRect();
+    const l = luce.current;
+    const b = bianco.current;
+    const fine = () => onFine(motivi.join(','), OBIETTIVO_INIZIALE);
+    if (!box || !l || !b) return fine();
+    // Dove cade la porta: l'immagine è 1024×1536 in object-cover, ancorata in basso a sinistra.
+    const s = Math.max(box.width / 1024, box.height / 1536);
+    const alto = box.height - 1536 * s;
+    const porta = { x: 418 * s, y: alto + 630 * s, w: 192 * s, h: 665 * s };
+    Object.assign(l.style, {
+      left: `${porta.x}px`,
+      top: `${porta.y}px`,
+      width: `${porta.w}px`,
+      height: `${porta.h}px`,
+    });
+    const k = menoMovimento() ? 0.05 : 1;
+    try {
+      // 1. Le scritte si spengono (transizione CSS su `porta`), la porta si accende.
+      await l.animate([{ opacity: 0 }, { opacity: 0.95 }], { duration: 650 * k, delay: 300 * k, easing: 'ease-out', fill: 'forwards' }).finished;
+      // 2. Qui andrà il gatto disegnato che cammina di spalle fino alla porta ed entra
+      //    (animazione a disegni, da fare a parte: non si inventa da codice).
+      // 3. La luce della porta cresce, inghiotte il gatto e riempie lo schermo.
+      const cresce = Math.max(box.width, box.height) / Math.min(porta.w, porta.h) * 2.4;
+      l.animate([{ transform: 'scale(1)' }, { transform: `scale(${cresce})` }], {
+        duration: 900 * k,
+        easing: 'cubic-bezier(.6,0,.3,1)',
+        fill: 'forwards',
+      });
+      await b.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 520 * k, delay: 480 * k, easing: 'ease-in', fill: 'forwards' }).finished;
+    } catch {
+      // Animazione interrotta (pagina chiusa): si va avanti lo stesso.
+    }
+    fine();
+  };
 
   if (passo === 0) {
     return (
@@ -26,30 +68,32 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
           <h1 className="animate-pop text-6xl font-semibold text-panna-50 drop-shadow-lg">Matemagica</h1>
           <p className="titolo mt-3 text-xl text-balance text-panna-100 italic">Piccole sfide, grandi viaggi nella mente</p>
         </div>
-        {/* L'isola 1 nella notte S5, col bimbo mago e il gatto che aspettano al primo sasso. */}
-        {isola && (
-          <div className="pointer-events-none flex min-h-0 flex-1 items-center justify-center py-4" aria-hidden>
-            {/* Larga quanto lascia lo spazio sopra e sotto (titolo, testo, bottone: ~26rem), col rapporto vero. */}
-            <div className="relative" style={{ width: `min(80%, calc((100dvh - 26rem) / ${isola.rapporto}))` }}>
-              <img src={isola.file} alt="" className="w-full" />
-              <img
-                src="/personaggi/mago.webp"
-                alt=""
-                className="animate-respiro-scatti absolute h-[20%] origin-bottom"
-                style={{ left: `${primo.x * 100 - 22}%`, top: `${primo.y * 100 - 17}%` }}
-              />
+        {/* Il paese dei numeri: un pezzo vero della strada, il fiore che sboccia e il gatto che aspetta. */}
+        <div className="pointer-events-none flex min-h-0 flex-1 items-center justify-center py-4" aria-hidden>
+          <div
+            className="relative overflow-hidden rounded-[2rem] shadow-[0_10px_40px_rgb(0_0_0/0.45)]"
+            style={{ width: 'min(86%, calc((100dvh - 24rem) * 0.9))', aspectRatio: '9 / 10' }}
+          >
+            <img
+              src="/paese/p1.webp"
+              alt=""
+              className="absolute inset-y-0 h-full max-w-none"
+              style={{ left: '-62%', width: 'auto' }}
+            />
+            <div className="absolute" style={{ left: '56%', top: '66%', transform: 'translate(-50%, -88%)' }}>
+              <Segnalino famiglia="fiore-a" stato="attuale" numero={1} stelle={0} etichetta="" onTocca={() => {}} />
               <img
                 src="/personaggi/gatto.webp"
                 alt=""
-                className="animate-respiro-scatti absolute h-[10%] origin-bottom"
-                style={{ left: `${primo.x * 100 - 10}%`, top: `${primo.y * 100 - 7}%`, animationDelay: '-0.8s' }}
+                className="animate-respiro-scatti absolute origin-bottom"
+                style={{ height: 70, right: '100%', bottom: 0, marginRight: -6 }}
               />
             </div>
           </div>
-        )}
+        </div>
         <div className="relative flex flex-col items-center gap-3 px-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
           <p className="max-w-xs text-center text-lg text-panna-50 drop-shadow">
-            Isole che volano nella notte, un sasso dopo l'altro. Ogni sasso è un gioco che allena la mente.
+            Un paese fatto di numeri, un passo dopo l'altro. Ogni fiore, cristallo e anello è un gioco che allena la mente.
           </p>
           <Bottone freccia respira className="w-full max-w-xs" onClick={() => setPasso(1)}>
             Iniziamo
@@ -60,28 +104,69 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
   }
 
   return (
-    <div className="cielo-stellato flex min-h-full flex-col px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
-      <h1 className="mt-8 text-4xl font-semibold text-panna-50">Perché sei qui?</h1>
-      <p className="mt-2 text-panna-100/75">Nessuna risposta sbagliata.</p>
-      <div className="mt-6 flex flex-col gap-3">
+    <div
+      ref={scena}
+      className="relative flex min-h-dvh flex-col overflow-hidden bg-notte-900 px-6 pt-[calc(env(safe-area-inset-top)+2rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]"
+    >
+      {/* La soglia (Jack, 13/11): il gatto in basso a sinistra, la porta di luce, il pavimento scuro. */}
+      <img
+        src="/schermate/soglia.webp"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[left_bottom]"
+      />
+      <div
+        className={`velo-soglia pointer-events-none absolute inset-0 transition-opacity duration-300 ${porta ? 'opacity-0' : ''}`}
+        aria-hidden
+      />
+      {/* La luce della porta socchiusa: si accende, poi cresce fino a riempire lo schermo. */}
+      <div
+        ref={luce}
+        aria-hidden
+        className="pointer-events-none absolute z-20 opacity-0 mix-blend-screen"
+        style={{
+          borderRadius: '50% 50% 4px 4px / 18% 18% 4px 4px',
+          background: 'radial-gradient(ellipse at 50% 55%, var(--color-panna-50) 0%, var(--color-oro-300) 55%, rgb(255 255 255 / 0) 100%)',
+          transformOrigin: '50% 60%',
+        }}
+      />
+      <div ref={bianco} aria-hidden className="pointer-events-none absolute inset-0 z-30 bg-oro-300 opacity-0" />
+      <div className={`relative flex flex-1 flex-col transition-opacity duration-300 ${porta ? 'pointer-events-none opacity-0' : ''}`}>
+      <h1 className="relative mt-8 text-[2.6rem] leading-none font-extrabold text-panna-50 [text-shadow:0_3px_0_rgb(10_17_80)]">
+        Perché sei qui?
+      </h1>
+      <p className="relative mt-2 text-[1.05rem] font-bold text-panna-100/85">Scegli tutte quelle che vuoi.</p>
+      <div className="relative mt-5 mb-6 flex flex-col gap-3">
         {MOTIVI.map((m) => (
-          <Scelta key={m.id} attiva={motivo === m.id} onClick={() => setMotivo(m.id)}>
-            <span className="text-2xl">{m.icona}</span>
-            <span className="titolo text-xl font-semibold">{m.testo}</span>
+          <Scelta key={m.id} attiva={motivi.includes(m.id)} onClick={() => cambia(m.id)}>
+            <span className="w-8 text-center text-2xl">{m.icona}</span>
+            <span className="flex-1 text-[1.2rem] leading-tight font-extrabold">{m.testo}</span>
+            <span
+              aria-hidden
+              className={[
+                'grid h-7 w-7 shrink-0 place-items-center rounded-[9px] border-[3px] border-inchiostro text-lg leading-none font-black',
+                motivi.includes(m.id) ? 'bg-inchiostro text-oro-400' : '',
+              ].join(' ')}
+            >
+              {motivi.includes(m.id) ? '✓' : ''}
+            </span>
           </Scelta>
         ))}
       </div>
       <Bottone
         freccia
-        className="mt-auto"
-        disabled={!motivo}
+        className="relative mt-auto py-4 text-2xl font-extrabold disabled:!opacity-100 disabled:brightness-90 disabled:grayscale-[0.7]"
+        disabled={motivi.length === 0}
         onClick={() => {
+          if (porta) return;
           suona('stella');
-          onFine(motivo ?? 'mente', OBIETTIVO_INIZIALE);
+          setPorta(true);
+          void entra();
         }}
       >
         Si parte
       </Bottone>
+      </div>
     </div>
   );
 }
@@ -89,12 +174,14 @@ export function Benvenuto({ onFine }: { onFine: (motivo: string, obiettivo: numb
 function Scelta({ children, attiva, onClick }: { children: React.ReactNode; attiva?: boolean; onClick: () => void }) {
   return (
     <button
+      role="checkbox"
+      aria-checked={!!attiva}
       onClick={() => {
         suona('tap');
         onClick();
       }}
       className={[
-        'flex items-center gap-3 rounded-3xl px-5 py-4 text-left text-inchiostro transition-transform active:translate-y-1',
+        'flex min-h-[3.9rem] items-center gap-3 rounded-3xl px-4 py-2.5 text-left text-inchiostro transition-transform active:translate-y-1',
         attiva
           ? 'bg-oro-400 shadow-[0_5px_0_var(--color-oro-600)]'
           : 'bg-panna-100 shadow-[0_5px_0_var(--color-panna-200)]',

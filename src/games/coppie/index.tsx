@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState, type PointerEvent } from 'react';
+import { suona } from '@/audio/sfx';
 import type { ArcadeGame, ArcadeViewProps } from '@/engine/cartuccia';
 import { formano, genera, tempo, type RoundCoppie } from './logica';
 
@@ -11,31 +12,31 @@ function Regola({ round }: { round: RoundCoppie }) {
     case 'somma':
       return (
         <>
-          Tocca due numeri che <b className="text-oro-400">sommati</b> fanno {n}
+          Unisci due numeri che <b className="text-oro-400">sommati</b> fanno {n}
         </>
       );
     case 'prodotto':
       return (
         <>
-          Tocca due numeri che <b className="text-oro-400">moltiplicati</b> fanno {n}
+          Unisci due numeri che <b className="text-oro-400">moltiplicati</b> fanno {n}
         </>
       );
     case 'differenza':
       return (
         <>
-          Tocca due numeri che <b className="text-oro-400">sottratti</b> fanno {n}
+          Unisci due numeri che <b className="text-oro-400">sottratti</b> fanno {n}
         </>
       );
     case 'multiplo':
       return (
         <>
-          Tocca due numeri che <b className="text-oro-400">sommati</b> fanno un <b className="text-oro-400">multiplo di</b> {n}
+          Unisci due numeri che <b className="text-oro-400">sommati</b> fanno un <b className="text-oro-400">multiplo di</b> {n}
         </>
       );
     case 'primi':
       return (
         <>
-          Tocca due numeri <b className="text-oro-400">primi</b> che <b className="text-oro-400">sommati</b> fanno {n}
+          Unisci due numeri <b className="text-oro-400">primi</b> che <b className="text-oro-400">sommati</b> fanno {n}
         </>
       );
   }
@@ -56,73 +57,195 @@ function nota(r: RoundCoppie): string | null {
 }
 
 type Fatto = 'fatto';
+type Punto = { x: number; y: number };
 
+/**
+ * «Oltre la porta» (14/11): i numeri si uniscono tirando una linea col dito.
+ * Si parte da un numero, si trascina, la linea si aggancia al numero più vicino;
+ * si lascia: se la coppia è giusta la linea diventa d'oro e i due numeri scoppiano,
+ * se è sbagliata la linea si spezza rossa e torna indietro. Si controlla al rilascio,
+ * non all'aggancio: così si può passare sopra altri numeri senza sbagliare.
+ */
 function Vista({ round, onHit, onMiss, onAnswer, locked, correct }: ArcadeViewProps<RoundCoppie, Fatto>) {
-  const [scelta, setScelta] = useState<number | null>(null);
+  const campo = useRef<HTMLDivElement>(null);
+  const gettoni = useRef(new Map<number, HTMLDivElement>());
+  const centri = useRef(new Map<number, Punto>());
+  const raggio = useRef(30);
+  const [tiro, setTiro] = useState<{ da: number; dito: Punto; aggancio: number | null; id: number; centri: Map<number, Punto> } | null>(null);
   const [tolte, setTolte] = useState<Set<number>>(() => new Set());
-  const [sbagliate, setSbagliate] = useState<{ ids: [number, number]; k: number } | null>(null);
+  const [scoppiano, setScoppiano] = useState<Set<number>>(() => new Set());
+  const [linee, setLinee] = useState<{ a: Punto; b: Punto; giusta: boolean; k: number }[]>([]);
+  const [rosse, setRosse] = useState<{ ids: [number, number]; k: number } | null>(null);
+  const [aiuto, setAiuto] = useState(false);
+  const k = useRef(0);
 
-  const tocca = (id: number) => {
-    if (locked || tolte.has(id)) return;
-    if (scelta === null) return setScelta(id);
-    if (scelta === id) return setScelta(null);
-    const a = round.celle.find((c) => c.id === scelta);
-    const b = round.celle.find((c) => c.id === id);
-    if (!a || !b) return;
+  const misura = () => {
+    const c = campo.current?.getBoundingClientRect();
+    if (!c) return;
+    centri.current.clear();
+    gettoni.current.forEach((el, id) => {
+      const r = el.getBoundingClientRect();
+      centri.current.set(id, { x: r.left - c.left + r.width / 2, y: r.top - c.top + r.height / 2 });
+      raggio.current = r.width / 2;
+    });
+  };
+  const qui = (e: PointerEvent<HTMLDivElement>): Punto => {
+    const c = campo.current?.getBoundingClientRect();
+    return { x: e.clientX - (c?.left ?? 0), y: e.clientY - (c?.top ?? 0) };
+  };
+  const vicino = (p: Punto, salta: number | null, entro: number): number | null => {
+    let meglio: number | null = null;
+    let dmin = entro;
+    centri.current.forEach((q, id) => {
+      if (id === salta || scoppiano.has(id)) return;
+      const d = Math.hypot(q.x - p.x, q.y - p.y);
+      if (d < dmin) {
+        dmin = d;
+        meglio = id;
+      }
+    });
+    return meglio;
+  };
+
+  const giu = (e: PointerEvent<HTMLDivElement>) => {
+    if (locked || tiro) return;
+    misura();
+    const p = qui(e);
+    const da = vicino(p, null, raggio.current * 1.15);
+    if (da === null) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setTiro({ da, dito: p, aggancio: null, id: e.pointerId, centri: new Map(centri.current) });
+    setAiuto(false);
+    suona('tap');
+  };
+  const muovi = (e: PointerEvent<HTMLDivElement>) => {
+    if (!tiro || tiro.id !== e.pointerId) return;
+    const p = qui(e);
+    const aggancio = vicino(p, tiro.da, raggio.current * 1.05);
+    if (aggancio !== null && aggancio !== tiro.aggancio) suona('tap', 0.2);
+    setTiro({ ...tiro, dito: p, aggancio });
+  };
+  const su = (e: PointerEvent<HTMLDivElement>) => {
+    if (!tiro || tiro.id !== e.pointerId) return;
+    setTiro(null);
+    const { da, aggancio } = tiro;
+    if (aggancio === null) {
+      // Un tocco senza linea: si spiega il gesto.
+      const p0 = centri.current.get(da);
+      if (p0 && Math.hypot(tiro.dito.x - p0.x, tiro.dito.y - p0.y) < raggio.current) setAiuto(true);
+      return;
+    }
+    if (locked) return;
+    const a = round.celle.find((c) => c.id === da);
+    const b = round.celle.find((c) => c.id === aggancio);
+    const pa = centri.current.get(da);
+    const pb = centri.current.get(aggancio);
+    if (!a || !b || !pa || !pb) return;
+    const n = ++k.current;
     if (formano(round, a.n, b.n)) {
-      const nuove = new Set(tolte).add(a.id).add(b.id);
-      setTolte(nuove);
-      setScelta(null);
-      if (nuove.size >= round.coppie * 2) onAnswer('fatto');
+      setLinee((l) => [...l, { a: pa, b: pb, giusta: true, k: n }]);
+      const ora = new Set(scoppiano).add(a.id).add(b.id);
+      setScoppiano(ora);
+      if (ora.size >= round.coppie * 2) onAnswer('fatto');
       else onHit();
+      window.setTimeout(() => {
+        setTolte((t) => new Set(t).add(a.id).add(b.id));
+        setLinee((l) => l.filter((x) => x.k !== n));
+      }, 420);
     } else {
-      const k = (sbagliate?.k ?? 0) + 1;
-      setSbagliate({ ids: [a.id, b.id], k });
-      setScelta(null);
+      setLinee((l) => [...l, { a: pa, b: pb, giusta: false, k: n }]);
+      setRosse({ ids: [a.id, b.id], k: n });
       onMiss();
-      // Il rosso dura un attimo: quei numeri possono ancora andare con altri.
-      window.setTimeout(() => setSbagliate((s) => (s?.k === k ? null : s)), 600);
+      window.setTimeout(() => {
+        setLinee((l) => l.filter((x) => x.k !== n));
+        setRosse((r) => (r?.k === n ? null : r));
+      }, 520);
     }
   };
 
   const colonne = round.celle.length > 9 ? 'grid-cols-4' : 'grid-cols-3';
+  const pDa = tiro?.centri.get(tiro.da);
+  const pA = tiro?.aggancio != null ? tiro.centri.get(tiro.aggancio) : tiro?.dito;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <p className="text-center text-xl text-balance">
           <Regola round={round} />
         </p>
         {nota(round) && <p className="text-center text-sm text-balance text-panna-100/60">{nota(round)}</p>}
       </div>
-      <div className={`grid ${colonne} gap-2.5`}>
+      <div
+        ref={campo}
+        onPointerDown={giu}
+        onPointerMove={muovi}
+        onPointerUp={su}
+        onPointerCancel={su}
+        className={`relative mx-auto grid w-full ${colonne} touch-none gap-x-4 gap-y-3 px-1 select-none ${round.celle.length > 9 ? '' : 'max-w-[290px]'}`}
+      >
         {round.celle.map((c) => {
           const via = tolte.has(c.id);
-          const errore = sbagliate?.ids.includes(c.id);
+          const scoppia = scoppiano.has(c.id);
+          const acceso = tiro && (tiro.da === c.id || tiro.aggancio === c.id);
+          const errore = rosse?.ids.includes(c.id);
           return (
-            <button
+            <div
               key={c.id}
-              onClick={() => tocca(c.id)}
-              disabled={locked || via}
+              ref={(el) => {
+                if (el) gettoni.current.set(c.id, el);
+                else gettoni.current.delete(c.id);
+              }}
               className={[
-                'aspect-square rounded-2xl text-[clamp(1.4rem,7vw,2.2rem)] titolo font-semibold tabular-nums transition-all duration-200',
-                via ? 'scale-50 opacity-0' : 'active:scale-90',
-                scelta === c.id
-                  ? 'scale-105 bg-oro-400 text-inchiostro shadow-[0_0_20px_var(--color-oro-400)]'
+                'relative z-10 flex aspect-square items-center justify-center rounded-full border-2 text-[clamp(1.3rem,6.5vw,2rem)] titolo font-semibold tabular-nums',
+                via ? 'invisible' : scoppia ? 'scoppia' : '',
+                scoppia || acceso
+                  ? 'border-oro-600 bg-oro-400 text-inchiostro shadow-[0_0_18px_var(--color-oro-400)]'
                   : errore
-                    ? 'bg-pericolo-400 text-panna-50'
-                    : 'bg-panna-100 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
-                correct === false && !via ? 'opacity-50' : '',
+                    ? 'border-pericolo-600 bg-pericolo-400 text-panna-50'
+                    : 'border-panna-200 bg-panna-100 text-inchiostro shadow-[0_3px_0_var(--color-panna-200)]',
+                correct === false && !via && !scoppia ? 'opacity-50' : '',
+                'transition-[background-color,box-shadow] duration-100',
               ].join(' ')}
             >
               {c.n}
-            </button>
+            </div>
           );
         })}
+        <svg className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible" aria-hidden>
+          {linee.map((l) => (
+            <line
+              key={l.k}
+              x1={l.a.x}
+              y1={l.a.y}
+              x2={l.b.x}
+              y2={l.b.y}
+              strokeLinecap="round"
+              strokeWidth={l.giusta ? 9 : 7}
+              stroke={l.giusta ? 'var(--color-oro-400)' : 'var(--color-pericolo-400)'}
+              className={l.giusta ? 'animate-flash' : 'linea-via'}
+              style={{ strokeDasharray: Math.hypot(l.b.x - l.a.x, l.b.y - l.a.y) }}
+            />
+          ))}
+          {pDa && pA && (
+            <line
+              x1={pDa.x}
+              y1={pDa.y}
+              x2={pA.x}
+              y2={pA.y}
+              strokeLinecap="round"
+              strokeWidth={tiro?.aggancio != null ? 9 : 6}
+              stroke="var(--color-oro-300)"
+              strokeDasharray={tiro?.aggancio != null ? undefined : '2 12'}
+            />
+          )}
+        </svg>
       </div>
-      <p className="text-center text-sm text-panna-100/70">
-        {(round.coppie * 2 - tolte.size) / 2} coppie da trovare ·{' '}
-        {round.tipo === 'multiplo' ? 'alla fine qualche numero resta da solo' : 'attento ai numeri senza compagno'}
+      <p className={`text-center text-sm ${aiuto ? 'font-bold text-oro-300' : 'text-panna-100/70'}`}>
+        {aiuto
+          ? 'Tieni il dito giù e tira una linea fino al compagno'
+          : `${(round.coppie * 2 - scoppiano.size) / 2} coppie da trovare · ${
+              round.tipo === 'multiplo' ? 'qualche numero resta da solo' : 'attento ai numeri senza compagno'
+            }`}
       </p>
     </div>
   );
@@ -132,10 +255,12 @@ export const coppieMagiche: ArcadeGame<RoundCoppie, Fatto> = {
   id: 'coppie',
   mode: 'arcade',
   title: 'Coppie magiche',
-  hint: 'Trova le coppie che rispettano la regola scritta sopra la griglia: può cambiare da una griglia all’altra. Occhio: alcuni numeri non hanno compagno.',
+  hint: 'Tira una linea col dito fra le coppie che rispettano la regola scritta sopra la griglia: può cambiare da una griglia all’altra. Occhio: alcuni numeri non hanno compagno.',
   generate: genera,
   View: Vista,
   check: () => true,
   timeFor: (r, d) => tempo(r, d),
   roundPerPartita: 5,
+  fluido: true,
+  reazione: (giusta) => (giusta ? 450 : 1100),
 };

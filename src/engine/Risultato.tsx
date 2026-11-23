@@ -199,7 +199,7 @@ function Condividi({ testo }: { testo: string }) {
 }
 
 /** Isola (o tappa) completata: l'isola col suo monumento, i coriandoli, il nome. */
-function TappaSchermo({ tappa, onAvanti }: { tappa: number; onAvanti: () => void }) {
+export function TappaSchermo({ tappa, onAvanti }: { tappa: number; onAvanti: () => void }) {
   const isola = isolaDellaTappa(tappa);
   const prossima = isolaDellaTappa(tappa + 1);
   // «Tutte le isole» solo quando saranno dipinte tutte e 8.
@@ -261,7 +261,7 @@ function Costellazione({ seme }: { seme: number }) {
 }
 
 /** La fiamma a tutto schermo: il numero dei giorni di fila sale di uno. */
-function FiammaSchermo({
+export function FiammaSchermo({
   giorni,
   salvaUsati,
   salvaVinto,

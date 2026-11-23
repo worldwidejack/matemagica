@@ -50,5 +50,5 @@ export const stimaLampo: ArcadeGame<RoundStima, number> = {
   View: Vista,
   check: (r, i) => i === r.giusta,
   timeFor: (r, d) => tempo(d, r),
-  roundPerPartita: 15,
+  roundPerPartita: 10,
 };
