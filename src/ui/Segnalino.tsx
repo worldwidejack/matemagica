@@ -21,6 +21,7 @@ export const FAMIGLIA_DI: Record<GameId, Famiglia> = {
   regola: 'fiore-b',
   bersaglio: 'cristallo',
   quadrato: 'cristallo',
+  divisori: 'cristallo',
   bilancia: 'cerchio',
 };
 

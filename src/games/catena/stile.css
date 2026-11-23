@@ -1,0 +1,71 @@
+/* Catena — gli anelli. Solo animazioni: la posizione sotto il dito è in stile inline. */
+
+/* Un anello della catena nasce al suo posto (ritardo e durata dalla vista). */
+.catena-anello {
+  animation: catena-entra 0.34s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes catena-entra {
+  from { opacity: 0; scale: 0.3; }
+  to { opacity: 1; scale: 1; }
+}
+
+/* Gli anelli sciolti galleggiano piano, ognuno col suo sfasamento. */
+.catena-galleggia {
+  animation: catena-galleggia 3.4s ease-in-out infinite;
+}
+@keyframes catena-galleggia {
+  0%, 100% { translate: 0 0; rotate: -2deg; }
+  50% { translate: 0 -6px; rotate: 2deg; }
+}
+
+/* Giusto: la catena si tende e ogni anello si accende in fila. */
+.catena-tesa {
+  animation: catena-tesa 0.55s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+@keyframes catena-tesa {
+  0% { scale: 1 1; }
+  35% { scale: 1.06 0.94; }
+  100% { scale: 1 1; }
+}
+.catena-brilla {
+  animation: catena-brilla 0.7s ease-out both;
+}
+@keyframes catena-brilla {
+  0% { filter: brightness(1); }
+  40% { filter: brightness(1.7); }
+  100% { filter: brightness(1); }
+}
+
+/* Sbagliato: l'anello si spezza e cade. */
+.catena-cade {
+  animation: catena-cade 0.85s cubic-bezier(0.5, 0, 0.9, 0.6) forwards;
+}
+@keyframes catena-cade {
+  0% { translate: 0 0; rotate: 0deg; opacity: 1; }
+  18% { translate: 0 -8px; rotate: -10deg; opacity: 1; }
+  100% { translate: 12px 320px; rotate: 60deg; opacity: 0; }
+}
+.catena-scossa {
+  animation: catena-scossa 0.4s ease-in-out;
+}
+@keyframes catena-scossa {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -4px 0; }
+  45% { translate: 4px 0; }
+  70% { translate: -2px 0; }
+}
+
+/* Chi ha chiesto meno movimento: gli anelli stanno fermi e al loro posto. */
+@media (prefers-reduced-motion: reduce) {
+  .catena-anello,
+  .catena-galleggia,
+  .catena-tesa,
+  .catena-brilla,
+  .catena-scossa {
+    animation: none;
+  }
+  .catena-cade {
+    animation: none;
+    opacity: 0;
+  }
+}

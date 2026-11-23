@@ -12,6 +12,7 @@ import { laBilancia } from './bilancia';
 import { trovaLaRegola } from './regola';
 import { quadratoMagico } from './quadrato';
 import { lampoMisto } from './misto';
+import { dueDivisori } from './divisori';
 
 /**
  * Tutti i giochi di Matemagica. Un gioco nuovo = una cartella in src/games/
@@ -47,6 +48,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   catena: {
     id: 'catena',
     titolo: catena.title,
+    fluido: catena.fluido,
     icona: '⛓️',
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={catena} {...p} />,
@@ -54,6 +56,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   stima: {
     id: 'stima',
     titolo: stimaLampo.title,
+    fluido: stimaLampo.fluido,
     icona: '🔮',
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={stimaLampo} {...p} />,
@@ -69,6 +72,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   bilancia: {
     id: 'bilancia',
     titolo: laBilancia.title,
+    fluido: laBilancia.fluido,
     icona: '⚖️',
     tipo: 'rompicapo',
     Play: (p) => <PuzzleShell game={laBilancia} {...p} />,
@@ -76,6 +80,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   regola: {
     id: 'regola',
     titolo: trovaLaRegola.title,
+    fluido: trovaLaRegola.fluido,
     icona: '🔍',
     tipo: 'rompicapo',
     Play: (p) => <PuzzleShell game={trovaLaRegola} {...p} />,
@@ -83,13 +88,23 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
   quadrato: {
     id: 'quadrato',
     titolo: quadratoMagico.title,
+    fluido: quadratoMagico.fluido,
     icona: '🔢',
     tipo: 'rompicapo',
     Play: (p) => <PuzzleShell game={quadratoMagico} {...p} />,
   },
+  divisori: {
+    id: 'divisori',
+    titolo: dueDivisori.title,
+    fluido: dueDivisori.fluido,
+    icona: '💎',
+    tipo: 'arcade',
+    Play: (p) => <ArcadeShell game={dueDivisori} {...p} />,
+  },
   misto: {
     id: 'misto',
     titolo: lampoMisto.title,
+    fluido: lampoMisto.fluido,
     icona: '🎲',
     tipo: 'arcade',
     Play: (p) => <ArcadeShell game={lampoMisto} {...p} />,
@@ -97,7 +112,7 @@ export const GIOCHI: Record<GameId, VoceGioco> = {
 };
 
 /** Ordine di presentazione in Palestra. */
-export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato'];
+export const ORDINE_GIOCHI: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima', 'bersaglio', 'bilancia', 'regola', 'quadrato', 'divisori'];
 
 /** I giochi arcade che il Lampo misto mescola: si apre quando ne hai sbloccati almeno due. */
 export const GIOCHI_DEL_MISTO: GameId[] = ['piu-grande', 'coppie', 'catena', 'stima'];

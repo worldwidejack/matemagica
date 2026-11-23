@@ -1,0 +1,116 @@
+/* «I due divisori»: il cristallo che si spacca. Colori solo dai token. */
+
+/* Le due metà volano via lungo la perpendicolare alla crepa. */
+.divisori-meta {
+  transform-box: view-box;
+  transform-origin: 170px 170px;
+  animation: divisori-separa 0.55s var(--ease-rimbalzo) 0.12s both;
+}
+.divisori-ferma {
+  animation: none;
+  transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+}
+@keyframes divisori-separa {
+  from {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+  }
+}
+
+/* La crepa si disegna in un lampo (pathLength = 1). */
+.divisori-crepa {
+  stroke-dasharray: 1;
+  animation: divisori-traccia 0.16s ease-out both;
+}
+.divisori-crepa-corta {
+  stroke-dasharray: 1;
+  animation: divisori-traccia 0.2s ease-out both;
+}
+@keyframes divisori-traccia {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.divisori-sparisci {
+  animation:
+    divisori-traccia 0.16s ease-out both,
+    divisori-svanisci 0.3s ease-in 0.3s forwards;
+}
+@keyframes divisori-svanisci {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Il cristallo regge: trema. */
+.divisori-regge {
+  transform-box: view-box;
+  transform-origin: 170px 170px;
+  animation: divisori-trema 0.4s ease-in-out;
+}
+@keyframes divisori-trema {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px) rotate(-2deg);
+  }
+  40% {
+    transform: translateX(5px) rotate(1.5deg);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* La scheggia schizza fuori, verso lo scalpello. */
+.divisori-scheggia {
+  transform-box: view-box;
+  animation: divisori-schizza 0.6s ease-out forwards;
+}
+@keyframes divisori-schizza {
+  to {
+    transform: translate(var(--sx), var(--sy)) rotate(140deg);
+    opacity: 0;
+  }
+}
+
+/* I due pezzi: i numeri spuntano dritti. */
+.divisori-etichetta {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 0.35s var(--ease-rimbalzo) backwards;
+}
+
+.divisori-lampo {
+  animation: divisori-lampeggia 0.45s ease-out forwards;
+}
+@keyframes divisori-lampeggia {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .divisori-meta {
+    animation: none;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+  }
+  .divisori-regge,
+  .divisori-scheggia,
+  .divisori-lampo {
+    animation: none;
+  }
+}

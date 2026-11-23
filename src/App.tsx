@@ -60,7 +60,7 @@ function useNavigazione() {
 
 /** Tutte le schermate stanno nella colonna di un telefono, anche su tablet e computer. */
 function Colonna({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto min-h-full max-w-md">{children}</div>;
+  return <div className="mx-auto grid min-h-full max-w-md grid-cols-[minmax(0,1fr)]">{children}</div>;
 }
 
 export default function App() {

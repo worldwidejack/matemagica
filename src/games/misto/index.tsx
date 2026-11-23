@@ -89,4 +89,7 @@ export const lampoMisto: ArcadeGame<Pezzo, unknown> = {
   timeFor: (r) => r.tempo,
   revealFor: (r) => r.rivelazione,
   roundPerPartita: 10,
+  // Tutti e quattro i giochi dentro sono fluidi: anche il misto non si ferma mai.
+  fluido: true,
+  reazione: (giusta) => (giusta ? 750 : 1300),
 };
